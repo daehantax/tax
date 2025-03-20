@@ -27,18 +27,20 @@
             height: 210mm;
             padding: 5mm;
             box-sizing: border-box;
-            transform-origin: center;
+            transform-origin: top center;
             background-color: white;
         }
 
         @media screen {
             .page-container {
-                transform: scale(var(--scale-factor));
+                transform: scale(1.5);
+                transform-origin: top center;
             }
         }
 
         h1 {
             text-align: center;
+            margin-top: 0;
             margin-bottom: 40px;
             font-size: 16pt;
             line-height: 1.2;
@@ -85,7 +87,7 @@
             padding: 2px;
             border: none;
             background: transparent;
-            font-size: 7pt;
+            font-size: 8pt;
             text-align: center;
             box-sizing: border-box;
         }

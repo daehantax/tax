@@ -23,39 +23,41 @@
 
         #container {
             width: 297mm;
-            height: 210mm;
-            padding: 8mm;
+            height: auto; 
+            padding: 20px; 
             box-sizing: border-box;
             transform-origin: center center;
             background-color: white;
-            margin: auto;
+            margin: 20px; 
+            transform: scale(1.0); 
         }
         @media screen {
             #container {
-                transform: scale(var(--scale-factor));
-                margin: 20px auto;
+                transform: scale(1.4); 
+                transform-origin: top center;
+                margin: 20px auto; 
             }
         }
         @media print {
             @page {
-                size: A4 landscape; /* A4 가로 방향 설정 */
-                margin: 0; /* 여백 설정 */
+                size: A4 landscape; 
+                margin: 0; 
             }
             body {
                 background-color: #ffffff;
                 color: #000000;
                 overflow: hidden;
-                width: 297mm; /* A4 가로 크기 */
-                height: 210mm; /* A4 세로 크기 */
+                width: 297mm; 
+                height: 210mm; 
             }
             #container {
-                width: 100%; /* 컨테이너가 페이지 전체 너비를 차지하도록 설정 */
-                height: auto; /* 높이를 자동으로 조정 */
-                padding: 8mm; /* 패딩 설정 */
+                width: 100%; 
+                height: auto; 
+                padding: 8mm; 
                 box-sizing: border-box;
             }
             th {
-                background-color: #d3d3d3 !important; /* 회색 배경 */
+                background-color: #d3d3d3 !important; 
                 color: #000000 !important;
             }
             td {
@@ -63,17 +65,17 @@
                 color: #000000;
             }
             .gray-background {
-                background-color: #d3d3d3 !important; /* 회색 배경 */
+                background-color: #d3d3d3 !important; 
             }
             #printButton, #saveButton, #clearButton {
-                display: none; /* 인쇄 시 버튼 숨김 */
+                display: none; 
             }
             .guide-table {
-                display: none; /* 인쇄 시 가이드 테이블 숨김 */
+                display: none; 
             }
             table {
-                page-break-inside: avoid; /* 테이블 내부에서 페이지 나누기 방지 */
-                width: 100%; /* 테이블이 페이지 너비를 차지하도록 설정 */
+                page-break-inside: avoid; 
+                width: 100%; 
             }
           
             }
@@ -142,7 +144,7 @@
             padding: 0;
             box-sizing: border-box;
             text-align: center;
-            border: none;
+            border: #fff;
             background: transparent;
             word-wrap: break-word;
             white-space: pre-wrap;
@@ -232,18 +234,18 @@
             margin-top: 10px; 
         }
         button.print-save-delete {
-            color: transparent; /* 텍스트 색상을 투명하게 설정합니다 */
-            text-indent: 0px; /* 텍스트를 화면에서 숨깁니다 */
-            overflow: hidden; /* 넘치는 텍스트를 숨깁니다 */
+            color: transparent; 
+            text-indent: 0px; 
+            overflow: hidden; 
         }
         button.print-save-delete span {
-            display: none !important; /* 버튼의 텍스트를 숨깁니다 */
+            display: none !important; 
         }
         div.print-save-delete {
-            display: none !important; /* 버튼과 텍스트를 모두 숨깁니다 */
+            display: none !important; 
         }
         .gray-background {
-            background-color: #d3d3d3; /* 회색 배경 */
+            background-color: #d3d3d3; 
         }
     </style>
     <script>
@@ -294,7 +296,6 @@
             document.getElementById(estimationFieldId).value = formatNumberWithCommas(estimationValue);
             updateTotalEstimation();
         }
-
         function addCommas(inputId) {
             const input = document.getElementById(inputId);
             const rawValue = input.value.replace(/,/g, '');
@@ -307,41 +308,33 @@
                 updateTotalEstimation();
             }
         }
-
         function updateTotalEstimation() {
             const estimation1 = parseFloat(document.getElementById("estimation1").value.replace(/,/g, '')) || 0;
             const estimation2 = parseFloat(document.getElementById("estimation2").value.replace(/,/g, '')) || 0;
             const estimation3 = parseFloat(document.getElementById("estimation3").value.replace(/,/g, '')) || 0;
             const totalEstimation = estimation1 + estimation2 + estimation3;
             document.getElementById("totalEstimation").value = formatNumberWithCommas(totalEstimation);
-
             updateFinalTotal();
         }
-
         function updateDirectEstimation(mismatchFieldId, estimationFieldId, inheritanceYesId, inheritanceNoId) {
             const mismatchValue = parseFloat(document.getElementById(mismatchFieldId).value.replace(/,/g, '')) || 0;
-
             document.getElementById(estimationFieldId).value = formatNumberWithCommas(mismatchValue);
             document.getElementById(inheritanceYesId).checked = true;
             document.getElementById(inheritanceNoId).checked = false;
         }
-
         function updateDebtEstimation() {
             const estimation4 = parseFloat(document.getElementById("estimation4").value.replace(/,/g, '')) || 0;
             const estimation5 = parseFloat(document.getElementById("estimation5").value.replace(/,/g, '')) || 0;
             const totalDebtEstimation = estimation4 + estimation5;
             document.getElementById("totalDebtEstimation").value = formatNumberWithCommas(totalDebtEstimation);
-
             updateFinalTotal();
         }
-
         function updateFinalTotal() {
             const totalEstimation = parseFloat(document.getElementById("totalEstimation").value.replace(/,/g, '')) || 0;
             const totalDebtEstimation = parseFloat(document.getElementById("totalDebtEstimation").value.replace(/,/g, '')) || 0;
             const finalTotal = totalEstimation + totalDebtEstimation;
             document.getElementById("finalTotal").value = formatNumberWithCommas(finalTotal) + " 원";
         }
-
         function printPage() {
             window.print();
         }
@@ -354,7 +347,6 @@
             if (key === "Enter") {
                 event.preventDefault();
                 targetInput = document.querySelector(`input[data-row="${currentRow}"][data-col="${currentCol + 1}"]`);
-
                 if (!targetInput) {
                     targetInput = document.querySelector(`input[data-row="${currentRow + 1}"][data-col="1"]`);
                     if (!targetInput) {
@@ -395,7 +387,6 @@
                     targetInput = document.querySelector(`input[data-row="${maxRow}"][data-col="${currentCol}"]`);
                 }
             }
-
             if (targetInput) {
                 targetInput.focus();
             }
@@ -466,7 +457,6 @@
                 document.querySelectorAll('input[type="radio"]').forEach(radio => {
                     radio.checked = false;
                 });
-                
                 alert('모든 데이터가 삭제되었습니다.');
             }
         }
@@ -606,10 +596,9 @@
                 </tr>
             </tbody>
         </table>
-
         <h4 class="final-total" style="text-align: left;">
             다. 추정상속재산가액 합계액 (⑨ + ⑱) :
-            <input type="text" class="amount white-background" id="finalTotal" readonly style="margin-left: 10px; width: 150px;">
+            <input type="text" class="amount white-background" id="finalTotal" readonly style="margin-left: 10px; width: 150px; border: 2px solid #800020;">
         </h4>
 
         <table style="width: 100%; font-size: 9px; margin-top: 10px;">
