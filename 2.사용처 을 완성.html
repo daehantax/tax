@@ -110,6 +110,7 @@
         .code-select {
             width: 100%;
             padding: 2px;
+            display: inline;
         }
         
         .code-select option {
@@ -166,6 +167,19 @@
             }
             table {
                 page-break-inside: avoid;
+            }
+            /* 기호를 숨깁니다 */
+            .symbol {
+                display: none;
+            }
+
+            /* 선택한 항목을 보이게 합니다 */
+            .selected {
+                display: block; /* 또는 inline, inline-block 등 필요에 따라 조정 */
+            }
+            /* 날짜 입력 칸이 비어 있을 때 기본값을 숨깁니다 */
+            .date-input:empty::placeholder {
+                color: transparent; /* 기본값을 숨깁니다 */
             }
         }
         button {
@@ -226,18 +240,19 @@
             <tbody>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="01">01</option>
                             <option value="02">02</option>
                             <option value="03">03</option>
-                            <option value="취소"></option>
+                            <option value="취소">취소</option>
                         </select>
                     </td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
@@ -247,18 +262,19 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="01">01</option>
                             <option value="02">02</option>
                             <option value="03">03</option>
-                            
+                            <option value="취소">취소</option>
                         </select>
                     </td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
@@ -268,18 +284,19 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="01">01</option>
                             <option value="02">02</option>
                             <option value="03">03</option>
-                            
+                            <option value="취소">취소</option>
                         </select>
                     </td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
@@ -289,18 +306,19 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="01">01</option>
                             <option value="02">02</option>
                             <option value="03">03</option>
-                            
+                            <option value="취소">취소</option>
                         </select>
                     </td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
@@ -310,17 +328,19 @@
                 </tr>
                 <tr>
                     <td>
-                    <select class="code-select">
+                    <select class="code-select" onchange="handleSelectChange(this)">
+                        <option value="" disabled selected hidden>▼</option>
                         <option value="01">01</option>
                         <option value="02">02</option>
                         <option value="03">03</option>
+                        <option value="취소">취소</option>
                     </select>
                 </td>
                 <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
@@ -330,17 +350,19 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="01">01</option>
                             <option value="02">02</option>
                             <option value="03">03</option>
+                            <option value="취소">취소</option>
                         </select>
                     </td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large number-format"></td>
                     <td><input type="text" class="input-large"></td>
@@ -357,13 +379,13 @@
                 <col style="width: 75px;"> 
                 <col style="width: 90px;">
                 <col style="width: 50px;">
-                <col style="width: 75px;">
-                <col style="width: 50px;">
+                <col style="width: 60px;">
                 <col style="width: 45px;">
-                <col style="width: 60px;">
+                <col style="width: 45px;">
+                <col style="width: 75px;">
                 <col style="width: 60px;"> 
-                <col style="width: 60px;">
-                <col style="width: 60px;">
+                <col style="width: 40px;">
+                <col style="width: 75px;">
                 <col style="width: 60px;">
                 <col style="width: 90px;">
                 <col style="width: 60px;">
@@ -373,7 +395,7 @@
                 <tr>
                     <th rowspan="3">⑪ 금융기관등<br>차입여부</th>
                     <th colspan="2">⑫ 채권자</th> 
-                    <th rowspan="3">⑬ 차입일</th> 
+                    <th rowspan="3">⑬ 차입일</th>
                     <th rowspan="3">⑭ 상환<br>(예정)일</th> 
                     <th rowspan="3">⑮ 약정<br>이자율</th> 
                     <th rowspan="3">⑯ 차입<br>금액</th> 
@@ -398,14 +420,16 @@
             <tbody>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="부">부</option>
                             <option value="여">여</option>
+                            <option value="취소">취소</option>
                         </select>
                     </td> 
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td>
                     <td><input type="text" class="input-large number-format"></td>
@@ -420,14 +444,16 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="부">부</option>
                             <option value="여">여</option>
+                            <option value="취소">취소</option>
                         </select>
                     </td>  
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td>
                     <td><input type="text" class="input-large number-format"></td>
@@ -442,14 +468,16 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="부">부</option>
                             <option value="여">여</option>
+                            <option value="취소">취소</option>
                         </select>
                     </td>  
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td>
                     <td><input type="text" class="input-large number-format"></td>
@@ -464,36 +492,16 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="부">부</option>
                             <option value="여">여</option>
+                            <option value="취소">취소</option>
                         </select>
                     </td> 
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
-                    <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="input-large number-format"></td>
-                    <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="input-large number-format"></td>
-                    <td><input type="text" class="input-large number-format"></td>
-                    <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="input-large"></td>
-                    <td><input type="text" class="input-large"></td> 
-                </tr>
-                <tr>
-                    <td>
-                        <select class="code-select">
-                            <option value="부">부</option>
-                            <option value="여">여</option>
-                        </select>
-                    </td> 
-                    <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td>
                     <td><input type="text" class="input-large number-format"></td>
@@ -508,14 +516,16 @@
                 </tr>
                 <tr>
                     <td>
-                        <select class="code-select">
+                        <select class="code-select" onchange="handleSelectChange(this)">
+                            <option value="" disabled selected hidden>▼</option>
                             <option value="부">부</option>
                             <option value="여">여</option>
+                            <option value="취소">취소</option>
                         </select>
                     </td> 
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td> 
-                    <td><input type="text" class="date-input" placeholder="YYYY-MM-DD"></td>
+                    <td><input type="text" class="date-input" placeholder="YY-MM-DD"></td>
                     <td><input type="text" class="input-large"></td> 
                     <td><input type="text" class="input-large"></td>
                     <td><input type="text" class="input-large number-format"></td>
@@ -643,6 +653,17 @@
         function deleteData() {
             localStorage.removeItem('formData');
             alert('저장된 데이터가 삭제되었습니다.');
+        }
+        function handleSelectChange(selectElement) {
+            if (selectElement.value === "취소") {
+                selectElement.value = ""; // Reset the select to show the hidden option
+            }
+            // Hide the select if no value is selected
+            if (!selectElement.value) {
+                selectElement.classList.add('empty'); // Add a class to hide the select
+            } else {
+                selectElement.classList.remove('empty'); // Remove the class if a value is selected
+            }
         }
     </script>
 </body>
