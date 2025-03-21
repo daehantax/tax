@@ -416,15 +416,13 @@
         function saveData() {
             const dataToSave = {
                 inputs: {},
-                radios: {}
+                checkboxes: {}
             };
             document.querySelectorAll('input[type="text"]').forEach(input => {
                 dataToSave.inputs[input.id] = input.value;
             });
-            document.querySelectorAll('input[type="radio"]').forEach(radio => {
-                if (radio.checked) {
-                    dataToSave.radios[radio.name] = radio.id;
-                }
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                dataToSave.checkboxes[checkbox.id] = checkbox.checked;
             });
             localStorage.setItem('formData', JSON.stringify(dataToSave));
             alert('저장되었습니다.');
@@ -439,10 +437,10 @@
                         input.value = value;
                     }
                 }
-                for (const [name, id] of Object.entries(data.radios)) {
-                    const radio = document.getElementById(id);
-                    if (radio) {
-                        radio.checked = true;
+                for (const [id, checked] of Object.entries(data.checkboxes)) {
+                    const checkbox = document.getElementById(id);
+                    if (checkbox) {
+                        checkbox.checked = checked;
                     }
                 }
             }
@@ -454,8 +452,8 @@
                 document.querySelectorAll('input[type="text"]').forEach(input => {
                     input.value = '';
                 });
-                document.querySelectorAll('input[type="radio"]').forEach(radio => {
-                    radio.checked = false;
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
                 });
                 alert('모든 데이터가 삭제되었습니다.');
             }
@@ -489,15 +487,15 @@
                     <td class="center-text multiline">01. 현금ㆍ예금 및<br>유가증권</td>
                     <td><input type="text" class="amount" id="total1" data-row="1" data-col="1" oninput="onInputAmount(this, 'deduction1', 'checkboxYes1', 'checkboxNo1', 'total1', 'proof1', 'mismatch1', 'inheritanceYes1', 'inheritanceNo1', 'estimation1');"></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="checkboxYes1" name="choice1"> 여 
-                        <input type="radio" id="checkboxNo1" name="choice1" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="checkboxYes1" name="choice1"> 여 
+                        <input type="checkbox" id="checkboxNo1" name="choice1" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount" id="proof1" data-row="1" data-col="2" oninput="addCommas('proof1')"></td>
                     <td><input type="text" class="amount" id="mismatch1" data-row="1" data-col="3" readonly></td>
                     <td><input type="text" class="amount" id="deduction1" data-row="1" data-col="4" readonly></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="inheritanceYes1" name="choice7-1"> 여 
-                        <input type="radio" id="inheritanceNo1" name="choice7-1" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="inheritanceYes1" name="choice7-1"> 여 
+                        <input type="checkbox" id="inheritanceNo1" name="choice7-1" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount white-background" id="estimation1" data-row="1" data-col="5" readonly></td>
                 </tr>
@@ -506,15 +504,15 @@
                     <td class="center-text multiline">02. 부동산 및<br>부동산에 관한 권리</td>
                     <td><input type="text" class="amount" id="total2" data-row="2" data-col="1" oninput="onInputAmount(this, 'deduction2', 'checkboxYes2', 'checkboxNo2', 'total2', 'proof2', 'mismatch2', 'inheritanceYes2', 'inheritanceNo2', 'estimation2');"></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="checkboxYes2" name="choice2"> 여 
-                        <input type="radio" id="checkboxNo2" name="choice2" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="checkboxYes2" name="choice2"> 여 
+                        <input type="checkbox" id="checkboxNo2" name="choice2" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount" id="proof2" data-row="2" data-col="2" oninput="addCommas('proof2')"></td>
                     <td><input type="text" class="amount" id="mismatch2" data-row="2" data-col="3" readonly></td>
                     <td><input type="text" class="amount" id="deduction2" data-row="2" data-col="4" readonly></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="inheritanceYes2" name="choice7-2"> 여 
-                        <input type="radio" id="inheritanceNo2" name="choice7-2" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="inheritanceYes2" name="choice7-2"> 여 
+                        <input type="checkbox" id="inheritanceNo2" name="choice7-2" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount white-background" id="estimation2" data-row="2" data-col="5" readonly></td> 
                 </tr>
@@ -523,15 +521,15 @@
                     <td class="center-text multiline">03. 기타재산<br>(위 재산 제외)</td>
                     <td><input type="text" class="amount" id="total3" data-row="3" data-col="1" oninput="onInputAmount(this, 'deduction3', 'checkboxYes3', 'checkboxNo3', 'total3', 'proof3', 'mismatch3', 'inheritanceYes3', 'inheritanceNo3', 'estimation3');"></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="checkboxYes3" name="choice3"> 여 
-                        <input type="radio" id="checkboxNo3" name="choice3" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="checkboxYes3" name="choice3"> 여 
+                        <input type="checkbox" id="checkboxNo3" name="choice3" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount" id="proof3" data-row="3" data-col="2" oninput="addCommas('proof3')"></td>
                     <td><input type="text" class="amount" id="mismatch3" data-row="3" data-col="3" readonly></td>
                     <td><input type="text" class="amount" id="deduction3" data-row="3" data-col="4" readonly></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="inheritanceYes3" name="choice7-3"> 여 
-                        <input type="radio" id="inheritanceNo3" name="choice7-3" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="inheritanceYes3" name="choice7-3"> 여 
+                        <input type="checkbox" id="inheritanceNo3" name="choice7-3" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount white-background" id="estimation3" data-row="3" data-col="5" readonly></td>
                 </tr>
@@ -562,15 +560,15 @@
                     <td class="center-text multiline">부담채무Ⅰ<br><span style="font-size: 9px;">(국가, 지자체,<br>금융기관으로부터 차입)</span></td>
                     <td><input type="text" class="amount" id="total4" data-row="4" data-col="1" oninput="onInputAmount(this, 'deduction4', 'checkboxYes4', 'checkboxNo4', 'total4', 'proof4', 'mismatch4', 'inheritanceYes4', 'inheritanceNo4', 'estimation4'); updateDebtEstimation();"></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="checkboxYes4" name="choice4"> 여 
-                        <input type="radio" id="checkboxNo4" name="choice4" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="checkboxYes4" name="choice4"> 여 
+                        <input type="checkbox" id="checkboxNo4" name="choice4" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount" id="proof4" data-row="4" data-col="2" oninput="addCommas('proof4')"></td>
                     <td><input type="text" class="amount" id="mismatch4" data-row="4" data-col="3" readonly></td>
                     <td><input type="text" class="amount" id="deduction4" data-row="4" data-col="4" readonly></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="inheritanceYes4" name="choice7-4"> 여 
-                        <input type="radio" id="inheritanceNo4" name="choice7-4" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="inheritanceYes4" name="choice7-4"> 여 
+                        <input type="checkbox" id="inheritanceNo4" name="choice7-4" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount white-background" id="estimation4" data-row="4" data-col="5" readonly></td> 
                 </tr>
@@ -583,8 +581,8 @@
                     <td><input type="text" class="amount" id="mismatch5" data-row="5" data-col="3" readonly></td>
                     <td class="gray-background" style="text-align: right;"></td>
                     <td style="text-align: center;">
-                        <input type="radio" id="inheritanceYes5" name="choice7-5"> 여 
-                        <input type="radio" id="inheritanceNo5" name="choice7-5" style="margin-left: 10px;"> 부
+                        <input type="checkbox" id="checkboxYes5" name="choice5"> 여 
+                        <input type="checkbox" id="checkboxNo5" name="choice5" style="margin-left: 10px;"> 부
                     </td>
                     <td><input type="text" class="amount white-background" id="estimation5" data-row="5" data-col="5" readonly></td>
                 </tr>

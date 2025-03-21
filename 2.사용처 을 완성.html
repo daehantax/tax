@@ -168,18 +168,14 @@
             table {
                 page-break-inside: avoid;
             }
-            /* 기호를 숨깁니다 */
             .symbol {
                 display: none;
             }
-
-            /* 선택한 항목을 보이게 합니다 */
             .selected {
-                display: block; /* 또는 inline, inline-block 등 필요에 따라 조정 */
+                display: block; 
             }
-            /* 날짜 입력 칸이 비어 있을 때 기본값을 숨깁니다 */
             .date-input:empty::placeholder {
-                color: transparent; /* 기본값을 숨깁니다 */
+                color: transparent; 
             }
         }
         button {
@@ -656,13 +652,12 @@
         }
         function handleSelectChange(selectElement) {
             if (selectElement.value === "취소") {
-                selectElement.value = ""; // Reset the select to show the hidden option
+                selectElement.value = "";
             }
-            // Hide the select if no value is selected
             if (!selectElement.value) {
-                selectElement.classList.add('empty'); // Add a class to hide the select
+                selectElement.classList.add('empty'); 
             } else {
-                selectElement.classList.remove('empty'); // Remove the class if a value is selected
+                selectElement.classList.remove('empty'); 
             }
         }
     </script>
