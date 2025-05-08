@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대한세무법인 세무대리 보수기준표</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow-x: hidden;
+        }
+        h1 {
+            text-align: center;
+            color: #005a9e;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        h2 {
+            color: #005a9e;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #005a9e;
+            padding-bottom: 10px;
+            font-size: 1.7rem;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 1.05rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #005a9e;
+            color: white;
+            font-size: 1.1rem;
+        }
+        /* 기준액 하위 헤더 스타일 */
+        .sub-header th {
+            background-color: #0277bd;
+            font-size: 1rem;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .category {
+            background-color: #e6f3ff;
+            font-weight: bold;
+        }
+        .notes {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 5px solid #005a9e;
+            font-size: 0.9rem;
+        }
+        .notes h3 {
+            margin-top: 0;
+            color: #005a9e;
+            font-size: 1.1rem;
+        }
+        .tab-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            background-color: #f1f1f1;
+            border: none;
+            color: #333;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px 5px 0 0;
+            flex: 1 0 auto;
+        }
+        .tab-button.active {
+            background-color: #005a9e;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .footer-info {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+        
+        /* 반응형 스타일 */
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+            }
+            h2 {
+                font-size: 1.3rem;
+            }
+            .tab-button {
+                font-size: 0.8rem;
+                padding: 8px 5px;
+                width: 100%;
+                flex: 1 0 45%;
+            }
+            table {
+                font-size: 0.8rem;
+            }
+            th, td {
+                padding: 6px 4px;
+            }
+            .notes {
+                font-size: 0.8rem;
+            }
+            .notes h3 {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+            h2 {
+                font-size: 1.1rem;
+            }
+            table {
+                font-size: 0.75rem;
+            }
+            th, td {
+                padding: 5px 3px;
+            }
+            .tab-button {
+                font-size: 0.75rem;
+                padding: 8px 3px;
+                margin-right: 2px;
+                flex: 1 0 100%;
+            }
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
+        /* 계산기 입력 필드 및 버튼 스타일 */
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            font-size: 1.05rem;
+        }
+        
+        select {
+            padding: 8px;
+            font-size: 1.05rem;
+        }
+        
+        button {
+            padding: 10px 15px;
+            font-size: 1.05rem;
+            background-color: #005a9e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* 계산기 결과 스타일 */
+        div[id$="-result"] {
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+        
+        /* 계산기 컨테이너 스타일 */
+        div.table-container {
+            margin-bottom: 25px;
+        }
+        
+        /* 체크박스 버튼 스타일 */
+        .option-button {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 5px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        /* 호버 효과 완전히 제거 */
+        .option-button:hover {
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+        
+        .option-button.active {
+            background-color: #ffffe0; /* 연한 노란색 */
+            border-color: #005a9e;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 90, 158, 0.3);
+        }
+        
+        .option-button input[type="checkbox"] {
+            display: none;
+        }
+        
+        /* 선택 메뉴 스타일 */
+        .option-select {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            background-color: white;
+        }
+        
+        /* 옵션 그룹 스타일 */
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        /* PDF 버튼 스타일 */
+        .pdf-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background-color: #005a9e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .pdf-button:hover {
+            background-color: #004a8e;
+        }
+        
+        /* PDF용 페이지 브레이크 */
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>대한세무법인 개인 세무대리 보수기준표</h1>
+        
+        <div class="tab-container">
+            <button class="tab-button active" onclick="openTab(event, 'adjustment')">세무조정계산서 작성 보수표</button>
+            <button class="tab-button" onclick="openTab(event, 'accounting')">기장대행보수표</button>
+        </div>
+        
+        <!-- 세무조정계산서 작성 보수표 -->
+        <div id="adjustment" class="tab-content active">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <h2 style="margin-bottom: 0;">세무조정계산서 작성 보수표 (VAT 별도)</h2>
+                <!-- PDF 저장 버튼을 제목 오른쪽에 고정 -->
+                <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generatePDF()">PDF 저장</button>
+            </div>
+            
+            <!-- 계산기 컨테이너 부분 -->
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
+                <!-- 개인 계산기 -->
+                <div style="flex: 1; min-width: 45%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <h3 style="margin: 0; color: #005a9e;">개인</h3>
+                        <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
+                    </div>
+                    
+                    <!-- 개인 계산기 추가 -->
+                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인 총 수익</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" id="personal-amount" placeholder="수입(자산)금액 입력 (단위: 원)" style="flex: 1; padding: 8px;" oninput="formatInputWithCommas(this); calculatePersonalFee()">
+                        </div>
+                        
+                        <div style="margin-top: 10px; font-size: 0.9rem;">
+                            <div class="options-container">
+                                <label class="option-button" onclick="toggleOption('personal-option1', this)">
+                                    <input type="checkbox" id="personal-option1">
+                                    결산업무와 세무조정 및 원가계산을 함께 수행하는 경우, 상기 보수표에 30% 가산
+                                </label>
+                                <label class="option-button" onclick="toggleOption('personal-option2', this)">
+                                    <input type="checkbox" id="personal-option2">
+                                    기타 중점관리기업
+                                    <select id="personal-option2-percent" class="option-select" onchange="calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                        <option value="0.05">5%</option>
+                                        <option value="0.1">10%</option>
+                                        <option value="0.15">15%</option>
+                                        <option value="0.2" selected>20%</option>
+                                        <option value="0.25">25%</option>
+                                        <option value="0.3">30%</option>
+                                    </select>
+                                </label>
+                                <label class="option-button" onclick="toggleOption('personal-option3', this)">
+                                    <input type="checkbox" id="personal-option3">
+                                    이월결손금 공제 (환급액의 10% 추가)
+                                    <input type="text" id="personal-refund-amount" placeholder="환급액 입력" style="width: 100px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="formatInputWithCommas(this); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                </label>
+                                <label class="option-button" onclick="toggleOption('personal-option4', this)">
+                                    <input type="checkbox" id="personal-option4">
+                                    창업중소기업, 청년창업중소기업 감면 검토 (15% 추가)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
+                        
+                        <div id="personal-result" style="margin-top: 10px; font-weight: bold;"></div>
+                    </div>
+                </div>
+                
+                <!-- 개인B 계산기 -->
+                <div style="flex: 1; min-width: 45%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <h3 style="margin: 0; color: #005a9e;">개인B (특별개인)</h3>
+                        <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
+                    </div>
+                    
+                    <!-- 개인B 계산기 추가 -->
+                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인B (특별개인) 총 수익</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" id="personalB-amount" placeholder="수입(자산)금액 입력 (단위: 원)" style="flex: 1; padding: 8px;" oninput="formatInputWithCommas(this); calculatePersonalBFee()">
+                        </div>
+                        
+                        <div style="margin-top: 10px; font-size: 0.9rem;">
+                            <div class="options-container">
+                                <label class="option-button" onclick="toggleOption('personalB-option1', this)">
+                                    <input type="checkbox" id="personalB-option1">
+                                    특별업종 중 중점관리업종 및 외형 5억 이상 (40% 가산)
+                                </label>
+                                <label class="option-button" onclick="toggleOption('personalB-option3', this)">
+                                    <input type="checkbox" id="personalB-option3">
+                                    부동산 임대 음식 주점업 인적서비스업 (40% 가산)
+                                </label>
+                                <label class="option-button" onclick="toggleOption('personalB-option4', this)">
+                                    <input type="checkbox" id="personalB-option4">
+                                    상반기 가결산 수시지도방문 등 특별관리업체
+                                    <select id="personalB-option4-percent" class="option-select" onchange="calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                        <option value="0.2">20%</option>
+                                        <option value="0.4">40%</option>
+                                        <option value="0.6">60%</option>
+                                        <option value="0.8">80%</option>
+                                        <option value="1.0">100%</option>
+                                    </select>
+                                </label>
+                                <label class="option-button" onclick="toggleOption('personalB-option5', this)">
+                                    <input type="checkbox" id="personalB-option5">
+                                    부동산개발 분양업 특수업종
+                                    <select id="personalB-option5-percent" class="option-select" onchange="calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                        <option value="4">400%</option>
+                                        <option value="5">500%</option>
+                                        <option value="6">600%</option>
+                                        <option value="7">700%</option>
+                                        <option value="8">800%</option>
+                                        <option value="9">900%</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
+                        
+                        <div id="personalB-result" style="margin-top: 10px; font-weight: bold;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 테이블 컨테이너 부분 -->
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
+                <!-- 개인 보수표 -->
+                <div style="flex: 1; min-width: 45%;">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>수입(자산)금액</th>
+                                    <th>보수기준</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>5천만원 미만</td>
+                                    <td>400,000</td>
+                                </tr>
+                                <tr>
+                                    <td>5천만원 이상 ~ 1억원 미만</td>
+                                    <td>400,000+5천만원 초과액×0.2%</td>
+                                </tr>
+                                <tr>
+                                    <td>1억원 이상 ~ 3억원 미만</td>
+                                    <td>500,000+1억원 초과액×0.15%</td>
+                                </tr>
+                                <tr>
+                                    <td>3억원 이상 ~ 5억원 미만</td>
+                                    <td>800,000+3억원 초과액×0.12%</td>
+                                </tr>
+                                <tr>
+                                    <td>5억원 이상 ~ 10억원 미만</td>
+                                    <td>1,040,000+5억원 초과액×0.1%</td>
+                                </tr>
+                                <tr>
+                                    <td>10억원 이상 ~ 20억원 미만</td>
+                                    <td>1,540,000+10억원 초과액×0.06%</td>
+                                </tr>
+                                <tr>
+                                    <td>20억원 이상 ~ 30억원 미만</td>
+                                    <td>2,140,000+20억원 초과액×0.035%</td>
+                                </tr>
+                                <tr>
+                                    <td>30억원 이상 ~ 50억원 미만</td>
+                                    <td>3,190,000+30억원 초과액×0.03%</td>
+                                </tr>
+                                <tr>
+                                    <td>50억원 이상 ~ 70억원 미만 </td>
+                                    <td>4,190,000+50억원 초과액×0.03%</td>
+                                </tr>
+                                <tr>
+                                    <td>70억원 이상 ~ 100억원 미만</td>
+                                    <td>5,190,000+70억원 초과액×0.028%</td>
+                                </tr>
+                                <tr>
+                                    <td>100억원 이상 ~ 150억원 미만</td>
+                                    <td>6,190,000+100억원 초과액×0.026%</td>
+                                </tr>
+                                <tr>
+                                    <td>150억원 이상 ~ 200억원 미만</td>
+                                    <td>8,690,000+150억원 초과액×0.024%</td>
+                                </tr>
+                                <tr>
+                                    <td>200억원 이상</td>
+                                    <td>10,690,000+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="notes" style="margin-top: 15px; margin-bottom: 5px;">
+                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인 참고 사항</h4>
+                        <ul style="font-size: 0.9rem; list-style-type: none; padding-left: 0px;">
+                            <li>&#9312; 결산업무,세무조정 및 원가계산을 함께 수행하는경우, 상기 보수표에 30%가산</li>
+                            <li>&#9313; 구분은 자산총액과 수입금액 중 큰 금액으로 함.</li>
+                            <li>&#9314; 이월결손금 공제는 환급액의 10% 추가청구. (다른 공제감면은 청구하지않음)</li>
+                            <li>&#9315; 창업중소기업,청년창업중소기업 감면에 대해 검토시, 15% 추가가산한다.</li>
+                        </ul>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 개인B 보수표 -->
+                <div style="flex: 1; min-width: 45%;">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>수입(자산)금액</th>
+                                    <th>보수기준</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1억원 미만</td>
+                                    <td>450,000 ~ 600,000원 (가산율제외)</td>
+                                </tr>
+                                <tr>
+                                    <td>1억원 이상 ~ 2억원 미만</td>
+                                    <td>600,000+1억원 초과×0.3%</td>
+                                </tr>
+                                <tr class="page-break">
+                                    <td>2억원 이상 ~ 3억원 미만</td>
+                                    <td>900,000+1억원 초과×0.25%</td>
+                                </tr>
+                                <tr>
+                                    <td>3억원 이상 ~ 5억원 미만</td>
+                                    <td>1,150,000+3억원 초과×0.2%</td>
+                                </tr>
+                                <tr>
+                                    <td>5억원 이상 ~ 10억원 미만</td>
+                                    <td>1,550,000+5억원 초과×0.15%</td>
+                                </tr>
+                                <tr>
+                                    <td>10억원 이상 ~ 20억원 미만</td>
+                                    <td>2,300,000+10억원 초과×0.13%</td>
+                                </tr>
+                                <tr>
+                                    <td>20억원 이상 ~ 30억원 미만</td>
+                                    <td>3,600,000+20억원 초과×0.01%</td>
+                                </tr>
+                                <tr>
+                                    <td>30억원 이상 ~ 50억원 미만</td>
+                                    <td>4,600,000+30억원 초과×0.07%</td>
+                                </tr>
+                                <tr>
+                                    <td>50억원 이상 ~ 100억원 미만</td>
+                                    <td>6,000,000+50억원 초과×0.05%</td>
+                                </tr>
+                                <tr>
+                                    <td>100억원 이상</td>
+                                    <td>협 의</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="notes" style="margin-top: 15px; margin-bottom: 15px;">
+                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인B (특별개인) 참고 사항</h4>
+                        <ul style="font-size: 0.9rem; list-style-type: none; padding-left: 0px;">
+                            <li>&#9312; 특별업종 중 중점관리업종 및 외형 5억 이상은 40% 가산</li>
+                            <li>&#9313; 기타 특별관리업종은 20% 가산</li>
+                            <li>&#9314; 부동산 임대 음식 주점업 인적서비스업은 상기 기준에 40% 가산</li>
+                            <li>&#9315; 상반기 가결산 수시지도방문 등 특별관리업체는③의 20~100%가산</li>
+                            <li>&#9316; 부동산개발 분양업 특수업종은 상기 기준에 400~900% 가산</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 기장대행 보수표 -->
+        <div id="accounting" class="tab-content">
+            <p style= "text-align:center; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">본 기준은 세무사법 개정으로 한국세무사회 보수표가 폐지됨에 따라<br>당 사무소의 운용을 위해 보수기준을 정한 것이며, 부가세 10%는 별도임</p>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <h2 style="margin-bottom: 0;">기장대행보수표 (VAT 별도)</h2>
+                <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generateAccountingPDF()">PDF 저장</button>
+            </div>
+            
+            <!-- 기장대행 계산기 추가 -->
+            <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <select id="bookkeeping-type" style="padding: 8px; width: 120px; margin-right: 15px;" onchange="calculateBookkeepingFee()">
+                        <option value="A">개인 A</option>
+                        <option value="B">개인 B</option>
+                    </select>
+                    <h4 style="color: #005a9e; margin: 0; font-size: 1rem;">기장대행 보수기준</h4>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="bookkeeping-amount" placeholder="기준액(자산,매출금액) 입력 (단위: 원)" style="width: 100%; padding: 8px;" oninput="formatInputWithCommas(this); calculateBookkeepingFee()">
+                </div>
+                
+                <div style="margin-top: 10px; font-size: 0.9rem;">
+                    <div class="options-container">
+                        <label class="option-button" onclick="toggleOption('bookkeeping-option1', this)">
+                            <input type="checkbox" id="bookkeeping-option1">
+                            4대보험 신고 대행 추가 (인원수에 따라 20,000원+)
+                            <input type="number" id="bookkeeping-option1-count" placeholder="인원수" min="1" style="width: 70px; margin-left: 5px; padding: 3px;" oninput="calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                        </label>
+                        <label class="option-button" onclick="toggleOption('bookkeeping-option2', this)">
+                            <input type="checkbox" id="bookkeeping-option2">
+                            수시 내방 방문 지도업체 추가
+                            <select id="bookkeeping-option2-amount" class="option-select" onchange="calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                <option value="30000">30,000원</option>
+                                <option value="50000">50,000원</option>
+                                <option value="100000">100,000원</option>
+                                <option value="150000">150,000원</option>
+                                <option value="200000">200,000원</option>
+                            </select>
+                        </label>
+                        <label class="option-button" onclick="toggleOption('bookkeeping-option3', this)">
+                            <input type="checkbox" id="bookkeeping-option3">
+                            PC방 업체 인건비 신고 (110,000원 고정)
+                        </label>
+                        <label class="option-button" onclick="toggleOption('bookkeeping-option4', this)">
+                            <input type="checkbox" id="bookkeeping-option4">
+                            일자리 안정자금 신청 업체 (20,000원 추가)
+                        </label>
+                    </div>
+                </div>
+                
+                <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
+                
+                <div id="bookkeeping-result" style="margin-top: 10px; font-weight: bold;"></div>
+            </div>
+            
+            <div class="table-container">
+                <div style="text-align: right; margin-bottom: 0px; font-size: 1rem;"><small>[단위: 원]</small></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2">기준액 (자산,매출금액)</th>
+                            <th colspan="2">월보수액</th>
+                        </tr>
+                        <tr class="sub-header">
+                            <th>개인 A</th>
+                            <th>개인 B</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1억원 미만</td>
+                            <td>120,000</td>
+                            <td>120,000</td>
+                        </tr>
+                        <tr>
+                            <td>1억원 이상 ~ 2억원 미만</td>
+                            <td>130,000</td>
+                            <td>150,000</td>
+                        </tr>
+                        <tr>
+                            <td>2억원 이상 ~ 3억원 미만</td>
+                            <td>140,000</td>
+                            <td>170,000</td>
+                        </tr>
+                        <tr>
+                            <td>3억원 이상 ~ 5억원 미만</td>
+                            <td>160,000</td>
+                            <td>200,000</td>
+                        </tr>
+                        <tr>
+                            <td>5억원 이상 ~ 10억원 미만</td>
+                            <td>200,000</td>
+                            <td>250,000</td>
+                        </tr>
+                        <tr>
+                            <td>10억원 이상 ~ 20억원 미만</td>
+                            <td>250,000</td>
+                            <td>350,000</td>
+                        </tr>
+                        <tr>
+                            <td>20억원 이상 ~ 30억원 미만</td>
+                            <td>300,000</td>
+                            <td>450,000</td>
+                        </tr>
+                        <tr>
+                            <td>30억원 이상 ~ 40억원 미만</td>
+                            <td>400,000</td>
+                            <td>500,000</td>
+                        </tr>
+                        <tr>
+                            <td>50억원 이상</td>
+                            <td colspan="2">협 의</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="notes">
+                <h3>기장대행 참고 사항</h3>
+                <ul style="list-style-type: none; padding-left: 0px;">
+                    <li>&#9312; 기준금액은 자산/수입금액 중 큰것 기준</li>
+                    <li>&#9313; 개인 B : 의료,부임,음숙,서비스업 등, 상반기 가결산업체 등 특별관리업체</li>
+                    <li>&#9314; 4대보험 신고 대행시 인원수에 따라 20,000원 이상 추가</li>
+                    <li>&#9315; 수시 내방 방문 지도업체는 30,000 ~ 200,000원 추가</li>
+                    <li>&#9316; 매년 12월중 1월분의 기장료를 소모품대로 별도 부과</li>
+                    <li>&#9317; PC방 업체 중 인건비 신고를 하는 경우 기장료 110,000원으로 함</li>
+                    <li>&#9318; 일자리 안정자금 신청 업체는 위 기장료에서 20,000원 추가함</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabContent, tabButtons;
+            
+            // 모든 탭 콘텐츠 숨기기
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].classList.remove("active");
+            }
+            
+            // 모든 탭 버튼 비활성화
+            tabButtons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            
+            // 선택한 탭 콘텐츠 및 버튼 활성화
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+        
+        // 페이지 로드시 기본 탭 설정
+        window.onload = function() {
+            // 세무조정계산서 작성 보수표가 기본 탭이 되도록 설정
+            document.getElementById("adjustment").classList.add("active");
+            document.getElementsByClassName("tab-button")[0].classList.add("active");
+        };
+        
+        // 체크박스 토글 함수
+        function toggleOption(id, element) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+            
+            // 버튼 스타일 토글
+            if (checkbox.checked) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+            
+            // 자동 계산
+            if (id.startsWith('personal-option')) {
+                calculatePersonalFee();
+            } else if (id.startsWith('personalB-option')) {
+                calculatePersonalBFee();
+            } else if (id.startsWith('bookkeeping-option')) {
+                calculateBookkeepingFee();
+            }
+        }
+        
+        // 천 단위 구분 쉼표 포맷팅 함수
+        function formatInputWithCommas(input) {
+            // 숫자 이외의 문자 제거
+            let value = input.value.replace(/[^\d]/g, '');
+            
+            // 천 단위 구분 쉼표 추가
+            if (value.length > 0) {
+                value = parseInt(value).toLocaleString('ko-KR');
+            }
+            
+            input.value = value;
+        }
+        
+        // 개인 세무조정계산서 보수 계산 함수
+        function calculatePersonalFee() {
+            // 쉼표 제거하고 숫자로 변환
+            const amount = parseFloat(document.getElementById('personal-amount').value.replace(/,/g, ''));
+            if (isNaN(amount) || amount < 0) {
+                document.getElementById('personal-result').innerHTML = "유효한 금액을 입력해주세요.";
+                return;
+            }
+            
+            let fee = 0;
+            let feeDescription = "";
+            
+            if (amount < 50000000) {
+                fee = 400000;
+                feeDescription = "400,000원";
+            } else if (amount < 100000000) {
+                fee = 400000 + (amount - 50000000) * 0.002;
+                feeDescription = `400,000원 + 5천만원 초과(${formatNumber(amount - 50000000)}원) × 0.2% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 300000000) {
+                fee = 500000 + (amount - 100000000) * 0.0015;
+                feeDescription = `500,000원 + 1억원 초과(${formatNumber(amount - 100000000)}원) × 0.15% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 500000000) {
+                fee = 800000 + (amount - 300000000) * 0.0012;
+                feeDescription = `800,000원 + 3억원 초과(${formatNumber(amount - 300000000)}원) × 0.12% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 1000000000) {
+                fee = 1040000 + (amount - 500000000) * 0.001;
+                feeDescription = `1,040,000원 + 5억원 초과(${formatNumber(amount - 500000000)}원) × 0.1% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 2000000000) {
+                fee = 1540000 + (amount - 1000000000) * 0.0006;
+                feeDescription = `1,540,000원 + 10억원 초과(${formatNumber(amount - 1000000000)}원) × 0.06% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 3000000000) {
+                fee = 2140000 + (amount - 2000000000) * 0.00035;
+                feeDescription = `2,140,000원 + 20억원 초과(${formatNumber(amount - 2000000000)}원) × 0.035% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 5000000000) {
+                fee = 3190000 + (amount - 3000000000) * 0.0003;
+                feeDescription = `3,190,000원 + 30억원 초과(${formatNumber(amount - 3000000000)}원) × 0.03% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 7000000000) {
+                fee = 4190000 + (amount - 5000000000) * 0.0003;
+                feeDescription = `4,190,000원 + 50억원 초과(${formatNumber(amount - 5000000000)}원) × 0.03% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 10000000000) {
+                fee = 5190000 + (amount - 7000000000) * 0.00028;
+                feeDescription = `5,190,000원 + 70억원 초과(${formatNumber(amount - 7000000000)}원) × 0.028% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 15000000000) {
+                fee = 6190000 + (amount - 10000000000) * 0.00026;
+                feeDescription = `6,190,000원 + 100억원 초과(${formatNumber(amount - 10000000000)}원) × 0.026% = ${formatNumber(Math.round(fee))}원`;
+            } else if (amount < 20000000000) {
+                fee = 8690000 + (amount - 15000000000) * 0.00024;
+                feeDescription = `8,690,000원 + 150억원 초과(${formatNumber(amount - 15000000000)}원) × 0.024% = ${formatNumber(Math.round(fee))}원`;
+            } else {
+                fee = 10690000;
+                feeDescription = `10,690,000원`;
+            }
+            
+            // 가산율 적용
+            let addedFee = fee;
+            let addedFeeDescription = "";
+            
+            // 결산업무와 세무조정 및 원가계산을 함께 수행하는 경우 (30% 가산)
+            if (document.getElementById('personal-option1').checked) {
+                addedFee = addedFee * 1.3; // 30% 가산
+                addedFeeDescription += " + 30% 가산(결산업무와 세무조정 및 원가계산 함께 수행)";
+            }
+            
+            // 기타 중점관리기업
+            if (document.getElementById('personal-option2').checked) {
+                const option2Percent = parseFloat(document.getElementById('personal-option2-percent').value);
+                addedFee = addedFee * (1 + option2Percent); // 선택된 % 가산
+                addedFeeDescription += ` + ${option2Percent * 100}% 가산(기타 중점관리기업)`;
+            }
+            
+            // 이월결손금 공제 (환급액의 10% 추가)
+            if (document.getElementById('personal-option3').checked) {
+                const refundAmount = parseFloat(document.getElementById('personal-refund-amount').value.replace(/,/g, ''));
+                if (!isNaN(refundAmount) && refundAmount > 0) {
+                    const refundFee = refundAmount * 0.1;
+                    addedFee = addedFee + refundFee;
+                    addedFeeDescription += ` + 환급액(${formatNumber(refundAmount)}원)의 10% 추가: ${formatNumber(Math.round(refundFee))}원`;
+                }
+            }
+            
+            // 창업중소기업, 청년창업중소기업 감면 검토 (15% 추가)
+            if (document.getElementById('personal-option4').checked) {
+                addedFee = addedFee * 1.15; // 15% 추가
+                addedFeeDescription += " + 15% 추가(창업중소기업, 청년창업중소기업 감면 검토)";
+            }
+            
+            // 브래킷 찾기
+            let bracket = "";
+            if (amount < 50000000) {
+                bracket = "5천만원 미만";
+            } else if (amount < 100000000) {
+                bracket = "5천만원 이상 ~ 1억원 미만";
+            } else if (amount < 300000000) {
+                bracket = "1억원 이상 ~ 3억원 미만";
+            } else if (amount < 500000000) {
+                bracket = "3억원 이상 ~ 5억원 미만";
+            } else if (amount < 1000000000) {
+                bracket = "5억원 이상 ~ 10억원 미만";
+            } else if (amount < 2000000000) {
+                bracket = "10억원 이상 ~ 20억원 미만";
+            } else if (amount < 3000000000) {
+                bracket = "20억원 이상 ~ 30억원 미만";
+            } else if (amount < 5000000000) {
+                bracket = "30억원 이상 ~ 50억원 미만";
+            } else if (amount < 7000000000) {
+                bracket = "50억원 이상 ~ 70억원 미만";
+            } else if (amount < 10000000000) {
+                bracket = "70억원 이상 ~ 100억원 미만";
+            } else if (amount < 15000000000) {
+                bracket = "100억원 이상 ~ 150억원 미만";
+            } else if (amount < 20000000000) {
+                bracket = "150억원 이상 ~ 200억원 미만";
+            } else {
+                bracket = "200억원 이상";
+            }
+            
+            // 결과 표시
+            let resultHTML = `
+            <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">수입금액: ${formatNumber(amount)}원 (${bracket})</div>
+            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
+            
+            // 가산 사항이 있는 경우 추가
+            if (addedFeeDescription) {
+                resultHTML += `<div style="font-size: 1rem; color: #444; margin-bottom: 10px;">가산 사항: ${addedFeeDescription}</div>`;
+            }
+            
+            // 최종 금액 표시
+            resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${formatNumber(Math.round(addedFee))}원</div>`;
+            
+            document.getElementById('personal-result').innerHTML = resultHTML;
+        }
+        
+        // 개인B 세무조정계산서 보수 계산 함수
+        function calculatePersonalBFee() {
+            // 쉼표 제거하고 숫자로 변환
+            const amount = parseFloat(document.getElementById('personalB-amount').value.replace(/,/g, ''));
+            if (isNaN(amount) || amount < 0) {
+                document.getElementById('personalB-result').innerHTML = "유효한 금액을 입력해주세요.";
+                return;
+            }
+            
+            let fee = 0;
+            let feeDescription = "";
+            let bracket = "";
+            
+            if (amount < 100000000) {
+                fee = Math.max(450000, Math.min(600000, amount * 0.006));
+                feeDescription = `450,000원 ~ 600,000원 (가산율 제외)`;
+                bracket = "1억원 미만";
+            } else if (amount < 200000000) {
+                fee = 600000 + (amount - 100000000) * 0.003;
+                feeDescription = `600,000원 + 1억원 초과(${formatNumber(amount - 100000000)}원) × 0.3% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "1억원 이상 ~ 2억원 미만";
+            } else if (amount < 300000000) {
+                fee = 900000 + (amount - 100000000) * 0.0025;
+                feeDescription = `900,000원 + 1억원 초과(${formatNumber(amount - 100000000)}원) × 0.25% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "2억원 이상 ~ 3억원 미만";
+            } else if (amount < 500000000) {
+                fee = 1150000 + (amount - 300000000) * 0.002;
+                feeDescription = `1,150,000원 + 3억원 초과(${formatNumber(amount - 300000000)}원) × 0.2% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "3억원 이상 ~ 5억원 미만";
+            } else if (amount < 1000000000) {
+                fee = 1550000 + (amount - 500000000) * 0.0015;
+                feeDescription = `1,550,000원 + 5억원 초과(${formatNumber(amount - 500000000)}원) × 0.15% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "5억원 이상 ~ 10억원 미만";
+            } else if (amount < 2000000000) {
+                fee = 2300000 + (amount - 1000000000) * 0.0013;
+                feeDescription = `2,300,000원 + 10억원 초과(${formatNumber(amount - 1000000000)}원) × 0.13% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "10억원 이상 ~ 20억원 미만";
+            } else if (amount < 3000000000) {
+                fee = 3600000 + (amount - 2000000000) * 0.0001;
+                feeDescription = `3,600,000원 + 20억원 초과(${formatNumber(amount - 2000000000)}원) × 0.01% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "20억원 이상 ~ 30억원 미만";
+            } else if (amount < 5000000000) {
+                fee = 4600000 + (amount - 3000000000) * 0.0007;
+                feeDescription = `4,600,000원 + 30억원 초과(${formatNumber(amount - 3000000000)}원) × 0.07% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "30억원 이상 ~ 40억원 미만";
+            } else if (amount < 10000000000) {
+                fee = 6000000 + (amount - 5000000000) * 0.0005;
+                feeDescription = `6,000,000원 + 50억원 초과(${formatNumber(amount - 5000000000)}원) × 0.05% = ${formatNumber(Math.round(fee))}원`;
+                bracket = "50억원 이상 ~ 100억원 미만";
+            } else {
+                feeDescription = "협의 필요";
+                bracket = "100억원 이상";
+            }
+            
+            // 가산율 적용
+            let addedFee = amount < 10000000000 ? fee : 0;
+            let addedFeeDescription = "";
+            
+            // 특별업종 중 중점관리업종 및 외형 5억 이상 (40% 가산)
+            if (document.getElementById('personalB-option1').checked && amount < 10000000000) {
+                addedFee = addedFee * 1.4; // 40% 가산
+                addedFeeDescription += " + 40% 가산(특별업종 중 중점관리업종)";
+            }
+            
+            // 부동산 임대 음식 주점업 인적서비스업 (40% 가산)
+            if (document.getElementById('personalB-option3').checked && amount < 10000000000) {
+                addedFee = addedFee * 1.4; // 40% 가산
+                addedFeeDescription += " + 40% 가산(부동산 임대 음식 주점업 인적서비스업)";
+            }
+            
+            // 상반기 가결산 수시지도방문 등 특별관리업체 (20~100%가산)
+            if (document.getElementById('personalB-option4').checked && amount < 10000000000) {
+                const option4Percent = parseFloat(document.getElementById('personalB-option4-percent').value);
+                addedFee = addedFee * (1 + option4Percent); // 선택된 % 가산
+                addedFeeDescription += ` + ${option4Percent * 100}% 가산(특별관리업체)`;
+            }
+            
+            // 부동산개발 분양업 특수업종 (400~900% 가산)
+            if (document.getElementById('personalB-option5').checked && amount < 10000000000) {
+                const option5Percent = parseInt(document.getElementById('personalB-option5-percent').value);
+                addedFee = addedFee * (1 + option5Percent); // 선택된 % 가산
+                addedFeeDescription += ` + ${option5Percent * 100}% 가산(부동산개발 분양업)`;
+            }
+            
+            // 결과 표시
+            let resultHTML = `
+            <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">수입금액: ${formatNumber(amount)}원 (${bracket})</div>
+            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
+            
+            // 가산 사항이 있는 경우만 추가
+            if (addedFeeDescription && amount < 10000000000) {
+                resultHTML += `<div style="font-size: 1rem; color: #444; margin-bottom: 10px;">가산 사항: ${addedFeeDescription}</div>`;
+            }
+            
+            // 최종 금액 표시
+            if (amount < 10000000000) {
+                resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${formatNumber(Math.round(addedFee))}원</div>`;
+            } else {
+                resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: 100억원 이상 협의 필요</div>`;
+            }
+            
+            document.getElementById('personalB-result').innerHTML = resultHTML;
+        }
+        
+        // 기장 보수 계산 함수
+        function calculateBookkeepingFee() {
+            // 쉼표 제거하고 숫자로 변환
+            const amount = parseFloat(document.getElementById('bookkeeping-amount').value.replace(/,/g, ''));
+            if (isNaN(amount) || amount < 0) {
+                document.getElementById('bookkeeping-result').innerHTML = "유효한 금액을 입력해주세요.";
+                return;
+            }
+            
+            const type = document.getElementById('bookkeeping-type').value;
+            
+            let fee = 0;
+            let feeDescription = "";
+            let bracket = "";
+            
+            // 개인 A 계산
+            if (type === 'A') {
+                if (amount < 100000000) {
+                    fee = 120000;
+                    feeDescription = "120,000원";
+                    bracket = "1억원 미만";
+                } else if (amount < 200000000) {
+                    fee = 130000;
+                    feeDescription = "130,000원";
+                    bracket = "1억원 이상 ~ 2억원 미만";
+                } else if (amount < 300000000) {
+                    fee = 140000;
+                    feeDescription = "140,000원";
+                    bracket = "2억원 이상 ~ 3억원 미만";
+                } else if (amount < 500000000) {
+                    fee = 160000;
+                    feeDescription = "160,000원";
+                    bracket = "3억원 이상 ~ 5억원 미만";
+                } else if (amount < 1000000000) {
+                    fee = 200000;
+                    feeDescription = "200,000원";
+                    bracket = "5억원 이상 ~ 10억원 미만";
+                } else if (amount < 2000000000) {
+                    fee = 250000;
+                    feeDescription = "250,000원";
+                    bracket = "10억원 이상 ~ 20억원 미만";
+                } else if (amount < 3000000000) {
+                    fee = 300000;
+                    feeDescription = "300,000원";
+                    bracket = "20억원 이상 ~ 30억원 미만";
+                } else if (amount < 4000000000) {
+                    fee = 400000;
+                    feeDescription = "400,000원";
+                    bracket = "30억원 이상 ~ 40억원 미만";
+                } else {
+                    feeDescription = "협의 필요";
+                    bracket = "50억원 이상";
+                }
+            } 
+            // 개인 B 계산
+            else {
+                if (amount < 100000000) {
+                    fee = 120000;
+                    feeDescription = "120,000원";
+                    bracket = "1억원 미만";
+                } else if (amount < 200000000) {
+                    fee = 150000;
+                    feeDescription = "150,000원";
+                    bracket = "1억원 이상 ~ 2억원 미만";
+                } else if (amount < 300000000) {
+                    fee = 170000;
+                    feeDescription = "170,000원";
+                    bracket = "2억원 이상 ~ 3억원 미만";
+                } else if (amount < 500000000) {
+                    fee = 200000;
+                    feeDescription = "200,000원";
+                    bracket = "3억원 이상 ~ 5억원 미만";
+                } else if (amount < 1000000000) {
+                    fee = 250000;
+                    feeDescription = "250,000원";
+                    bracket = "5억원 이상 ~ 10억원 미만";
+                } else if (amount < 2000000000) {
+                    fee = 350000;
+                    feeDescription = "350,000원";
+                    bracket = "10억원 이상 ~ 20억원 미만";
+                } else if (amount < 3000000000) {
+                    fee = 450000;
+                    feeDescription = "450,000원";
+                    bracket = "20억원 이상 ~ 30억원 미만";
+                } else if (amount < 4000000000) {
+                    fee = 500000;
+                    feeDescription = "500,000원";
+                    bracket = "30억원 이상 ~ 40억원 미만";
+                } else {
+                    feeDescription = "협의 필요";
+                    bracket = "50억원 이상";
+                }
+            }
+            
+            // 특별 추가 사항
+            let additionalFees = 0;
+            let additionalDescription = "";
+            
+            // 4대보험 신고 대행
+            if (document.getElementById('bookkeeping-option1').checked) {
+                const personCount = parseInt(document.getElementById('bookkeeping-option1-count').value);
+                if (!isNaN(personCount) && personCount > 0) {
+                    const insuranceFee = Math.max(20000, personCount * 5000);
+                    additionalFees += insuranceFee;
+                    additionalDescription += `<br>+ 4대보험 신고 대행 (${personCount}명): ${formatNumber(insuranceFee)}원`;
+                } else {
+                    additionalFees += 20000;
+                    additionalDescription += "<br>+ 4대보험 신고 대행: 20,000원";
+                }
+            }
+            
+            // 수시 내방 방문 지도업체
+            if (document.getElementById('bookkeeping-option2').checked) {
+                const visitFee = parseInt(document.getElementById('bookkeeping-option2-amount').value);
+                additionalFees += visitFee;
+                additionalDescription += `<br>+ 수시 내방 방문 지도: ${formatNumber(visitFee)}원`;
+            }
+            
+            // PC방 업체 인건비 신고
+            if (document.getElementById('bookkeeping-option3').checked) {
+                fee = 110000;
+                feeDescription = "PC방 업체 인건비 신고: 110,000원";
+                bracket = "PC방 업체";
+            }
+            
+            // 일자리 안정자금 신청 업체
+            if (document.getElementById('bookkeeping-option4').checked) {
+                additionalFees += 20000;
+                additionalDescription += "<br>+ 일자리 안정자금 신청: 20,000원";
+            }
+            
+            // 상하반기 결산보고, 주주총회 자료 제출 등
+            if (document.getElementById('bookkeeping-half-yearly') && document.getElementById('bookkeeping-half-yearly').checked) {
+                const halfYearlyFee = parseFloat(document.getElementById('bookkeeping-half-yearly-amount').value.replace(/,/g, ''));
+                if (!isNaN(halfYearlyFee) && halfYearlyFee > 0) {
+                    additionalFees += halfYearlyFee;
+                    additionalDescription += `<br>+ 상하반기 결산보고: ${formatNumber(halfYearlyFee)}원`;
+                }
+            }
+            
+            // 회의 참석 및 세무대응
+            if (document.getElementById('bookkeeping-meeting') && document.getElementById('bookkeeping-meeting').checked) {
+                const meetingFee = parseFloat(document.getElementById('bookkeeping-meeting-amount').value.replace(/,/g, ''));
+                if (!isNaN(meetingFee) && meetingFee > 0) {
+                    additionalFees += meetingFee;
+                    additionalDescription += `<br>+ 회의 참석 및 세무대응: ${formatNumber(meetingFee)}원`;
+                }
+            }
+            
+            // 결과 표시
+            let resultHTML = `
+            <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">기준액(자산,매출금액): ${formatNumber(amount)}원 (${bracket})</div>
+            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
+            
+            // 추가 사항이 있는 경우만 추가
+            if (additionalDescription) {
+                resultHTML += `<div style="font-size: 1rem; color: #444; margin-bottom: 10px;">추가 사항: ${additionalDescription}</div>`;
+            }
+            
+            // 최종 금액 표시
+            const totalFee = fee + additionalFees;
+            resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${formatNumber(Math.round(totalFee))}원</div>`;
+            
+            document.getElementById('bookkeeping-result').innerHTML = resultHTML;
+        }
+        
+        // 숫자 형식화 함수
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // PDF 생성 함수
+        function generatePDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: 10,
+                filename: '세무대리_보수기준표.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            // PDF 생성 시작
+            html2pdf().set(opt).from(element).save();
+        }
+        
+        // PDF 생성 함수 (기장대행보수표만)
+        function generateAccountingPDF() {
+            // 기장대행보수표 영역만 선택
+            const accountingSection = document.getElementById('accounting');
+            const opt = {
+                margin: 10,
+                filename: '기장대행_보수기준표.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(accountingSection).save();
+        }
+    </script>
+</body>
+</html>
