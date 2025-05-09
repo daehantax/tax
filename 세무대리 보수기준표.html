@@ -219,11 +219,11 @@
         }
         
         .option-button.active {
-            background-color: #ffffe0; /* 연한 노란색 */
-            border-color: #005a9e;
+            background-color: #fff8ba; /* 더 밝고 선명한 노란색 */
+            border-color: #ffa500; /* 주황색 테두리 */
             color: #000;
             font-weight: bold;
-            box-shadow: 0 0 5px rgba(0, 90, 158, 0.3);
+            box-shadow: 0 0 8px rgba(255, 165, 0, 0.5); /* 주황색 그림자 효과 */
         }
         
         .option-button input[type="checkbox"] {
@@ -316,7 +316,7 @@
                                 <label class="option-button" onclick="toggleOption('personal-option2', this)">
                                     <input type="checkbox" id="personal-option2">
                                     기타 중점관리기업
-                                    <select id="personal-option2-percent" class="option-select" onchange="calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                    <select id="personal-option2-percent" class="option-select" onchange="onPercentChange(this, 'personal-option2'); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                                         <option value="0.05">5%</option>
                                         <option value="0.1">10%</option>
                                         <option value="0.15">15%</option>
@@ -325,14 +325,19 @@
                                         <option value="0.3">30%</option>
                                     </select>
                                 </label>
-                                <label class="option-button" onclick="toggleOption('personal-option3', this)">
-                                    <input type="checkbox" id="personal-option3">
+                                <label class="option-button" onclick="toggleBookkeepingOption(this, 'personal-refund-option')">
+                                    <input type="checkbox" id="personal-refund-option" style="display: none;">
                                     이월결손금 공제 (환급액의 10% 추가)
-                                    <input type="text" id="personal-refund-amount" placeholder="환급액 입력" style="width: 100px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="formatInputWithCommas(this); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                    <input type="text" id="personal-refund-amount" placeholder="환급액 입력" style="width: 100px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="onBookkeepingInput(this, this.closest('.option-button'), 'personal-refund-option'); formatInputWithCommas(this); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                                 </label>
                                 <label class="option-button" onclick="toggleOption('personal-option4', this)">
                                     <input type="checkbox" id="personal-option4">
                                     창업중소기업, 청년창업중소기업 감면 검토 (15% 추가)
+                                </label>
+                                <label class="option-button" onclick="toggleBookkeepingOption(this, 'personal-bookkeeping-option')">
+                                    <input type="checkbox" id="personal-bookkeeping-option" style="display: none;">
+                                    장부대
+                                    <input type="text" id="personal-bookkeeping-amount" placeholder="입력" style="width: 140px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="onBookkeepingInput(this, this.closest('.option-button'), 'personal-bookkeeping-option'); formatInputWithCommas(this); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                                 </label>
                             </div>
                         </div>
@@ -370,7 +375,7 @@
                                 <label class="option-button" onclick="toggleOption('personalB-option4', this)">
                                     <input type="checkbox" id="personalB-option4">
                                     상반기 가결산 수시지도방문 등 특별관리업체
-                                    <select id="personalB-option4-percent" class="option-select" onchange="calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                    <select id="personalB-option4-percent" class="option-select" onchange="onPercentChange(this, 'personalB-option4'); calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                                         <option value="0.2">20%</option>
                                         <option value="0.4">40%</option>
                                         <option value="0.6">60%</option>
@@ -381,7 +386,7 @@
                                 <label class="option-button" onclick="toggleOption('personalB-option5', this)">
                                     <input type="checkbox" id="personalB-option5">
                                     부동산개발 분양업 특수업종
-                                    <select id="personalB-option5-percent" class="option-select" onchange="calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                    <select id="personalB-option5-percent" class="option-select" onchange="onPercentChange(this, 'personalB-option5'); calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                                         <option value="4">400%</option>
                                         <option value="5">500%</option>
                                         <option value="6">600%</option>
@@ -389,6 +394,11 @@
                                         <option value="8">800%</option>
                                         <option value="9">900%</option>
                                     </select>
+                                </label>
+                                <label class="option-button" onclick="toggleBookkeepingOption(this, 'personalB-bookkeeping-option')">
+                                    <input type="checkbox" id="personalB-bookkeeping-option" style="display: none;">
+                                    장부대
+                                    <input type="text" id="personalB-bookkeeping-amount" placeholder="입력" style="width: 140px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="onBookkeepingInput(this, this.closest('.option-button'), 'personalB-bookkeeping-option'); formatInputWithCommas(this); calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                                 </label>
                             </div>
                         </div>
@@ -576,12 +586,12 @@
                         <label class="option-button" onclick="toggleOption('bookkeeping-option1', this)">
                             <input type="checkbox" id="bookkeeping-option1">
                             4대보험 신고 대행 추가 (인원수에 따라 20,000원+)
-                            <input type="number" id="bookkeeping-option1-count" placeholder="인원수" min="1" style="width: 70px; margin-left: 5px; padding: 3px;" oninput="calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                            <input type="number" id="bookkeeping-option1-count" placeholder="인원수" min="1" style="width: 70px; margin-left: 5px; padding: 3px;" oninput="onInputChange(this, 'bookkeeping-option1'); calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                         </label>
                         <label class="option-button" onclick="toggleOption('bookkeeping-option2', this)">
                             <input type="checkbox" id="bookkeeping-option2">
                             수시 내방 방문 지도업체 추가
-                            <select id="bookkeeping-option2-amount" class="option-select" onchange="calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                            <select id="bookkeeping-option2-amount" class="option-select" onchange="onPercentChange(this, 'bookkeeping-option2'); calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
                                 <option value="30000">30,000원</option>
                                 <option value="50000">50,000원</option>
                                 <option value="100000">100,000원</option>
@@ -732,6 +742,73 @@
             }
         }
         
+        // 드롭다운 메뉴 변경 시 부모 옵션 버튼 활성화 함수
+        function onPercentChange(element, optionId) {
+            const checkbox = document.getElementById(optionId);
+            const parentButton = element.closest('.option-button');
+            
+            if (!checkbox.checked) {
+                checkbox.checked = true;
+                parentButton.classList.add('active');
+            }
+        }
+        
+        // 입력 필드 변경 시 부모 옵션 버튼 활성화 함수
+        function onInputChange(element, optionId) {
+            const value = element.value.replace(/[^\d]/g, '');
+            if (value) {
+                const checkbox = document.getElementById(optionId);
+                const parentButton = element.closest('.option-button');
+                
+                if (!checkbox.checked) {
+                    checkbox.checked = true;
+                    parentButton.classList.add('active');
+                }
+            }
+        }
+        
+        // 장부대 입력 필드 변경 시 버튼 활성화/비활성화
+        function onBookkeepingInput(element, parentButton, checkboxId) {
+            const value = element.value.replace(/[^\d]/g, '');
+            const checkbox = document.getElementById(checkboxId);
+            
+            if (value) {
+                parentButton.classList.add('active');
+                checkbox.checked = true;
+            } else {
+                parentButton.classList.remove('active');
+                checkbox.checked = false;
+            }
+        }
+        
+        // 장부대나 환급액 입력 필드가 있는 옵션 버튼 토글 함수
+        function toggleBookkeepingOption(element, checkboxId) {
+            const checkbox = document.getElementById(checkboxId);
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+            
+            // 개인 장부대 계산
+            if (checkboxId === 'personal-bookkeeping-option') {
+                calculatePersonalFee();
+            }
+            // 개인B 장부대 계산
+            else if (checkboxId === 'personalB-bookkeeping-option') {
+                calculatePersonalBFee();
+            }
+            // 환급액 계산
+            else if (checkboxId === 'personal-refund-option') {
+                calculatePersonalFee();
+            }
+            
+            // 이벤트 전파 방지
+            event.stopPropagation();
+        }
+        
         // 천 단위 구분 쉼표 포맷팅 함수
         function formatInputWithCommas(input) {
             // 숫자 이외의 문자 제거
@@ -816,7 +893,7 @@
             }
             
             // 이월결손금 공제 (환급액의 10% 추가)
-            if (document.getElementById('personal-option3').checked) {
+            if (document.getElementById('personal-refund-option').checked) {
                 const refundAmount = parseFloat(document.getElementById('personal-refund-amount').value.replace(/,/g, ''));
                 if (!isNaN(refundAmount) && refundAmount > 0) {
                     const refundFee = refundAmount * 0.1;
@@ -829,6 +906,16 @@
             if (document.getElementById('personal-option4').checked) {
                 addedFee = addedFee * 1.15; // 15% 추가
                 addedFeeDescription += " + 15% 추가(창업중소기업, 청년창업중소기업 감면 검토)";
+            }
+            
+            // 장부대행 추가비용
+            let bookkeepingAmount = 0;
+            if (document.getElementById('personal-bookkeeping-option').checked) {
+                bookkeepingAmount = parseFloat(document.getElementById('personal-bookkeeping-amount').value.replace(/,/g, '')) || 0;
+                if (bookkeepingAmount > 0) {
+                    addedFee = addedFee + bookkeepingAmount;
+                    addedFeeDescription += ` + 장부대: ${formatNumber(bookkeepingAmount)}원`;
+                }
             }
             
             // 브래킷 찾기
@@ -918,17 +1005,13 @@
                 fee = 3600000 + (amount - 2000000000) * 0.0001;
                 feeDescription = `3,600,000원 + 20억원 초과(${formatNumber(amount - 2000000000)}원) × 0.01% = ${formatNumber(Math.round(fee))}원`;
                 bracket = "20억원 이상 ~ 30억원 미만";
-            } else if (amount < 5000000000) {
+            } else if (amount < 4000000000) {
                 fee = 4600000 + (amount - 3000000000) * 0.0007;
                 feeDescription = `4,600,000원 + 30억원 초과(${formatNumber(amount - 3000000000)}원) × 0.07% = ${formatNumber(Math.round(fee))}원`;
                 bracket = "30억원 이상 ~ 40억원 미만";
-            } else if (amount < 10000000000) {
-                fee = 6000000 + (amount - 5000000000) * 0.0005;
-                feeDescription = `6,000,000원 + 50억원 초과(${formatNumber(amount - 5000000000)}원) × 0.05% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "50억원 이상 ~ 100억원 미만";
             } else {
                 feeDescription = "협의 필요";
-                bracket = "100억원 이상";
+                bracket = "50억원 이상";
             }
             
             // 가산율 적용
@@ -961,6 +1044,16 @@
                 addedFeeDescription += ` + ${option5Percent * 100}% 가산(부동산개발 분양업)`;
             }
             
+            // 장부대행 추가비용
+            let bookkeepingAmount = 0;
+            if (document.getElementById('personalB-bookkeeping-option').checked) {
+                bookkeepingAmount = parseFloat(document.getElementById('personalB-bookkeeping-amount').value.replace(/,/g, '')) || 0;
+                if (bookkeepingAmount > 0) {
+                    addedFee = addedFee + bookkeepingAmount;
+                    addedFeeDescription += ` + 장부대: ${formatNumber(bookkeepingAmount)}원`;
+                }
+            }
+            
             // 결과 표시
             let resultHTML = `
             <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">수입금액: ${formatNumber(amount)}원 (${bracket})</div>
@@ -981,7 +1074,7 @@
             document.getElementById('personalB-result').innerHTML = resultHTML;
         }
         
-        // 기장 보수 계산 함수
+        // 기장대행 보수 계산 함수
         function calculateBookkeepingFee() {
             // 쉼표 제거하고 숫자로 변환
             const amount = parseFloat(document.getElementById('bookkeeping-amount').value.replace(/,/g, ''));
@@ -1110,24 +1203,6 @@
             if (document.getElementById('bookkeeping-option4').checked) {
                 additionalFees += 20000;
                 additionalDescription += "<br>+ 일자리 안정자금 신청: 20,000원";
-            }
-            
-            // 상하반기 결산보고, 주주총회 자료 제출 등
-            if (document.getElementById('bookkeeping-half-yearly') && document.getElementById('bookkeeping-half-yearly').checked) {
-                const halfYearlyFee = parseFloat(document.getElementById('bookkeeping-half-yearly-amount').value.replace(/,/g, ''));
-                if (!isNaN(halfYearlyFee) && halfYearlyFee > 0) {
-                    additionalFees += halfYearlyFee;
-                    additionalDescription += `<br>+ 상하반기 결산보고: ${formatNumber(halfYearlyFee)}원`;
-                }
-            }
-            
-            // 회의 참석 및 세무대응
-            if (document.getElementById('bookkeeping-meeting') && document.getElementById('bookkeeping-meeting').checked) {
-                const meetingFee = parseFloat(document.getElementById('bookkeeping-meeting-amount').value.replace(/,/g, ''));
-                if (!isNaN(meetingFee) && meetingFee > 0) {
-                    additionalFees += meetingFee;
-                    additionalDescription += `<br>+ 회의 참석 및 세무대응: ${formatNumber(meetingFee)}원`;
-                }
             }
             
             // 결과 표시
