@@ -3,1257 +3,1816 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>대한세무법인 세무대리 보수기준표</title>
+    <title>PC방 매출 환산표</title>
     <style>
-        body {
-            font-family: 'Malgun Gothic', sans-serif;
-            line-height: 1.6;
+        * {
             margin: 0;
-            padding: 10px;
-            color: #333;
-            font-size: 16px;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
         }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+            width: 100%;
+        }
+
+        /* 인쇄 스타일 */
+        @media print {
+            @page {
+                size: A4 landscape; /* A4 가로 방향으로 인쇄 */
+                margin: 0; /* 여백 완전 제거 */
+            }
+            
+            /* 인쇄 시 버튼 숨기기 */
+            button {
+                display: none !important;
+            }
+            
+            /* 인쇄 시 배경색 유지 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            /* 전체 크기 축소하여 A4 한 페이지에 맞추기 */
+            body {
+                padding: 0 !important;
+                margin: 0 !important;
+                background-color: white !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                min-height: 100vh !important;
+                overflow: hidden !important;
+                width: 100% !important;
+            }
+            
+            .container, .calculator-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 5px !important;
+                margin: 0 auto !important; /* 가운데 정렬 */
+                transform-origin: center center !important; /* 중앙 기준 변환 */
+                transform: scale(0.95) !important; /* 전체 컨텐츠 95% 크기로 축소 */
+            }
+            
+            /* 폰트 크기 조정 */
+            body, table, input, span, label {
+                font-size: 9pt !important;
+            }
+            
+            h1 {
+                font-size: 14pt !important;
+                margin: 5px 0 !important;
+                text-align: center !important;
+            }
+            
+            h2, h3 {
+                font-size: 11pt !important;
+                margin: 3px 0 !important;
+            }
+            
+            /* 테이블 셀 크기 조정 */
+            td, th {
+                padding: 1px !important;
+            }
+            
+            /* 입력 필드 높이 조정 */
+            input {
+                height: auto !important;
+                padding: 1px 2px !important;
+            }
+            
+            /* 가로 중앙 정렬을 위한 추가 설정 */
+            .calculator-flex-container {
+                justify-content: center !important;
+                width: 100% !important;
+                margin: 0 auto !important;
+            }
+            
+            /* 1. 피시방 매출 환산법 섹션 확장 */
+            .calculator-flex-container > div:first-child {
+                width: 30% !important; /* 너비 증가 */
+                min-width: 30% !important;
+            }
+            
+            .calculator-flex-container > div:last-child {
+                width: 70% !important;
+            }
+            
+            /* 1번 섹션 내 입력 필드 너비 확장 */
+            .calculator-flex-container > div:first-child input {
+                width: 120px !important;
+            }
+            
+            /* 인쇄 시 상품매출액 산출 식 섹션의 단위 텍스트 위치 조정 */
+            .calculator-flex-container > div:first-child span {
+                order: -1 !important;
+                margin-right: 5px !important;
+                margin-left: 0 !important;
+            }
+            
+            .calculator-flex-container > div:first-child div {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+            }
+        }
+
         .container {
-            max-width: 1200px;
             margin: 0 auto;
-            overflow-x: hidden;
+            width: 100%;
+            background-color: white;
+            padding: 15px 30px 30px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+
         h1 {
             text-align: center;
-            color: #005a9e;
-            margin-bottom: 30px;
-            font-size: 2rem;
-        }
-        h2 {
-            color: #005a9e;
-            margin-top: 40px;
+            color: #333;
             margin-bottom: 15px;
-            border-bottom: 2px solid #005a9e;
-            padding-bottom: 10px;
-            font-size: 1.7rem;
+            font-size: 1.5em;
         }
-        .logo {
+
+        h2 {
             text-align: center;
+            color: #666;
             margin-bottom: 20px;
+            font-size: 0.9em;
         }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
-            font-size: 1.05rem;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #005a9e;
-            color: white;
-            font-size: 1.1rem;
-        }
-        /* 기준액 하위 헤더 스타일 */
-        .sub-header th {
-            background-color: #0277bd;
-            font-size: 1rem;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .category {
-            background-color: #e6f3ff;
-            font-weight: bold;
-        }
-        .notes {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
             margin-top: 20px;
-            border-left: 5px solid #005a9e;
-            font-size: 0.9rem;
         }
-        .notes h3 {
-            margin-top: 0;
-            color: #005a9e;
-            font-size: 1.1rem;
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-        .tab-container {
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .tab-button {
-            background-color: #f1f1f1;
-            border: none;
-            color: #333;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            border-radius: 5px 5px 0 0;
-            flex: 1 0 auto;
-        }
-        .tab-button.active {
-            background-color: #005a9e;
-            color: white;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .footer-info {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.9rem;
-        }
-        
-        /* 반응형 스타일 */
-        @media (max-width: 768px) {
-            body {
-                padding: 8px;
-            }
-            h1 {
-                font-size: 1.5rem;
-                margin-bottom: 20px;
-            }
-            h2 {
-                font-size: 1.3rem;
-            }
-            .tab-button {
-                font-size: 0.8rem;
-                padding: 8px 5px;
-                width: 100%;
-                flex: 1 0 45%;
-            }
-            table {
-                font-size: 0.8rem;
-            }
-            th, td {
-                padding: 6px 4px;
-            }
-            .notes {
-                font-size: 0.8rem;
-            }
-            .notes h3 {
-                font-size: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.3rem;
-            }
-            h2 {
-                font-size: 1.1rem;
-            }
-            table {
-                font-size: 0.75rem;
-            }
-            th, td {
-                padding: 5px 3px;
-            }
-            .tab-button {
-                font-size: 0.75rem;
-                padding: 8px 3px;
-                margin-right: 2px;
-                flex: 1 0 100%;
-            }
-            .table-container {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-        
-        /* 계산기 입력 필드 및 버튼 스타일 */
-        input[type="text"], input[type="number"] {
-            padding: 8px;
-            font-size: 1.05rem;
-        }
-        
-        select {
-            padding: 8px;
-            font-size: 1.05rem;
-        }
-        
-        button {
-            padding: 10px 15px;
-            font-size: 1.05rem;
-            background-color: #005a9e;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        /* 계산기 결과 스타일 */
-        div[id$="-result"] {
-            font-size: 1.1rem;
-            margin-top: 15px;
-        }
-        
-        /* 계산기 컨테이너 스타일 */
-        div.table-container {
-            margin-bottom: 25px;
-        }
-        
-        /* 체크박스 버튼 스타일 */
-        .option-button {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 5px;
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-        }
-        
-        /* 호버 효과 완전히 제거 */
-        .option-button:hover {
-            background-color: #f5f5f5;
-            border-color: #ddd;
-        }
-        
-        .option-button.active {
-            background-color: #fff8ba; /* 더 밝고 선명한 노란색 */
-            border-color: #ffa500; /* 주황색 테두리 */
-            color: #000;
+
+        th {
+            background-color: #f8f9fa;
             font-weight: bold;
-            box-shadow: 0 0 8px rgba(255, 165, 0, 0.5); /* 주황색 그림자 효과 */
         }
-        
-        .option-button input[type="checkbox"] {
-            display: none;
+
+        tr:hover {
+            background-color: #f5f5f5;
         }
-        
-        /* 선택 메뉴 스타일 */
-        .option-select {
-            padding: 5px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-            margin-left: 10px;
+
+        .total-row {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+
+        .game-cost-section {
+            margin-bottom: 10px;
+            padding: 2px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            gap: 0;
+            justify-content: flex-start;
+        }
+
+        .game-cost-table {
+            flex: 1;
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 10px;
             background-color: white;
         }
-        
-        /* 옵션 그룹 스타일 */
-        .options-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
+
+        .game-cost-table th,
+        .game-cost-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .game-cost-table th:first-child,
+        .game-cost-table td:first-child {
+            text-align: center;
+        }
+
+        .game-cost-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .game-cost-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .game-cost-table td:last-child {
+            text-align: center;
+        }
+
+        .calculation-formula {
+            flex: 1;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .calculation-formula::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background-color: #ddd;
+        }
+
+        .formula-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .formula-title {
+            font-weight: bold;
+            color: #333;
             margin-bottom: 10px;
         }
-        
-        /* PDF 버튼 스타일 */
-        .pdf-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 24px;
-            background-color: #005a9e;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 1000;
+
+        .formula-content {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        h3 {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        /* 그 외 게임사별 매입금액 테이블 스타일 수정 */
+        .other-game-companies-table {
+            width: 50%; /* 95%에서 50%로 감소 - 상품매출 테이블과 동일하게 */
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: white;
+            margin-left: 0; /* auto에서 0으로 변경 */
+            margin-right: auto;
+        }
+
+        .other-game-companies-table th,
+        .other-game-companies-table td {
+            padding: 4px;
+            text-align: center;
+            border: 1px solid #ddd;
+            height: 25px;
+        }
+
+        .other-game-companies-table th:first-child,
+        .other-game-companies-table td:first-child {
+            width: 150px; /* 게임사 열 */
+            text-align: center;
         }
         
-        .pdf-button:hover {
-            background-color: #004a8e;
+
+        .other-game-companies-table th:nth-child(2),
+        .other-game-companies-table td:nth-child(2) {
+            width: 80px; /* 100px에서 80px로 감소 - 상품매출 테이블과 동일하게 */
+            text-align: right;
         }
-        
-        /* PDF용 페이지 브레이크 */
-        .page-break {
-            page-break-before: always;
+
+        .other-game-companies-table th:nth-child(2) {
+            text-align: center;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>대한세무법인 개인 세무대리 보수기준표</h1>
+        <h1>PC방 매출 환산표</h1>
         
-        <div class="tab-container">
-            <button class="tab-button active" onclick="openTab(event, 'adjustment')">세무조정계산서 작성 보수표</button>
-            <button class="tab-button" onclick="openTab(event, 'accounting')">기장대행보수표</button>
-        </div>
-        
-        <!-- 세무조정계산서 작성 보수표 -->
-        <div id="adjustment" class="tab-content active">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <h2 style="margin-bottom: 0;">세무조정계산서 작성 보수표 (VAT 별도)</h2>
-                <!-- PDF 저장 버튼을 제목 오른쪽에 고정 -->
-                <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generatePDF()">PDF 저장</button>
-            </div>
-            
-            <!-- 계산기 컨테이너 부분 -->
-            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
-                <!-- 개인 계산기 -->
-                <div style="flex: 1; min-width: 45%;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                        <h3 style="margin: 0; color: #005a9e;">개인</h3>
-                        <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+            <!-- 섹션 1: 피시방 매출 환산법 -->
+            <div style="flex: 1; min-width: 270px; min-height: auto;">
+                <h2 style="text-align: left; color: #333; margin-bottom: 4px; font-size: 1.3em; font-weight: bold; border-bottom: 2px solid #3498db; padding-bottom: 4px;">1. 피시방 매출 환산법</h2>
+                
+                <div style="margin-bottom: 4px;">
+                    <h3 style="color: #333; margin-bottom: 2px; font-size: 1.1em;">게임매입원가</h3>
+                    <table class="game-cost-table" style="width: 100%; margin-bottom: 4px; font-size: 0.95em;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 2px;">게임사</th>
+                                <th style="padding: 2px;">시간당 원가</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 2px;">(주)넥슨코리아</td>
+                                <td style="padding: 2px;">220원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px;">라이엇게임즈코리아</td>
+                                <td style="padding: 2px;">204원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px;">블리자드엔터테인먼트</td>
+                                <td style="padding: 2px;">218원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px;">(주)엔씨소프트</td>
+                                <td style="padding: 2px;">234원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px;">(주)카카오게임즈</td>
+                                <td style="padding: 2px;">198원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px;">그외</td>
+                                <td style="padding: 2px;">200원</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-bottom: 4px;">
+                    <h3 style="color: #333; margin-bottom: 2px; font-size: 1.1em;">게임매출액 산출 식</h3>
+                    <div class="formula-item" style="margin-bottom: 2px; padding: 4px; background-color: #f8f9fa; border-radius: 4px;">
+                        <div class="formula-content" style="font-size: 0.9em;">
+                            <p style="font-weight: bold;">게임사별 매입 공급가액 ÷ 시간당 원가 = 게임 매입 시간<br>
+                            게임사별 게임 매입 시간 합계 × 게임료 = 서비스 매출</p>
+                        </div>
                     </div>
-                    
-                    <!-- 개인 계산기 추가 -->
-                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
-                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인 총 수익</h4>
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <input type="text" id="personal-amount" placeholder="수입(자산)금액 입력 (단위: 원)" style="flex: 1; padding: 8px;" oninput="formatInputWithCommas(this); calculatePersonalFee()">
+                    <div class="formula-item" style="background-color: #fff3cd; border: 1px solid #ffeeba; padding: 4px; border-radius: 4px;">
+                        <div class="formula-content" style="font-size: 0.9em;">
+                            <p style="font-weight: bold;">※ 게임료는 실제보다 50~100원 낮게 </p>
+                            <p style="font-weight: bold;">※ 게임매입4배와 시간당환산금액 중 작은 금액을 서비스매출 신고</p>
                         </div>
-                        
-                        <div style="margin-top: 10px; font-size: 0.9rem;">
-                            <div class="options-container">
-                                <label class="option-button" onclick="toggleOption('personal-option1', this)">
-                                    <input type="checkbox" id="personal-option1">
-                                    결산업무와 세무조정 및 원가계산을 함께 수행하는 경우, 상기 보수표에 30% 가산
-                                </label>
-                                <label class="option-button" onclick="toggleOption('personal-option2', this)">
-                                    <input type="checkbox" id="personal-option2">
-                                    기타 중점관리기업
-                                    <select id="personal-option2-percent" class="option-select" onchange="onPercentChange(this, 'personal-option2'); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                                        <option value="0.05">5%</option>
-                                        <option value="0.1">10%</option>
-                                        <option value="0.15">15%</option>
-                                        <option value="0.2" selected>20%</option>
-                                        <option value="0.25">25%</option>
-                                        <option value="0.3">30%</option>
-                                    </select>
-                                </label>
-                                <label class="option-button" onclick="toggleBookkeepingOption(this, 'personal-refund-option')">
-                                    <input type="checkbox" id="personal-refund-option" style="display: none;">
-                                    이월결손금 공제 (환급액의 10% 추가)
-                                    <input type="text" id="personal-refund-amount" placeholder="환급액 입력" style="width: 100px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="onBookkeepingInput(this, this.closest('.option-button'), 'personal-refund-option'); formatInputWithCommas(this); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                                </label>
-                                <label class="option-button" onclick="toggleOption('personal-option4', this)">
-                                    <input type="checkbox" id="personal-option4">
-                                    창업중소기업, 청년창업중소기업 감면 검토 (15% 추가)
-                                </label>
-                                <label class="option-button" onclick="toggleBookkeepingOption(this, 'personal-bookkeeping-option')">
-                                    <input type="checkbox" id="personal-bookkeeping-option" style="display: none;">
-                                    장부대
-                                    <input type="text" id="personal-bookkeeping-amount" placeholder="입력" style="width: 140px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="onBookkeepingInput(this, this.closest('.option-button'), 'personal-bookkeeping-option'); formatInputWithCommas(this); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
-                        
-                        <div id="personal-result" style="margin-top: 10px; font-weight: bold;"></div>
                     </div>
                 </div>
                 
-                <!-- 개인B 계산기 -->
-                <div style="flex: 1; min-width: 45%;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                        <h3 style="margin: 0; color: #005a9e;">개인B (특별개인)</h3>
-                        <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
-                    </div>
-                    
-                    <!-- 개인B 계산기 추가 -->
-                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
-                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인B (특별개인) 총 수익</h4>
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <input type="text" id="personalB-amount" placeholder="수입(자산)금액 입력 (단위: 원)" style="flex: 1; padding: 8px;" oninput="formatInputWithCommas(this); calculatePersonalBFee()">
-                        </div>
-                        
-                        <div style="margin-top: 10px; font-size: 0.9rem;">
-                            <div class="options-container">
-                                <label class="option-button" onclick="toggleOption('personalB-option1', this)">
-                                    <input type="checkbox" id="personalB-option1">
-                                    특별업종 중 중점관리업종 및 외형 5억 이상 (40% 가산)
-                                </label>
-                                <label class="option-button" onclick="toggleOption('personalB-option3', this)">
-                                    <input type="checkbox" id="personalB-option3">
-                                    부동산 임대 음식 주점업 인적서비스업 (40% 가산)
-                                </label>
-                                <label class="option-button" onclick="toggleOption('personalB-option4', this)">
-                                    <input type="checkbox" id="personalB-option4">
-                                    상반기 가결산 수시지도방문 등 특별관리업체
-                                    <select id="personalB-option4-percent" class="option-select" onchange="onPercentChange(this, 'personalB-option4'); calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                                        <option value="0.2">20%</option>
-                                        <option value="0.4">40%</option>
-                                        <option value="0.6">60%</option>
-                                        <option value="0.8">80%</option>
-                                        <option value="1.0">100%</option>
-                                    </select>
-                                </label>
-                                <label class="option-button" onclick="toggleOption('personalB-option5', this)">
-                                    <input type="checkbox" id="personalB-option5">
-                                    부동산개발 분양업 특수업종
-                                    <select id="personalB-option5-percent" class="option-select" onchange="onPercentChange(this, 'personalB-option5'); calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                                        <option value="4">400%</option>
-                                        <option value="5">500%</option>
-                                        <option value="6">600%</option>
-                                        <option value="7">700%</option>
-                                        <option value="8">800%</option>
-                                        <option value="9">900%</option>
-                                    </select>
-                                </label>
-                                <label class="option-button" onclick="toggleBookkeepingOption(this, 'personalB-bookkeeping-option')">
-                                    <input type="checkbox" id="personalB-bookkeeping-option" style="display: none;">
-                                    장부대
-                                    <input type="text" id="personalB-bookkeeping-amount" placeholder="입력" style="width: 140px; margin-left: 10px; padding: 6px; font-size: 1rem;" oninput="onBookkeepingInput(this, this.closest('.option-button'), 'personalB-bookkeeping-option'); formatInputWithCommas(this); calculatePersonalBFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                                </label>
+                <div>
+                    <h3 style="color: #333; margin-bottom: 5px; font-size: 1.2em; font-weight: bold;">상품매출액 산출 식  (공급대가)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+                        <div style="display: flex; align-items: center;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">카드매출</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="cardSales" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; background-color: #ffffc0; border: 1px solid #ddd; border-radius: 4px;" oninput="formatNumber(this); calculateCashSales();">
                             </div>
                         </div>
-                        
-                        <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
-                        
-                        <div id="personalB-result" style="margin-top: 10px; font-weight: bold;"></div>
+                        <div style="display: flex; align-items: center;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">배율</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="ratio" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; background-color: #ffffc0; border: 1px solid #ddd; border-radius: 4px;" oninput="formatNumber(this); calculateCashSales();">
+                                <span style="font-size: 15px; margin-left: 3px;">%</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">현금영수증매출</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="cashReceiptSales" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; background-color: #ffffc0; border: 1px solid #ddd; border-radius: 4px;" oninput="formatNumber(this); calculateTotalSales();">
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">현금매출</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="cashSales" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; border: 1px solid #ddd; border-radius: 4px;" readonly>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">현금매출 (공급가액)</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="cashSalesSupplyPrice" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; border: 1px solid #ddd; border-radius: 4px;" readonly>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">총 매출 (공급가액)</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="totalSales" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; border: 1px solid #ddd; border-radius: 4px;" readonly>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">상품매출 (공급가액)</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="productSales" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; border: none; border-radius: 4px; background-color: transparent;">
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.3em; white-space: nowrap; text-align: right;">마진율:</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="marginRate" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; background-color: #f0f8ff; border: 1px solid #4682b4; border-radius: 4px; color: #000;" value="0" readonly>
+                                <span style="font-size: 20px; margin-left: 3px; margin-right: 10px;">%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- 테이블 컨테이너 부분 -->
-            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
-                <!-- 개인 보수표 -->
-                <div style="flex: 1; min-width: 45%;">
-                    <div class="table-container">
-                        <table>
+
+            <!-- 섹션 2: 상호 (서비스 매출) -->
+            <div style="flex: 3; min-width: 750px; min-height: auto;">
+                <div style="display: flex; align-items: center; margin-bottom: 5px; border-bottom: 2px solid #e74c3c; padding-bottom: 5px;">
+                    <label style="font-size: 1.2em; font-weight: bold; color: #333; margin-right: 10px;">2. 상호:</label>
+                    <input type="text" id="shopName" style="width: 200px; font-size: 1.2em; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #ffffc0;" placeholder="">
+                </div>
+                
+                <div>
+                    <h3 style="color: #333; margin-bottom: -5px; font-size: 1em;">서비스 매출</h3>
+                    <div style="display: flex; gap: 15px; align-items: flex-start;">
+                        <table class="game-cost-table" style="width: 65%; font-size: 0.95em;">
                             <thead>
                                 <tr>
-                                    <th>수입(자산)금액</th>
-                                    <th>보수기준</th>
+                                    <th style="width: 180px; padding: 5px; height: 28px;">게임사</th>
+                                    <th style="width: 80px; padding: 5px; height: 28px;">시간당원가</th>
+                                    <th style="width: 100px; padding: 5px; height: 28px;">공급가액</th>
+                                    <th style="width: 70px; padding: 5px; height: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">게임매입시간</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>5천만원 미만</td>
-                                    <td>400,000</td>
+                                    <td style="padding: 5px; height: 28px;">(주)넥슨코리아</td>
+                                    <td style="padding: 5px; height: 28px;">220원</td>
+                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 5px; box-sizing: border-box;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td>
+                                    <td style="padding: 5px; height: 28px;">0</td>
                                 </tr>
                                 <tr>
-                                    <td>5천만원 이상 ~ 1억원 미만</td>
-                                    <td>400,000+5천만원 초과액×0.2%</td>
+                                    <td style="padding: 5px; height: 28px;">라이엇게임즈코리아</td>
+                                    <td style="padding: 5px; height: 28px;">204원</td>
+                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 5px; box-sizing: border-box;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td>
+                                    <td style="padding: 5px; height: 28px;">0</td>
                                 </tr>
                                 <tr>
-                                    <td>1억원 이상 ~ 3억원 미만</td>
-                                    <td>500,000+1억원 초과액×0.15%</td>
+                                    <td style="padding: 5px; height: 28px;">블리자드엔터테인먼트</td>
+                                    <td style="padding: 5px; height: 28px;">218원</td>
+                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 5px; box-sizing: border-box;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td>
+                                    <td style="padding: 5px; height: 28px;">0</td>
                                 </tr>
                                 <tr>
-                                    <td>3억원 이상 ~ 5억원 미만</td>
-                                    <td>800,000+3억원 초과액×0.12%</td>
+                                    <td style="padding: 5px; height: 28px;">(주)엔씨소프트</td>
+                                    <td style="padding: 5px; height: 28px;">234원</td>
+                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 5px; box-sizing: border-box;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td>
+                                    <td style="padding: 5px; height: 28px;">0</td>
                                 </tr>
                                 <tr>
-                                    <td>5억원 이상 ~ 10억원 미만</td>
-                                    <td>1,040,000+5억원 초과액×0.1%</td>
+                                    <td style="padding: 5px; height: 28px;">(주)카카오게임즈</td>
+                                    <td style="padding: 5px; height: 28px;">198원</td>
+                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 5px; box-sizing: border-box;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td>
+                                    <td style="padding: 5px; height: 28px;">0</td>
                                 </tr>
                                 <tr>
-                                    <td>10억원 이상 ~ 20억원 미만</td>
-                                    <td>1,540,000+10억원 초과액×0.06%</td>
-                                </tr>
-                                <tr>
-                                    <td>20억원 이상 ~ 30억원 미만</td>
-                                    <td>2,140,000+20억원 초과액×0.035%</td>
-                                </tr>
-                                <tr>
-                                    <td>30억원 이상 ~ 50억원 미만</td>
-                                    <td>3,190,000+30억원 초과액×0.03%</td>
-                                </tr>
-                                <tr>
-                                    <td>50억원 이상 ~ 70억원 미만 </td>
-                                    <td>4,190,000+50억원 초과액×0.03%</td>
-                                </tr>
-                                <tr>
-                                    <td>70억원 이상 ~ 100억원 미만</td>
-                                    <td>5,190,000+70억원 초과액×0.028%</td>
-                                </tr>
-                                <tr>
-                                    <td>100억원 이상 ~ 150억원 미만</td>
-                                    <td>6,190,000+100억원 초과액×0.026%</td>
-                                </tr>
-                                <tr>
-                                    <td>150억원 이상 ~ 200억원 미만</td>
-                                    <td>8,690,000+150억원 초과액×0.024%</td>
-                                </tr>
-                                <tr>
-                                    <td>200억원 이상</td>
-                                    <td>10,690,000+</td>
+                                    <td style="padding: 5px; height: 28px;">그외</td>
+                                    <td style="padding: 5px; height: 28px;">200원</td>
+                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffff; font-size: 0.95em; padding: 5px; box-sizing: border-box;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td>
+                                    <td style="padding: 5px; height: 28px;">0</td>
                                 </tr>
                             </tbody>
                         </table>
+                        
+                        <!-- 계산 영역을 테이블 오른쪽으로 이동 -->
+                        <div style="background-color: #f8f9fa; padding: 12px; border-radius: 5px; width: 37%;">
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 1.1em; white-space: nowrap; width: 120px; text-align: right;">총 공급금액:</label>
+                                    <input type="text" id="totalSupplyPrice" style="width: 150px; text-align: right; border: none; background: transparent; font-size: 1.15em;" readonly>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 1.1em; white-space: nowrap; width: 120px; text-align: right;">총 매입시간:</label>
+                                    <input type="text" id="totalGamePurchaseTime" style="width: 150px; text-align: right; border: none; background: transparent; font-size: 1.15em;" readonly>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 1.3em; white-space: nowrap; width: 120px; text-align: right; font-weight: bold;">게임료:</label>
+                                    <input type="text" id="gameFee" style="width: 150px; text-align: right; border: 1px solid #777; background-color: #ffffc0; font-size: 1.35em; padding: 5px 8px;" oninput="formatNumber(this); calculateServiceSales()">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 1.1em; white-space: nowrap; width: 120px; text-align: right;">시간환산기준:</label>
+                                    <input type="text" id="timeBasedSales" style="width: 150px; text-align: right; border: none; background: transparent; font-size: 1.15em;" readonly>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 1.1em; white-space: nowrap; width: 120px; text-align: right;">매입<input type="text" id="supplyMultiplier" style="width: 30px; text-align: center; border: 1px solid #777; background-color: #ffffc0; font-size: 1em; margin: 0 2px;" value="4" oninput="formatNumber(this); calculateServiceSales()">배기준:</label>
+                                    <input type="text" id="supplyX4Sales" style="width: 150px; text-align: right; border: none; background: transparent; font-size: 1.15em;" readonly>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label style="font-size: 1.3em; white-space: nowrap; width: 120px; text-align: right; font-weight: bold;">서비스 매출:</label>
+                                    <input type="text" id="serviceSales" style="width: 150px; text-align: right; border: 1px solid #777; background-color: #ffffc0; font-size: 1.35em; padding: 5px 8px;" oninput="formatNumber(this)">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="notes" style="margin-top: 15px; margin-bottom: 5px;">
-                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인 참고 사항</h4>
-                        <ul style="font-size: 0.9rem; list-style-type: none; padding-left: 0px;">
-                            <li>&#9312; 결산업무,세무조정 및 원가계산을 함께 수행하는경우, 상기 보수표에 30%가산</li>
-                            <li>&#9313; 구분은 자산총액과 수입금액 중 큰 금액으로 함.</li>
-                            <li>&#9314; 이월결손금 공제는 환급액의 10% 추가청구. (다른 공제감면은 청구하지않음)</li>
-                            <li>&#9315; 창업중소기업,청년창업중소기업 감면에 대해 검토시, 15% 추가가산한다.</li>
-                        </ul>
-                        </ul>
+                    <div style="margin-top: -10px;">
+                        <h3 style="color: #333; margin-bottom: -5px; font-size: 1em;">그 외 게임사별 매입금액</h3>
+                        <div style="display: flex; gap: 15px; align-items: flex-start;">
+                            <table class="other-game-companies-table game-purchase-table" style="font-size: 0.95em;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">게임사</th>
+                                        <th>공급가액</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 0;"><input type="text" style="width: 100%; text-align: center; font-size: 1em; border: none; background-color: #ffffc0;"></td>
+                                        <td style="padding: 0;"><input type="text" style="width: 100%; text-align: right; font-size: 1em; border: none; background-color: #ffffc0;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0;"><input type="text" style="width: 100%; text-align: center; font-size: 1em; border: none; background-color: #ffffc0;"></td>
+                                        <td style="padding: 0;"><input type="text" style="width: 100%; text-align: right; font-size: 1em; border: none; background-color: #ffffc0;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0;"><input type="text" style="width: 100%; text-align: center; font-size: 1em; border: none; background-color: #ffffc0;"></td>
+                                        <td style="padding: 0;"><input type="text" style="width: 100%; text-align: right; font-size: 1em; border: none; background-color: #ffffc0;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0;"><input type="text" style="width: 100%; text-align: center; font-size: 1em; border: none; background-color: #ffffc0;"></td>
+                                        <td style="padding: 0; position: relative;">
+                                            <input type="text" style="width: 100%; text-align: right; font-size: 1em; border: none; background-color: #ffffc0;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()">
+                                            <button onclick="addOtherGameCompanyRow()" style="position: absolute; right: -35px; top: 50%; transform: translateY(-50%); padding: 3px 6px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em;">+</button>
+                                            <button onclick="deleteOtherGameCompanyRow()" style="position: absolute; right: -65px; top: 50%; transform: translateY(-50%); padding: 3px 6px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em;">-</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <h3 style="color: #333; margin-bottom: -10px; font-size: 1.2em;">상품매출</h3>
+                        <div style="display: flex; gap: 15px; align-items: flex-start;">
+                            <table class="other-game-companies-table product-sales-table" style="font-size: 0.95em;">
+                                <thead>
+                                    <tr>
+                                        <th>유통사</th>
+                                        <th>공급가액</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 0; height: 25px;"><input type="text" style="width: 100%; height: 100%; text-align: center; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;"></td>
+                                        <td style="padding: 0; height: 25px;"><input type="text" class="product-price-input" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" oninput="formatNumber(this); calculateProductTotals()"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0; height: 25px;"><input type="text" style="width: 100%; height: 100%; text-align: center; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;"></td>
+                                        <td style="padding: 0; height: 25px;"><input type="text" class="product-price-input" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" oninput="formatNumber(this); calculateProductTotals()"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0; height: 25px;"><input type="text" style="width: 100%; height: 100%; text-align: center; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;"></td>
+                                        <td style="padding: 0; height: 25px;"><input type="text" class="product-price-input" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" oninput="formatNumber(this); calculateProductTotals()"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0; height: 25px;"><input type="text" style="width: 100%; height: 100%; text-align: center; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;"></td>
+                                        <td style="padding: 0; height: 25px; position: relative;">
+                                            <input type="text" class="product-price-input" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" oninput="formatNumber(this); calculateProductTotals()">
+                                            <button onclick="addProductRow()" style="position: absolute; right: -35px; top: 50%; transform: translateY(-50%); padding: 3px 6px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em;">+</button>
+                                            <button onclick="deleteProductRow()" style="position: absolute; right: -65px; top: 50%; transform: translateY(-50%); padding: 3px 6px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em;">-</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <!-- 상품매출 계산 영역 -->
+                            <div style="background-color: #f8f9fa; padding: 12px; border-radius: 5px; width: 45%; margin-top: -120px; margin-left: -47px;">
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <label style="font-size: 1.1em; white-space: nowrap; width: 130px; text-align: right;">총 유통매입가액:</label>
+                                        <input type="text" id="totalDistributionPrice" style="width: 150px; text-align: right; border: none; background: transparent; font-size: 1.15em;" readonly>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <label style="font-size: 1.1em; white-space: nowrap; width: 130px; text-align: right;">마진율:</label>
+                                        <div>
+                                            <input type="text" id="productMarginRate" style="width: 120px; text-align: right; border: none; background-color: transparent; font-size: 1.1em; padding: 4px 6px;" oninput="formatNumber(this); calculateProductSales()">
+                                            <span style="font-size: 1.1em;">%</span>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <label style="font-size: 1.3em; white-space: nowrap; width: 130px; text-align: right; font-weight: bold;">상품매출:</label>
+                                        <input type="text" id="finalProductSales" style="width: 150px; text-align: right; border: 1px solid #777; background-color: #ffffc0; font-size: 1.3em; padding: 4px 6px;" oninput="formatNumber(this)">
+                                    </div>
+                                    
+                                    <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
+                                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 8px;">
+                                            <label style="font-size: 1.1em; white-space: nowrap; width: 160px; text-align: right;">총매출:</label>
+                                            <input type="text" id="totalRevenue" style="width: 120px; text-align: right; border: 1px solid #777; background-color: #f9f9f9; font-size: 1.1em; padding: 4px 6px;" readonly>
+                                        </div>
+                                        
+                                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 8px;">
+                                            <label style="font-size: 1.1em; white-space: nowrap; width: 160px; text-align: right;">신용카드발행세액공제:</label>
+                                            <input type="text" id="creditCardTaxDeduction" style="width: 120px; text-align: right; border: 1px solid #777; background-color: #ffffc0; font-size: 1.1em; padding: 4px 6px;" oninput="formatNumber(this)">
+                                        </div>
+                                        
+                                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 8px;">
+                                            <label style="font-size: 1.1em; white-space: nowrap; width: 160px; text-align: right;">5억/7.5억:</label>
+                                            <input type="text" id="revenueDivision" style="width: 120px; text-align: right; border: 1px solid #777; background-color: #f9f9f9; font-size: 1.1em; padding: 4px 6px;" value="0.667" readonly>
+                                        </div>
+                                        
+                                        <div style="display: flex; align-items: center; gap: 20px;">
+                                            <label style="font-size: 1.6em; white-space: nowrap; width: 160px; text-align: right; font-weight: bold;">환산매출:</label>
+                                            <input type="text" id="convertedRevenue" style="width: 120px; text-align: right; border: 1px solid #777; background-color: #f9f9f9; font-size: 1.1em; padding: 4px 6px;" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- 개인B 보수표 -->
-                <div style="flex: 1; min-width: 45%;">
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>수입(자산)금액</th>
-                                    <th>보수기준</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1억원 미만</td>
-                                    <td>450,000 ~ 600,000원 (가산율제외)</td>
-                                </tr>
-                                <tr>
-                                    <td>1억원 이상 ~ 2억원 미만</td>
-                                    <td>600,000+1억원 초과×0.3%</td>
-                                </tr>
-                                <tr class="page-break">
-                                    <td>2억원 이상 ~ 3억원 미만</td>
-                                    <td>900,000+1억원 초과×0.25%</td>
-                                </tr>
-                                <tr>
-                                    <td>3억원 이상 ~ 5억원 미만</td>
-                                    <td>1,150,000+3억원 초과×0.2%</td>
-                                </tr>
-                                <tr>
-                                    <td>5억원 이상 ~ 10억원 미만</td>
-                                    <td>1,550,000+5억원 초과×0.15%</td>
-                                </tr>
-                                <tr>
-                                    <td>10억원 이상 ~ 20억원 미만</td>
-                                    <td>2,300,000+10억원 초과×0.13%</td>
-                                </tr>
-                                <tr>
-                                    <td>20억원 이상 ~ 30억원 미만</td>
-                                    <td>3,600,000+20억원 초과×0.01%</td>
-                                </tr>
-                                <tr>
-                                    <td>30억원 이상 ~ 50억원 미만</td>
-                                    <td>4,600,000+30억원 초과×0.07%</td>
-                                </tr>
-                                <tr>
-                                    <td>50억원 이상 ~ 100억원 미만</td>
-                                    <td>6,000,000+50억원 초과×0.05%</td>
-                                </tr>
-                                <tr>
-                                    <td>100억원 이상</td>
-                                    <td>협 의</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="notes" style="margin-top: 15px; margin-bottom: 15px;">
-                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인B (특별개인) 참고 사항</h4>
-                        <ul style="font-size: 0.9rem; list-style-type: none; padding-left: 0px;">
-                            <li>&#9312; 특별업종 중 중점관리업종 및 외형 5억 이상은 40% 가산</li>
-                            <li>&#9313; 기타 특별관리업종은 20% 가산</li>
-                            <li>&#9314; 부동산 임대 음식 주점업 인적서비스업은 상기 기준에 40% 가산</li>
-                            <li>&#9315; 상반기 가결산 수시지도방문 등 특별관리업체는③의 20~100%가산</li>
-                            <li>&#9316; 부동산개발 분양업 특수업종은 상기 기준에 400~900% 가산</li>
-                        </ul>
-                    </div>
+                <!-- 저장/삭제 버튼 추가 -->
+                <div style="text-align: right; margin: 20px;">
+                    <button onclick="saveData()" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">저장하기</button>
+                    <button onclick="clearData()" style="background-color: #f44336; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">삭제하기</button>
                 </div>
-            </div>
-        </div>
-        
-        <!-- 기장대행 보수표 -->
-        <div id="accounting" class="tab-content">
-            <p style= "text-align:center; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">본 기준은 세무사법 개정으로 한국세무사회 보수표가 폐지됨에 따라<br>당 사무소의 운용을 위해 보수기준을 정한 것이며, 부가세 10%는 별도임</p>
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <h2 style="margin-bottom: 0;">기장대행보수표 (VAT 별도)</h2>
-                <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generateAccountingPDF()">PDF 저장</button>
-            </div>
-            
-            <!-- 기장대행 계산기 추가 -->
-            <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <select id="bookkeeping-type" style="padding: 8px; width: 120px; margin-right: 15px;" onchange="calculateBookkeepingFee()">
-                        <option value="A">개인 A</option>
-                        <option value="B">개인 B</option>
-                    </select>
-                    <h4 style="color: #005a9e; margin: 0; font-size: 1rem;">기장대행 보수기준</h4>
-                </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" id="bookkeeping-amount" placeholder="기준액(자산,매출금액) 입력 (단위: 원)" style="width: 100%; padding: 8px;" oninput="formatInputWithCommas(this); calculateBookkeepingFee()">
-                </div>
-                
-                <div style="margin-top: 10px; font-size: 0.9rem;">
-                    <div class="options-container">
-                        <label class="option-button" onclick="toggleOption('bookkeeping-option1', this)">
-                            <input type="checkbox" id="bookkeeping-option1">
-                            4대보험 신고 대행 추가 (인원수에 따라 20,000원+)
-                            <input type="number" id="bookkeeping-option1-count" placeholder="인원수" min="1" style="width: 70px; margin-left: 5px; padding: 3px;" oninput="onInputChange(this, 'bookkeeping-option1'); calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                        </label>
-                        <label class="option-button" onclick="toggleOption('bookkeeping-option2', this)">
-                            <input type="checkbox" id="bookkeeping-option2">
-                            수시 내방 방문 지도업체 추가
-                            <select id="bookkeeping-option2-amount" class="option-select" onchange="onPercentChange(this, 'bookkeeping-option2'); calculateBookkeepingFee(); event.stopPropagation();" onclick="event.stopPropagation()">
-                                <option value="30000">30,000원</option>
-                                <option value="50000">50,000원</option>
-                                <option value="100000">100,000원</option>
-                                <option value="150000">150,000원</option>
-                                <option value="200000">200,000원</option>
-                            </select>
-                        </label>
-                        <label class="option-button" onclick="toggleOption('bookkeeping-option3', this)">
-                            <input type="checkbox" id="bookkeeping-option3">
-                            PC방 업체 인건비 신고 (110,000원 고정)
-                        </label>
-                        <label class="option-button" onclick="toggleOption('bookkeeping-option4', this)">
-                            <input type="checkbox" id="bookkeeping-option4">
-                            일자리 안정자금 신청 업체 (20,000원 추가)
-                        </label>
-                    </div>
-                </div>
-                
-                <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
-                
-                <div id="bookkeeping-result" style="margin-top: 10px; font-weight: bold;"></div>
-            </div>
-            
-            <div class="table-container">
-                <div style="text-align: right; margin-bottom: 0px; font-size: 1rem;"><small>[단위: 원]</small></div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th rowspan="2">기준액 (자산,매출금액)</th>
-                            <th colspan="2">월보수액</th>
-                        </tr>
-                        <tr class="sub-header">
-                            <th>개인 A</th>
-                            <th>개인 B</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1억원 미만</td>
-                            <td>120,000</td>
-                            <td>120,000</td>
-                        </tr>
-                        <tr>
-                            <td>1억원 이상 ~ 2억원 미만</td>
-                            <td>130,000</td>
-                            <td>150,000</td>
-                        </tr>
-                        <tr>
-                            <td>2억원 이상 ~ 3억원 미만</td>
-                            <td>140,000</td>
-                            <td>170,000</td>
-                        </tr>
-                        <tr>
-                            <td>3억원 이상 ~ 5억원 미만</td>
-                            <td>160,000</td>
-                            <td>200,000</td>
-                        </tr>
-                        <tr>
-                            <td>5억원 이상 ~ 10억원 미만</td>
-                            <td>200,000</td>
-                            <td>250,000</td>
-                        </tr>
-                        <tr>
-                            <td>10억원 이상 ~ 20억원 미만</td>
-                            <td>250,000</td>
-                            <td>350,000</td>
-                        </tr>
-                        <tr>
-                            <td>20억원 이상 ~ 30억원 미만</td>
-                            <td>300,000</td>
-                            <td>450,000</td>
-                        </tr>
-                        <tr>
-                            <td>30억원 이상 ~ 40억원 미만</td>
-                            <td>400,000</td>
-                            <td>500,000</td>
-                        </tr>
-                        <tr>
-                            <td>50억원 이상</td>
-                            <td colspan="2">협 의</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="notes">
-                <h3>기장대행 참고 사항</h3>
-                <ul style="list-style-type: none; padding-left: 0px;">
-                    <li>&#9312; 기준금액은 자산/수입금액 중 큰것 기준</li>
-                    <li>&#9313; 개인 B : 의료,부임,음숙,서비스업 등, 상반기 가결산업체 등 특별관리업체</li>
-                    <li>&#9314; 4대보험 신고 대행시 인원수에 따라 20,000원 이상 추가</li>
-                    <li>&#9315; 수시 내방 방문 지도업체는 30,000 ~ 200,000원 추가</li>
-                    <li>&#9316; 매년 12월중 1월분의 기장료를 소모품대로 별도 부과</li>
-                    <li>&#9317; PC방 업체 중 인건비 신고를 하는 경우 기장료 110,000원으로 함</li>
-                    <li>&#9318; 일자리 안정자금 신청 업체는 위 기장료에서 20,000원 추가함</li>
-                </ul>
+
             </div>
         </div>
     </div>
-    
+
     <script>
-        function openTab(evt, tabName) {
-            var i, tabContent, tabButtons;
+        function formatNumber(input) {
+            // 숫자가 아닌 문자 제거
+            let value = input.value.replace(/[^\d.]/g, '');
             
-            // 모든 탭 콘텐츠 숨기기
-            tabContent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabContent.length; i++) {
-                tabContent[i].classList.remove("active");
+            // 소수점이 여러 개인 경우 첫 번째만 유지
+            if ((value.match(/\./g) || []).length > 1) {
+                value = value.replace(/\.+$/, '');
             }
             
-            // 모든 탭 버튼 비활성화
-            tabButtons = document.getElementsByClassName("tab-button");
-            for (i = 0; i < tabButtons.length; i++) {
-                tabButtons[i].classList.remove("active");
-            }
-            
-            // 선택한 탭 콘텐츠 및 버튼 활성화
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
-        
-        // 페이지 로드시 기본 탭 설정
-        window.onload = function() {
-            // 세무조정계산서 작성 보수표가 기본 탭이 되도록 설정
-            document.getElementById("adjustment").classList.add("active");
-            document.getElementsByClassName("tab-button")[0].classList.add("active");
-        };
-        
-        // 체크박스 토글 함수
-        function toggleOption(id, element) {
-            const checkbox = document.getElementById(id);
-            checkbox.checked = !checkbox.checked;
-            
-            // 버튼 스타일 토글
-            if (checkbox.checked) {
-                element.classList.add('active');
-            } else {
-                element.classList.remove('active');
-            }
-            
-            // 자동 계산
-            if (id.startsWith('personal-option')) {
-                calculatePersonalFee();
-            } else if (id.startsWith('personalB-option')) {
-                calculatePersonalBFee();
-            } else if (id.startsWith('bookkeeping-option')) {
-                calculateBookkeepingFee();
-            }
-        }
-        
-        // 드롭다운 메뉴 변경 시 부모 옵션 버튼 활성화 함수
-        function onPercentChange(element, optionId) {
-            const checkbox = document.getElementById(optionId);
-            const parentButton = element.closest('.option-button');
-            
-            if (!checkbox.checked) {
-                checkbox.checked = true;
-                parentButton.classList.add('active');
-            }
-        }
-        
-        // 입력 필드 변경 시 부모 옵션 버튼 활성화 함수
-        function onInputChange(element, optionId) {
-            const value = element.value.replace(/[^\d]/g, '');
+            // 천 단위 구분자 추가
             if (value) {
-                const checkbox = document.getElementById(optionId);
-                const parentButton = element.closest('.option-button');
-                
-                if (!checkbox.checked) {
-                    checkbox.checked = true;
-                    parentButton.classList.add('active');
-                }
-            }
-        }
-        
-        // 장부대 입력 필드 변경 시 버튼 활성화/비활성화
-        function onBookkeepingInput(element, parentButton, checkboxId) {
-            const value = element.value.replace(/[^\d]/g, '');
-            const checkbox = document.getElementById(checkboxId);
-            
-            if (value) {
-                parentButton.classList.add('active');
-                checkbox.checked = true;
-            } else {
-                parentButton.classList.remove('active');
-                checkbox.checked = false;
-            }
-        }
-        
-        // 장부대나 환급액 입력 필드가 있는 옵션 버튼 토글 함수
-        function toggleBookkeepingOption(element, checkboxId) {
-            const checkbox = document.getElementById(checkboxId);
-            checkbox.checked = !checkbox.checked;
-            
-            if (checkbox.checked) {
-                element.classList.add('active');
-            } else {
-                element.classList.remove('active');
-            }
-            
-            // 개인 장부대 계산
-            if (checkboxId === 'personal-bookkeeping-option') {
-                calculatePersonalFee();
-            }
-            // 개인B 장부대 계산
-            else if (checkboxId === 'personalB-bookkeeping-option') {
-                calculatePersonalBFee();
-            }
-            // 환급액 계산
-            else if (checkboxId === 'personal-refund-option') {
-                calculatePersonalFee();
-            }
-            
-            // 이벤트 전파 방지
-            event.stopPropagation();
-        }
-        
-        // 천 단위 구분 쉼표 포맷팅 함수
-        function formatInputWithCommas(input) {
-            // 숫자 이외의 문자 제거
-            let value = input.value.replace(/[^\d]/g, '');
-            
-            // 천 단위 구분 쉼표 추가
-            if (value.length > 0) {
-                value = parseInt(value).toLocaleString('ko-KR');
+                const parts = value.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                value = parts.join('.');
             }
             
             input.value = value;
         }
-        
-        // 개인 세무조정계산서 보수 계산 함수
-        function calculatePersonalFee() {
-            // 쉼표 제거하고 숫자로 변환
-            const amount = parseFloat(document.getElementById('personal-amount').value.replace(/,/g, ''));
-            if (isNaN(amount) || amount < 0) {
-                document.getElementById('personal-result').innerHTML = "유효한 금액을 입력해주세요.";
-                return;
-            }
-            
-            let fee = 0;
-            let feeDescription = "";
-            
-            if (amount < 50000000) {
-                fee = 400000;
-                feeDescription = "400,000원";
-            } else if (amount < 100000000) {
-                fee = 400000 + (amount - 50000000) * 0.002;
-                feeDescription = `400,000원 + 5천만원 초과(${formatNumber(amount - 50000000)}원) × 0.2% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 300000000) {
-                fee = 500000 + (amount - 100000000) * 0.0015;
-                feeDescription = `500,000원 + 1억원 초과(${formatNumber(amount - 100000000)}원) × 0.15% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 500000000) {
-                fee = 800000 + (amount - 300000000) * 0.0012;
-                feeDescription = `800,000원 + 3억원 초과(${formatNumber(amount - 300000000)}원) × 0.12% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 1000000000) {
-                fee = 1040000 + (amount - 500000000) * 0.001;
-                feeDescription = `1,040,000원 + 5억원 초과(${formatNumber(amount - 500000000)}원) × 0.1% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 2000000000) {
-                fee = 1540000 + (amount - 1000000000) * 0.0006;
-                feeDescription = `1,540,000원 + 10억원 초과(${formatNumber(amount - 1000000000)}원) × 0.06% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 3000000000) {
-                fee = 2140000 + (amount - 2000000000) * 0.00035;
-                feeDescription = `2,140,000원 + 20억원 초과(${formatNumber(amount - 2000000000)}원) × 0.035% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 5000000000) {
-                fee = 3190000 + (amount - 3000000000) * 0.0003;
-                feeDescription = `3,190,000원 + 30억원 초과(${formatNumber(amount - 3000000000)}원) × 0.03% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 7000000000) {
-                fee = 4190000 + (amount - 5000000000) * 0.0003;
-                feeDescription = `4,190,000원 + 50억원 초과(${formatNumber(amount - 5000000000)}원) × 0.03% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 10000000000) {
-                fee = 5190000 + (amount - 7000000000) * 0.00028;
-                feeDescription = `5,190,000원 + 70억원 초과(${formatNumber(amount - 7000000000)}원) × 0.028% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 15000000000) {
-                fee = 6190000 + (amount - 10000000000) * 0.00026;
-                feeDescription = `6,190,000원 + 100억원 초과(${formatNumber(amount - 10000000000)}원) × 0.026% = ${formatNumber(Math.round(fee))}원`;
-            } else if (amount < 20000000000) {
-                fee = 8690000 + (amount - 15000000000) * 0.00024;
-                feeDescription = `8,690,000원 + 150억원 초과(${formatNumber(amount - 15000000000)}원) × 0.024% = ${formatNumber(Math.round(fee))}원`;
-            } else {
-                fee = 10690000;
-                feeDescription = `10,690,000원`;
-            }
-            
-            // 가산율 적용
-            let addedFee = fee;
-            let addedFeeDescription = "";
-            
-            // 결산업무와 세무조정 및 원가계산을 함께 수행하는 경우 (30% 가산)
-            if (document.getElementById('personal-option1').checked) {
-                addedFee = addedFee * 1.3; // 30% 가산
-                addedFeeDescription += " + 30% 가산(결산업무와 세무조정 및 원가계산 함께 수행)";
-            }
-            
-            // 기타 중점관리기업
-            if (document.getElementById('personal-option2').checked) {
-                const option2Percent = parseFloat(document.getElementById('personal-option2-percent').value);
-                addedFee = addedFee * (1 + option2Percent); // 선택된 % 가산
-                addedFeeDescription += ` + ${option2Percent * 100}% 가산(기타 중점관리기업)`;
-            }
-            
-            // 이월결손금 공제 (환급액의 10% 추가)
-            if (document.getElementById('personal-refund-option').checked) {
-                const refundAmount = parseFloat(document.getElementById('personal-refund-amount').value.replace(/,/g, ''));
-                if (!isNaN(refundAmount) && refundAmount > 0) {
-                    const refundFee = refundAmount * 0.1;
-                    addedFee = addedFee + refundFee;
-                    addedFeeDescription += ` + 환급액(${formatNumber(refundAmount)}원)의 10% 추가: ${formatNumber(Math.round(refundFee))}원`;
-                }
-            }
-            
-            // 창업중소기업, 청년창업중소기업 감면 검토 (15% 추가)
-            if (document.getElementById('personal-option4').checked) {
-                addedFee = addedFee * 1.15; // 15% 추가
-                addedFeeDescription += " + 15% 추가(창업중소기업, 청년창업중소기업 감면 검토)";
-            }
-            
-            let bookkeepingAmount = 0;
-            if (document.getElementById('personal-bookkeeping-option').checked) {
-                bookkeepingAmount = parseFloat(document.getElementById('personal-bookkeeping-amount').value.replace(/,/g, '')) || 0;
-                if (bookkeepingAmount > 0) {
-                    addedFee = addedFee + bookkeepingAmount;
-                    addedFeeDescription += ` + 장부대: ${formatNumber(bookkeepingAmount)}원`;
-                }
-            }
-            
-            // 브래킷 찾기
-            let bracket = "";
-            if (amount < 50000000) {
-                bracket = "5천만원 미만";
-            } else if (amount < 100000000) {
-                bracket = "5천만원 이상 ~ 1억원 미만";
-            } else if (amount < 300000000) {
-                bracket = "1억원 이상 ~ 3억원 미만";
-            } else if (amount < 500000000) {
-                bracket = "3억원 이상 ~ 5억원 미만";
-            } else if (amount < 1000000000) {
-                bracket = "5억원 이상 ~ 10억원 미만";
-            } else if (amount < 2000000000) {
-                bracket = "10억원 이상 ~ 20억원 미만";
-            } else if (amount < 3000000000) {
-                bracket = "20억원 이상 ~ 30억원 미만";
-            } else if (amount < 5000000000) {
-                bracket = "30억원 이상 ~ 50억원 미만";
-            } else if (amount < 7000000000) {
-                bracket = "50억원 이상 ~ 70억원 미만";
-            } else if (amount < 10000000000) {
-                bracket = "70억원 이상 ~ 100억원 미만";
-            } else if (amount < 15000000000) {
-                bracket = "100억원 이상 ~ 150억원 미만";
-            } else if (amount < 20000000000) {
-                bracket = "150억원 이상 ~ 200억원 미만";
-            } else {
-                bracket = "200억원 이상";
-            }
-            
-            // 결과 표시
-            let resultHTML = `
-            <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">수입금액: ${formatNumber(amount)}원 (${bracket})</div>
-            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
-            
-            // 가산 사항이 있는 경우 추가
-            if (addedFeeDescription) {
-                resultHTML += `<div style="font-size: 1rem; color: #444; margin-bottom: 10px;">가산 사항: ${addedFeeDescription}</div>`;
-            }
-            
-            // 최종 금액 표시
-            resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${formatNumber(Math.round(addedFee))}원</div>`;
-            
-            document.getElementById('personal-result').innerHTML = resultHTML;
-        }
-        
-        // 개인B 세무조정계산서 보수 계산 함수
-        function calculatePersonalBFee() {
-            // 쉼표 제거하고 숫자로 변환
-            const amount = parseFloat(document.getElementById('personalB-amount').value.replace(/,/g, ''));
-            if (isNaN(amount) || amount < 0) {
-                document.getElementById('personalB-result').innerHTML = "유효한 금액을 입력해주세요.";
-                return;
-            }
-            
-            let fee = 0;
-            let feeDescription = "";
-            let bracket = "";
-            
-            if (amount < 100000000) {
-                fee = Math.max(450000, Math.min(600000, amount * 0.006));
-                feeDescription = `450,000원 ~ 600,000원 (가산율 제외)`;
-                bracket = "1억원 미만";
-            } else if (amount < 200000000) {
-                fee = 600000 + (amount - 100000000) * 0.003;
-                feeDescription = `600,000원 + 1억원 초과(${formatNumber(amount - 100000000)}원) × 0.3% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "1억원 이상 ~ 2억원 미만";
-            } else if (amount < 300000000) {
-                fee = 900000 + (amount - 100000000) * 0.0025;
-                feeDescription = `900,000원 + 1억원 초과(${formatNumber(amount - 100000000)}원) × 0.25% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "2억원 이상 ~ 3억원 미만";
-            } else if (amount < 500000000) {
-                fee = 1150000 + (amount - 300000000) * 0.002;
-                feeDescription = `1,150,000원 + 3억원 초과(${formatNumber(amount - 300000000)}원) × 0.2% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "3억원 이상 ~ 5억원 미만";
-            } else if (amount < 1000000000) {
-                fee = 1550000 + (amount - 500000000) * 0.0015;
-                feeDescription = `1,550,000원 + 5억원 초과(${formatNumber(amount - 500000000)}원) × 0.15% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "5억원 이상 ~ 10억원 미만";
-            } else if (amount < 2000000000) {
-                fee = 2300000 + (amount - 1000000000) * 0.0013;
-                feeDescription = `2,300,000원 + 10억원 초과(${formatNumber(amount - 1000000000)}원) × 0.13% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "10억원 이상 ~ 20억원 미만";
-            } else if (amount < 3000000000) {
-                fee = 3600000 + (amount - 2000000000) * 0.0001;
-                feeDescription = `3,600,000원 + 20억원 초과(${formatNumber(amount - 2000000000)}원) × 0.01% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "20억원 이상 ~ 30억원 미만";
-            } else if (amount < 4000000000) {
-                fee = 4600000 + (amount - 3000000000) * 0.0007;
-                feeDescription = `4,600,000원 + 30억원 초과(${formatNumber(amount - 3000000000)}원) × 0.07% = ${formatNumber(Math.round(fee))}원`;
-                bracket = "30억원 이상 ~ 40억원 미만";
-            } else {
-                feeDescription = "협의 필요";
-                bracket = "50억원 이상";
-            }
-            
-            // 가산율 적용
-            let addedFee = amount < 10000000000 ? fee : 0;
-            let addedFeeDescription = "";
-            
-            // 특별업종 중 중점관리업종 및 외형 5억 이상 (40% 가산)
-            if (document.getElementById('personalB-option1').checked && amount < 10000000000) {
-                addedFee = addedFee * 1.4; // 40% 가산
-                addedFeeDescription += " + 40% 가산(특별업종 중 중점관리업종)";
-            }
-            
-            // 부동산 임대 음식 주점업 인적서비스업 (40% 가산)
-            if (document.getElementById('personalB-option3').checked && amount < 10000000000) {
-                addedFee = addedFee * 1.4; // 40% 가산
-                addedFeeDescription += " + 40% 가산(부동산 임대 음식 주점업 인적서비스업)";
-            }
-            
-            // 상반기 가결산 수시지도방문 등 특별관리업체 (20~100%가산)
-            if (document.getElementById('personalB-option4').checked && amount < 10000000000) {
-                const option4Percent = parseFloat(document.getElementById('personalB-option4-percent').value);
-                addedFee = addedFee * (1 + option4Percent); // 선택된 % 가산
-                addedFeeDescription += ` + ${option4Percent * 100}% 가산(특별관리업체)`;
-            }
-            
-            // 부동산개발 분양업 특수업종 (400~900% 가산)
-            if (document.getElementById('personalB-option5').checked && amount < 10000000000) {
-                const option5Percent = parseInt(document.getElementById('personalB-option5-percent').value);
-                addedFee = addedFee * (1 + option5Percent); // 선택된 % 가산
-                addedFeeDescription += ` + ${option5Percent * 100}% 가산(부동산개발 분양업)`;
-            }
-            
-            // 장부대행 추가비용
-            let bookkeepingAmount = 0;
-            if (document.getElementById('personalB-bookkeeping-option').checked) {
-                bookkeepingAmount = parseFloat(document.getElementById('personalB-bookkeeping-amount').value.replace(/,/g, '')) || 0;
-                if (bookkeepingAmount > 0) {
-                    addedFee = addedFee + bookkeepingAmount;
-                    addedFeeDescription += ` + 장부대: ${formatNumber(bookkeepingAmount)}원`;
-                }
-            }
-            
-            // 결과 표시
-            let resultHTML = `
-            <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">수입금액: ${formatNumber(amount)}원 (${bracket})</div>
-            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
-            
-            // 가산 사항이 있는 경우만 추가
-            if (addedFeeDescription && amount < 10000000000) {
-                resultHTML += `<div style="font-size: 1rem; color: #444; margin-bottom: 10px;">가산 사항: ${addedFeeDescription}</div>`;
-            }
-            
-            // 최종 금액 표시
-            if (amount < 10000000000) {
-                resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${formatNumber(Math.round(addedFee))}원</div>`;
-            } else {
-                resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: 100억원 이상 협의 필요</div>`;
-            }
-            
-            document.getElementById('personalB-result').innerHTML = resultHTML;
-        }
-        
-        // 기장대행 보수 계산 함수
-        function calculateBookkeepingFee() {
-            // 쉼표 제거하고 숫자로 변환
-            const amount = parseFloat(document.getElementById('bookkeeping-amount').value.replace(/,/g, ''));
-            if (isNaN(amount) || amount < 0) {
-                document.getElementById('bookkeeping-result').innerHTML = "유효한 금액을 입력해주세요.";
-                return;
-            }
-            
-            const type = document.getElementById('bookkeeping-type').value;
-            
-            let fee = 0;
-            let feeDescription = "";
-            let bracket = "";
-            
-            // 개인 A 계산
-            if (type === 'A') {
-                if (amount < 100000000) {
-                    fee = 120000;
-                    feeDescription = "120,000원";
-                    bracket = "1억원 미만";
-                } else if (amount < 200000000) {
-                    fee = 130000;
-                    feeDescription = "130,000원";
-                    bracket = "1억원 이상 ~ 2억원 미만";
-                } else if (amount < 300000000) {
-                    fee = 140000;
-                    feeDescription = "140,000원";
-                    bracket = "2억원 이상 ~ 3억원 미만";
-                } else if (amount < 500000000) {
-                    fee = 160000;
-                    feeDescription = "160,000원";
-                    bracket = "3억원 이상 ~ 5억원 미만";
-                } else if (amount < 1000000000) {
-                    fee = 200000;
-                    feeDescription = "200,000원";
-                    bracket = "5억원 이상 ~ 10억원 미만";
-                } else if (amount < 2000000000) {
-                    fee = 250000;
-                    feeDescription = "250,000원";
-                    bracket = "10억원 이상 ~ 20억원 미만";
-                } else if (amount < 3000000000) {
-                    fee = 300000;
-                    feeDescription = "300,000원";
-                    bracket = "20억원 이상 ~ 30억원 미만";
-                } else if (amount < 4000000000) {
-                    fee = 400000;
-                    feeDescription = "400,000원";
-                    bracket = "30억원 이상 ~ 40억원 미만";
-                } else {
-                    feeDescription = "협의 필요";
-                    bracket = "50억원 이상";
-                }
-            } 
-            // 개인 B 계산
-            else {
-                if (amount < 100000000) {
-                    fee = 120000;
-                    feeDescription = "120,000원";
-                    bracket = "1억원 미만";
-                } else if (amount < 200000000) {
-                    fee = 150000;
-                    feeDescription = "150,000원";
-                    bracket = "1억원 이상 ~ 2억원 미만";
-                } else if (amount < 300000000) {
-                    fee = 170000;
-                    feeDescription = "170,000원";
-                    bracket = "2억원 이상 ~ 3억원 미만";
-                } else if (amount < 500000000) {
-                    fee = 200000;
-                    feeDescription = "200,000원";
-                    bracket = "3억원 이상 ~ 5억원 미만";
-                } else if (amount < 1000000000) {
-                    fee = 250000;
-                    feeDescription = "250,000원";
-                    bracket = "5억원 이상 ~ 10억원 미만";
-                } else if (amount < 2000000000) {
-                    fee = 350000;
-                    feeDescription = "350,000원";
-                    bracket = "10억원 이상 ~ 20억원 미만";
-                } else if (amount < 3000000000) {
-                    fee = 450000;
-                    feeDescription = "450,000원";
-                    bracket = "20억원 이상 ~ 30억원 미만";
-                } else if (amount < 4000000000) {
-                    fee = 500000;
-                    feeDescription = "500,000원";
-                    bracket = "30억원 이상 ~ 40억원 미만";
-                } else {
-                    feeDescription = "협의 필요";
-                    bracket = "50억원 이상";
-                }
-            }
-            
-            // 특별 추가 사항
-            let additionalFees = 0;
-            let additionalDescription = "";
-            
-            // 4대보험 신고 대행
-            if (document.getElementById('bookkeeping-option1').checked) {
-                const personCount = parseInt(document.getElementById('bookkeeping-option1-count').value);
-                if (!isNaN(personCount) && personCount > 0) {
-                    const insuranceFee = Math.max(20000, personCount * 5000);
-                    additionalFees += insuranceFee;
-                    additionalDescription += `<br>+ 4대보험 신고 대행 (${personCount}명): ${formatNumber(insuranceFee)}원`;
-                } else {
-                    additionalFees += 20000;
-                    additionalDescription += "<br>+ 4대보험 신고 대행: 20,000원";
-                }
-            }
-            
-            // 수시 내방 방문 지도업체
-            if (document.getElementById('bookkeeping-option2').checked) {
-                const visitFee = parseInt(document.getElementById('bookkeeping-option2-amount').value);
-                additionalFees += visitFee;
-                additionalDescription += `<br>+ 수시 내방 방문 지도: ${formatNumber(visitFee)}원`;
-            }
-            
-            // PC방 업체 인건비 신고
-            if (document.getElementById('bookkeeping-option3').checked) {
-                fee = 110000;
-                feeDescription = "PC방 업체 인건비 신고: 110,000원";
-                bracket = "PC방 업체";
-            }
-            
-            // 일자리 안정자금 신청 업체
-            if (document.getElementById('bookkeeping-option4').checked) {
-                additionalFees += 20000;
-                additionalDescription += "<br>+ 일자리 안정자금 신청: 20,000원";
-            }
-            
-            // 결과 표시
-            let resultHTML = `
-            <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">기준액(자산,매출금액): ${formatNumber(amount)}원 (${bracket})</div>
-            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
-            
-            // 추가 사항이 있는 경우만 추가
-            if (additionalDescription) {
-                resultHTML += `<div style="font-size: 1rem; color: #444; margin-bottom: 10px;">추가 사항: ${additionalDescription}</div>`;
-            }
-            
-            // 최종 금액 표시
-            const totalFee = fee + additionalFees;
-            resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${formatNumber(Math.round(totalFee))}원</div>`;
-            
-            document.getElementById('bookkeeping-result').innerHTML = resultHTML;
-        }
-        
-        // 숫자 형식화 함수
-        function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-        
-        // PDF 생성 함수
-        function generatePDF() {
-            const element = document.querySelector('.container');
-            const opt = {
-                margin: 10,
-                filename: '세무대리_보수기준표.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+
+        // 게임사별 시간당 원가를 반환하는 함수
+        function getGameHourlyCost(gameName) {
+            const gameHourlyCosts = {
+                '(주)넥슨코리아': 220,
+                '라이엇게임즈코리아': 204,
+                '블리자드엔터테인먼트': 218,
+                '(주)엔씨소프트': 234,
+                '(주)카카오게임즈': 198,
+                '그외': 200
             };
             
-            // PDF 생성 시작
-            html2pdf().set(opt).from(element).save();
+            return gameHourlyCosts[gameName] || 200; // 기본값은 200원
+        }
+
+        function calculateGamePurchaseTime(input) {
+            // 입력된 게임사 행 찾기
+            const row = input.closest('tr');
+            
+            // 게임사 이름 얻기
+            const gameName = row.cells[0].textContent.trim();
+            
+            // 시간당 원가 찾기 (해당 게임사에 해당하는)
+            const gameHourlyCost = getGameHourlyCost(gameName);
+            
+            // 공급가액 가져오기
+            const supplyPrice = parseFloat(input.value.replace(/,/g, '')) || 0;
+            
+            // 게임매입시간 계산 (공급가액 / 시간당 원가)
+            const gamePurchaseTime = gameHourlyCost !== 0 ? Math.round(supplyPrice / gameHourlyCost) : 0;
+            
+            // 결과를 표시할 셀
+            row.cells[3].textContent = gamePurchaseTime.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function calculateCashSales() {
+            const cardSalesInput = document.getElementById('cardSales');
+            const ratioInput = document.getElementById('ratio');
+            const cashSalesInput = document.getElementById('cashSales');
+            const cashSalesSupplyPriceInput = document.getElementById('cashSalesSupplyPrice');
+
+            // 숫자에서 쉼표 제거
+            const cardSales = parseFloat(cardSalesInput.value.replace(/,/g, '')) || 0;
+            const ratio = parseFloat(ratioInput.value.replace(/,/g, '')) || 0;
+
+            // 계산: 카드매출 * (배율 / 100)
+            let result = cardSales * (ratio / 100);
+
+            // 천의 자리까지 반올림
+            result = Math.round(result / 1000) * 1000;
+
+            // 결과를 천 단위 구분자로 포맷팅
+            if (result) {
+                cashSalesInput.value = result.toLocaleString();
+                
+                // 공급가액 계산 (공급대가 / 1.1)
+                const supplyPrice = Math.round(result / 1.1);
+                cashSalesSupplyPriceInput.value = supplyPrice.toLocaleString();
+                
+                // 총 매출 계산
+                calculateTotalSales();
+            } else {
+                cashSalesInput.value = '';
+                cashSalesSupplyPriceInput.value = '';
+                calculateTotalSales();
+            }
+        }
+
+        function calculateTotalSales() {
+            const cardSalesInput = document.getElementById('cardSales');
+            const cashReceiptSalesInput = document.getElementById('cashReceiptSales');
+            const cashSalesSupplyPriceInput = document.getElementById('cashSalesSupplyPrice');
+            const totalSalesInput = document.getElementById('totalSales');
+
+            // 숫자에서 쉼표 제거
+            const cardSales = parseFloat(cardSalesInput.value.replace(/,/g, '')) || 0;
+            const cashReceiptSales = parseFloat(cashReceiptSalesInput.value.replace(/,/g, '')) || 0;
+            const cashSalesSupplyPrice = parseFloat(cashSalesSupplyPriceInput.value.replace(/,/g, '')) || 0;
+
+            // 계산: (카드매출/1.1) + (현금영수증매출/1.1) + 현금매출 매출(공급가액)
+            const totalSales = Math.floor((cardSales / 1.1) + (cashReceiptSales / 1.1) + cashSalesSupplyPrice);
+
+            // 결과를 천 단위 구분자로 포맷팅
+            if (totalSales) {
+                totalSalesInput.value = totalSales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            } else {
+                totalSalesInput.value = '';
+            }
+            
+            // 상품매출 자동 계산 (총 매출 - 서비스 매출)
+            calculateProductSalesFromTotal();
+        }
+
+        function calculateTotals() {
+            // 서비스 매출 테이블의 행들 선택
+            const h3Elements = document.querySelectorAll('h3');
+            let serviceTable;
+            for (const h3 of h3Elements) {
+                if (h3.textContent.includes('서비스 매출')) {
+                    serviceTable = h3.nextElementSibling.querySelector('.game-cost-table');
+                    break;
+                }
+            }
+            
+            const rows = serviceTable.querySelectorAll('tbody tr');
+            let totalSupplyPrice = 0;
+            let totalGamePurchaseTime = 0;
+
+            rows.forEach(row => {
+                // 공급가액 입력 필드가 있는 행만 처리
+                const input = row.querySelector('input');
+                if (input) {
+                    const supplyPrice = parseFloat(input.value.replace(/,/g, '')) || 0;
+                    const gamePurchaseTime = parseFloat(row.cells[3].textContent.replace(/,/g, '')) || 0;
+                    
+                    totalSupplyPrice += supplyPrice;
+                    totalGamePurchaseTime += gamePurchaseTime;
+                }
+            });
+
+            // 총 공급금액과 총 매입시간 업데이트
+            document.getElementById('totalSupplyPrice').value = totalSupplyPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            document.getElementById('totalGamePurchaseTime').value = totalGamePurchaseTime.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // 총 공급금액과 총 매입시간이 업데이트되면 서비스 매출도 업데이트
+            calculateServiceSales();
+            
+            // 디버깅용 콘솔 로그
+            console.log('총 공급금액:', totalSupplyPrice);
+            console.log('총 매입시간:', totalGamePurchaseTime);
+        }
+
+        function calculateServiceSales() {
+            // 값이 비어있거나 숫자가 아닐 경우 0으로 처리
+            const gameFeeEl = document.getElementById('gameFee');
+            const totalGamePurchaseTimeEl = document.getElementById('totalGamePurchaseTime');
+            const totalSupplyPriceEl = document.getElementById('totalSupplyPrice');
+            const supplyMultiplierEl = document.getElementById('supplyMultiplier');
+            
+            const gameFee = gameFeeEl.value.trim() === '' ? 0 : parseFloat(gameFeeEl.value.replace(/,/g, '')) || 0;
+            const totalGamePurchaseTime = totalGamePurchaseTimeEl.value.trim() === '' ? 0 : parseFloat(totalGamePurchaseTimeEl.value.replace(/,/g, '')) || 0;
+            const totalSupplyPrice = totalSupplyPriceEl.value.trim() === '' ? 0 : parseFloat(totalSupplyPriceEl.value.replace(/,/g, '')) || 0;
+            
+            // 값이 비어있는 경우 기본값 4 사용, 아니면 입력값 사용(0도 유효한 입력값)
+            const supplyMultiplierValue = supplyMultiplierEl.value.trim();
+            const supplyMultiplier = supplyMultiplierValue === "" ? 4 : parseFloat(supplyMultiplierValue.replace(/,/g, '')) || 0;
+            
+            // 시간환산기준 계산 (게임료 × 총 매입시간)
+            const timeBasedSales = gameFee * totalGamePurchaseTime;
+            document.getElementById('timeBasedSales').value = timeBasedSales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // 매입N배기준 계산 (총 공급금액 × 사용자 입력 배율)
+            const supplyXSales = totalSupplyPrice * supplyMultiplier;
+            document.getElementById('supplyX4Sales').value = supplyXSales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // 서비스 매출이 변경되면 상품매출도 업데이트
+            calculateProductSalesFromTotal();
+        }
+
+        function calculateProductTotals() {
+            console.log('calculateProductTotals 함수 실행');
+            
+            // 상품매출 테이블의 공급가액 입력 필드 선택
+            const productInputs = document.querySelectorAll('.product-price-input');
+            console.log('상품매출 테이블 입력 필드 수:', productInputs.length);
+            
+            // 총 유통매입가액 계산
+            let total = 0;
+            productInputs.forEach(input => {
+                const value = parseFloat(input.value.replace(/,/g, '')) || 0;
+                console.log('상품매출 입력값:', input.value, '변환된 값:', value);
+                total += value;
+            });
+            
+            console.log('계산된 총 유통매입가액:', total);
+            
+            // 총 유통매입가액 입력 필드 업데이트
+            const totalDistributionPrice = document.getElementById('totalDistributionPrice');
+            if (totalDistributionPrice) {
+                const oldValue = totalDistributionPrice.value;
+                totalDistributionPrice.value = total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                console.log('총 유통매입가액 업데이트됨:', totalDistributionPrice.value);
+                
+                // 총 유통매입가액이 변경되었다면 마진율 재계산
+                if (oldValue !== totalDistributionPrice.value) {
+                    calculateSimpleMarginRate();
+                }
+            } else {
+                console.error('totalDistributionPrice 요소를 찾을 수 없습니다.');
+            }
+            
+            // 마진율이 입력되어 있다면 상품매출 계산
+            calculateProductSales();
         }
         
-        // PDF 생성 함수 (기장대행보수표만)
-        function generateAccountingPDF() {
-            // 기장대행보수표 영역만 선택
-            const accountingSection = document.getElementById('accounting');
-            const opt = {
-                margin: 10,
-                filename: '기장대행_보수기준표.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(accountingSection).save();
+        function calculateProductSales() {
+            // 상품매출액 산출식 섹션의 상품매출을 가져옴
+            const productSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+            
+            // 총 유통매입가액 섹션의 상품매출에 동일한 값 설정
+            document.getElementById('finalProductSales').value = productSales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // 상품매출이 업데이트되면 총매출도 업데이트
+            updateTotalRevenue();
         }
+
+        // 새로운 함수: 총 매출에서 서비스 매출을 빼서 상품매출 계산
+        function calculateProductSalesFromTotal() {
+            const totalSales = parseFloat(document.getElementById('totalSales').value.replace(/,/g, '')) || 0;
+            const serviceSales = parseFloat(document.getElementById('serviceSales').value.replace(/,/g, '')) || 0;
+            const productSalesInput = document.getElementById('productSales');
+            
+            if (totalSales || serviceSales) {
+                // 상품매출 = 총 매출 - 서비스 매출
+                const productSales = Math.max(0, totalSales - serviceSales);
+                const oldValue = productSalesInput.value;
+                productSalesInput.value = productSales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                console.log("상품매출액 계산: " + productSales);
+                
+                // 상품매출이 변경되었으면 마진율 재계산
+                if (oldValue !== productSalesInput.value) {
+                    console.log("상품매출액 변경됨. 마진율 계산 시작");
+                    calculateSimpleMarginRate();
+                    
+                    // 총 유통매입가액 섹션의 상품매출에도 동일한 값 설정
+                    document.getElementById('finalProductSales').value = productSales.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }
+            } else {
+                productSalesInput.value = '';
+                // 상품매출이 없으면 마진율도 0으로 설정
+                document.getElementById('marginRate').value = '0';
+                // 총 유통매입가액 섹션의 상품매출에도 빈 값 설정
+                document.getElementById('finalProductSales').value = '';
+            }
+        }
+        
+        function calculateOtherGameCompanyTotals() {
+            console.log('calculateOtherGameCompanyTotals 함수 실행');
+            
+            // 그 외 게임사별 매입금액 테이블 찾기
+            const h3Elements = document.querySelectorAll('h3');
+            let otherGameCompanyTable;
+            
+            for (const h3 of h3Elements) {
+                if (h3.textContent.includes('그 외 게임사별 매입금액')) {
+                    const nextDiv = h3.nextElementSibling;
+                    if (nextDiv && nextDiv.tagName === 'DIV') {
+                        otherGameCompanyTable = nextDiv.querySelector('table');
+                    }
+                    break;
+                }
+            }
+            
+            if (!otherGameCompanyTable) {
+                console.error('그 외 게임사별 매입금액 테이블을 찾을 수 없습니다.');
+                return;
+            }
+            
+            console.log('그 외 게임사별 매입금액 테이블 찾음:', otherGameCompanyTable);
+            
+            // 공급가액 입력 필드 선택
+            const supplyPriceInputs = otherGameCompanyTable.querySelectorAll('tbody tr td:nth-child(2) input');
+            console.log('공급가액 입력 필드 수:', supplyPriceInputs.length);
+            
+            // 총 매입금액 계산
+            let total = 0;
+            supplyPriceInputs.forEach(input => {
+                const value = parseFloat(input.value.replace(/,/g, '')) || 0;
+                console.log('입력값:', input.value, '변환된 값:', value);
+                total += value;
+            });
+            
+            console.log('계산된 총 매입금액:', total);
+            
+            // 서비스 매출 테이블의 "그외" 행 찾기
+            let serviceTable;
+            for (const h3 of h3Elements) {
+                if (h3.textContent.includes('서비스 매출')) {
+                    const nextDiv = h3.nextElementSibling;
+                    if (nextDiv && nextDiv.tagName === 'DIV') {
+                        serviceTable = nextDiv.querySelector('table');
+                    }
+                    break;
+                }
+            }
+            
+            if (!serviceTable) {
+                console.error('서비스 매출 테이블을 찾을 수 없습니다.');
+                return;
+            }
+            
+            console.log('서비스 매출 테이블 찾음:', serviceTable);
+            
+            // "그외" 행 찾기
+            const rows = serviceTable.querySelectorAll('tbody tr');
+            let otherRow;
+            
+            for (const row of rows) {
+                if (row.cells[0].textContent.trim() === '그외') {
+                    otherRow = row;
+                    break;
+                }
+            }
+            
+            if (!otherRow) {
+                console.error('서비스 매출 테이블에서 "그외" 행을 찾을 수 없습니다.');
+                return;
+            }
+            
+            console.log('서비스 매출 테이블의 "그외" 행 찾음:', otherRow);
+            
+            // "그외" 행의 공급가액 입력 필드 찾기
+            const otherRowInput = otherRow.querySelector('td:nth-child(3) input');
+            
+            if (!otherRowInput) {
+                console.error('서비스 매출 테이블의 "그외" 행에서 공급가액 입력 필드를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 공급가액 입력 필드에 총 매입금액 설정
+            otherRowInput.value = total.toLocaleString();
+            console.log('서비스 매출 테이블의 "그외" 행 공급가액 업데이트 완료:', otherRowInput.value);
+            
+            // 게임 매입 시간 계산 및 총액 업데이트
+            calculateGamePurchaseTime(otherRowInput);
+            calculateTotals();
+        }
+        
+        function calculateMarginRateFromSales() {
+            const productSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+            const totalDistributionPrice = parseFloat(document.getElementById('totalDistributionPrice').value.replace(/,/g, '')) || 0;
+            const marginRateInput = document.getElementById('marginRate');
+            
+            if (productSales && totalDistributionPrice && totalDistributionPrice > 0) {
+                // 마진율 = ((상품매출 / 총 오튱매입가액) - 1) * 100
+                const marginRate = Math.round(((productSales / totalDistributionPrice) - 1) * 100);
+                marginRateInput.value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            } else {
+                marginRateInput.value = '';
+            }
+        }
+        
+        function updateSectionMarginRate() {
+            // 상품매출액 산출식 섹션의 상품매출 가져오기
+            const sectionProductSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+            // 총 유통매입가액 가져오기
+            const totalDistributionPrice = parseFloat(document.getElementById('totalDistributionPrice').value.replace(/,/g, '')) || 0;
+            
+            // 마진율 입력 필드 찾기
+            const marginRateInput = document.getElementById('marginRate');
+            const productMarginRateInput = document.getElementById('productMarginRate');
+            
+            if (sectionProductSales > 0 && totalDistributionPrice > 0) {
+                // 마진율 = (상품매출 / 총유통매입가액) * 100
+                const marginRate = Math.round((sectionProductSales / totalDistributionPrice) * 100);
+                
+                // 두 섹션의 마진율 입력 필드 업데이트, 천 단위 구분자 추가
+                marginRateInput.value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                productMarginRateInput.value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                console.log('마진율 계산됨:', marginRate + '%');
+                console.log('계산식: (' + sectionProductSales + ' / ' + totalDistributionPrice + ') * 100 = ' + marginRate + '%');
+            } else {
+                marginRateInput.value = '';
+                productMarginRateInput.value = '';
+            }
+        }
+        
+        // 환산매출 계산 함수
+        function calculateConvertedRevenue() {
+            const productSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+            const serviceSales = parseFloat(document.getElementById('serviceSales').value.replace(/,/g, '')) || 0;
+            const creditCardTaxDeduction = parseFloat(document.getElementById('creditCardTaxDeduction').value.replace(/,/g, '')) || 0;
+            const revenueDivision = parseFloat(document.getElementById('revenueDivision').value) || 0.667;
+            
+            // 환산매출 = (상품매출 × 5억/7.5억) + 서비스 매출 + 신용카드발행세액공제
+            const convertedRevenue = (productSales * revenueDivision) + serviceSales + creditCardTaxDeduction;
+            
+            document.getElementById('convertedRevenue').value = Math.round(convertedRevenue).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // 서비스 매출과 상품매출의 합을 총매출에 표시하는 함수
+        function updateTotalRevenue() {
+            const serviceSales = parseFloat(document.getElementById('serviceSales').value.replace(/,/g, '')) || 0;
+            // 상품매출액 산출식의 상품매출 사용 (대신 finalProductSales 대신)
+            const productSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+            
+            // 총매출 = 서비스 매출 + 상품매출
+            const totalRevenue = serviceSales + productSales;
+            
+            // 총매출 입력 필드에 값 표시
+            document.getElementById('totalRevenue').value = totalRevenue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // 환산매출도 업데이트
+            calculateConvertedRevenue();
+        }
+
+        // 자동 계산되는 읽기 전용 필드의 스타일 설정
+        function styleReadOnlyFields() {
+            const readOnlyFields = [
+                'cashSales', 
+                'cashSalesSupplyPrice', 
+                'totalSales', 
+                'totalGamePurchaseTime', 
+                'timeBasedSales', 
+                'supplyX4Sales',
+                'totalDistributionPrice',
+                'totalRevenue',
+                'convertedRevenue'
+                // 'productSales' 제거 - 상품매출 필드는 이제 수정 가능
+            ];
+            
+            readOnlyFields.forEach(id => {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.style.border = 'none';
+                    field.style.background = 'transparent';
+                    field.style.appearance = 'none';
+                    field.style.padding = '0';
+                    field.style.margin = '0';
+                    field.readOnly = true;
+                    
+                    // 상위 요소에 따라 폰트 크기 조정 방지
+                    const currentFont = window.getComputedStyle(field).fontSize;
+                    field.style.fontSize = currentFont;
+                }
+            });
+            
+            // 마진율 필드는 별도 스타일 지정
+            const marginRateField = document.getElementById('marginRate');
+            if (marginRateField) {
+                marginRateField.readOnly = true;
+                marginRateField.style.background = '#f0f8ff'; // 연한 하늘색 배경으로 변경
+                marginRateField.style.border = '1px solid #4682b4'; // 테두리 추가
+            }
+            
+            // 상품매출 필드도 수정 가능하게 설정
+            const productSalesField = document.getElementById('productSales');
+            if (productSalesField) {
+                productSalesField.readOnly = false;
+                productSalesField.style.background = 'transparent'; // 노란색 배경에서 투명으로 변경
+                productSalesField.style.border = 'none'; // 테두리 제거
+            }
+            
+            // 상품 마진율 필드는 읽기 전용이 아님 - 스타일 기본값 유지
+            const productMarginRateField = document.getElementById('productMarginRate');
+            if (productMarginRateField) {
+                productMarginRateField.readOnly = false;
+                productMarginRateField.style.background = 'transparent'; // 투명 배경으로 변경
+                productMarginRateField.style.border = 'none'; // 테두리 제거
+            }
+            
+            // 게임매입시간 셀 내용도 스타일 조정
+            const gameTimeCells = document.querySelectorAll('.game-cost-table tbody tr td:nth-child(4)');
+            gameTimeCells.forEach(cell => {
+                cell.style.background = 'transparent';
+            });
+        }
+        
+        // 마진율 값을 강제로 업데이트하는 함수 추가
+        function forceUpdateMarginRate() {
+            // 상품매출액 산출식 섹션의 상품매출 가져오기
+            const productSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+            // 총 유통매입가액 가져오기
+            const totalDistributionPrice = parseFloat(document.getElementById('totalDistributionPrice').value.replace(/,/g, '')) || 0;
+            
+            if (productSales > 0 && totalDistributionPrice > 0) {
+                // 마진율 = (상품매출 / 총유통매입가액) * 100
+                const marginRate = Math.round((productSales / totalDistributionPrice) * 100);
+                
+                const marginRateInput = document.getElementById('marginRate');
+                const productMarginRateInput = document.getElementById('productMarginRate');
+                
+                // 천 단위 구분자 추가
+                marginRateInput.value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                productMarginRateInput.value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                console.log('마진율 강제 업데이트 완료: ' + marginRate + '%');
+                console.log('계산식: (' + productSales + ' / ' + totalDistributionPrice + ') * 100 = ' + marginRate + '%');
+            }
+        }
+        
+        // 직접 마진율을 계산하는 함수
+        function directCalcMarginRate() {
+            // 상품매출액 산출식 섹션의 상품매출 가져오기
+            const productSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+            // 총 유통매입가액 가져오기
+            const totalDistributionPrice = parseFloat(document.getElementById('totalDistributionPrice').value.replace(/,/g, '')) || 0;
+            
+            if (productSales > 0 && totalDistributionPrice > 0) {
+                // 마진율 = (상품매출 / 총유통매입가액) * 100
+                const marginRate = Math.round((productSales / totalDistributionPrice) * 100);
+                
+                // 천 단위 구분자 추가
+                document.getElementById('marginRate').value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                document.getElementById('productMarginRate').value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                console.log("마진율 계산: " + marginRate + "%");
+                
+                // 마진율 입력 필드 스타일 설정
+                const marginRateField = document.getElementById('marginRate');
+                if (marginRateField) {
+                    marginRateField.value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    marginRateField.style.border = '1px solid #4682b4';
+                    marginRateField.style.background = '#f0f8ff';
+                    marginRateField.style.padding = '5px 8px';
+                    marginRateField.style.textAlign = 'right';
+                    marginRateField.style.width = '110px';
+                    marginRateField.style.appearance = 'textfield';
+                    marginRateField.style.fontSize = '15px';
+                    marginRateField.style.lineHeight = '1.3';
+                }
+                
+                return marginRate;
+            }
+            return 0;
+        }
+        
+        // 마진율 계산 함수를 간소화 및 수정
+        function calculateSimpleMarginRate() {
+            try {
+                const productSales = parseFloat(document.getElementById('productSales').value.replace(/,/g, '')) || 0;
+                const totalDistributionPrice = parseFloat(document.getElementById('totalDistributionPrice').value.replace(/,/g, '')) || 1; // 0으로 나누기 방지
+                
+                console.log("계산 입력값: 상품매출=" + productSales + ", 총유통매입가액=" + totalDistributionPrice);
+                
+                // 마진율 = (상품매출 / 총유통매입가액) * 100
+                let marginRate = 0;
+                
+                if (productSales > 0 && totalDistributionPrice > 0) {
+                    // 반올림 처리
+                    marginRate = Math.round((productSales / totalDistributionPrice) * 100);
+                }
+                
+                // 마진율 값을 표시 - 두 필드 모두 업데이트, 천 단위 구분자 추가
+                document.getElementById('marginRate').value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                document.getElementById('productMarginRate').value = marginRate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                console.log("마진율 계산 결과: " + marginRate + "%");
+                console.log("계산식: (" + productSales + " / " + totalDistributionPrice + ") * 100 = " + marginRate + "%");
+                
+                return marginRate;
+            } catch (error) {
+                console.error("마진율 계산 오류:", error);
+                return 0;
+            }
+        }
+        
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            console.log('페이지 로드 시작');
+            
+            // 읽기 전용 필드의 스타일 적용
+            styleReadOnlyFields();
+            
+            // 서비스 매출 입력 필드에 이벤트 리스너 추가
+            document.getElementById('serviceSales').addEventListener('input', function() {
+                formatNumber(this);
+                // 서비스 매출이 변경되면 상품매출액 산출 식 섹션의 상품매출 재계산
+                calculateProductSalesFromTotal();
+                // 총매출과 환산매출 업데이트
+                updateTotalRevenue();
+                calculateConvertedRevenue();
+            });
+            
+            // 총 매출 필드에 이벤트 리스너 추가 - 값이 변경될 때마다 상품매출 재계산
+            document.getElementById('totalSales').addEventListener('change', function() {
+                calculateProductSalesFromTotal();
+                calculateConvertedRevenue();
+            });
+            
+            // 마진율 입력 필드 읽기 전용으로 설정
+            document.getElementById('marginRate').readOnly = true;
+            
+            // 상품매출 입력 필드에 이벤트 리스너 추가
+            document.getElementById('productSales').addEventListener('input', function() {
+                formatNumber(this);
+                // 상품매출이 변경될 때마다 마진율 재계산
+                calculateSimpleMarginRate();
+                // 총 유통매입가액 섹션의 상품매출과 동기화
+                document.getElementById('finalProductSales').value = this.value;
+                // 총매출과 환산매출 업데이트
+                updateTotalRevenue();
+                calculateConvertedRevenue();
+            });
+            
+            // 상품 마진율 필드에 이벤트 리스너 추가
+            document.getElementById('productMarginRate').addEventListener('input', function() {
+                formatNumber(this);
+                // 마진율 변경 시 상품매출 자동 계산 없이 그대로 유지
+            });
+            
+            // finalProductSales 입력 필드에 이벤트 리스너 추가
+            document.getElementById('finalProductSales').addEventListener('input', function() {
+                formatNumber(this);
+                // 총 유통매입가액 섹션의 상품매출이 변경되면 상품매출액 산출식 섹션의 상품매출과 동기화
+                document.getElementById('productSales').value = this.value;
+                // 총매출과 환산매출 업데이트
+                updateTotalRevenue();
+                calculateConvertedRevenue();
+            });
+            
+            // 총 공급금액 입력 필드 읽기 전용으로 설정
+            document.getElementById('totalSupplyPrice').readOnly = true;
+            
+            // 총 유통매입가액 입력 필드 읽기 전용으로 설정
+            document.getElementById('totalDistributionPrice').readOnly = true;
+            document.getElementById('totalDistributionPrice').addEventListener('change', function() {
+                console.log("총 유통매입가액 직접 변경 이벤트 발생");
+                calculateSimpleMarginRate();
+                calculateConvertedRevenue();
+            });
+            
+            // 환산매출 필드 읽기 전용으로 설정
+            document.getElementById('convertedRevenue').readOnly = true;
+            
+            // 신용카드발행세액공제 입력 필드에 이벤트 리스너 추가
+            document.getElementById('creditCardTaxDeduction').addEventListener('input', function() {
+                formatNumber(this);
+                calculateConvertedRevenue();
+            });
+            
+            // revenueDivision 필드가 변경될 때 환산매출 업데이트
+            document.getElementById('revenueDivision').addEventListener('change', function() {
+                calculateConvertedRevenue();
+            });
+            
+            document.getElementById('revenueLimit').addEventListener('change', function() {
+                calculateConvertedRevenue();
+            });
+            
+            // 서비스 매출 테이블의 공급가액 입력 필드에 이벤트 리스너 추가
+            const serviceInputs = document.querySelectorAll('.game-cost-table tbody tr td:nth-child(3) input');
+            serviceInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    formatNumber(this);
+                    calculateGamePurchaseTime(this);
+                    calculateTotals();
+                });
+            });
+            
+            // 그 외 게임사별 매입금액 테이블의 공급가액 입력 필드에 이벤트 리스너 추가
+            const tables = document.querySelectorAll('.game-cost-table');
+            if (tables.length >= 2) {
+                const otherGameCompanyTable = tables[1]; // 두 번째 테이블이 그 외 게임사별 매입금액 테이블
+                console.log('그 외 게임사별 매입금액 테이블 찾음:', otherGameCompanyTable);
+                
+                const otherGameCompanyInputs = otherGameCompanyTable.querySelectorAll('tbody tr td:nth-child(2) input');
+                console.log('그 외 게임사별 매입금액 테이블 입력 필드 수:', otherGameCompanyInputs.length);
+                
+                otherGameCompanyInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        console.log('그 외 게임사별 매입금액 입력 필드 변경 감지:', this.value);
+                        formatNumber(this);
+                        calculateOtherGameCompanyTotals();
+                    });
+                });
+                
+                // 초기 계산 실행
+                calculateOtherGameCompanyTotals();
+            } else {
+                console.error('그 외 게임사별 매입금액 테이블을 찾을 수 없습니다. 테이블 수:', tables.length);
+            }
+            
+            // 상품매출 테이블의 공급가액 입력 필드 확인
+            const productInputs = document.querySelectorAll('.product-price-input');
+            console.log('상품매출 입력 필드 찾음 (클래스로):', productInputs.length);
+            
+            // 모든 product-price-input 클래스 요소에 이벤트 리스너 추가
+            productInputs.forEach((input, index) => {
+                console.log(`상품매출 입력 필드 #${index+1} 확인`);
+                input.addEventListener('input', function() {
+                    console.log(`상품매출 입력 필드 #${index+1} 변경됨:`, this.value);
+                    formatNumber(this);
+                    calculateProductTotals();
+                });
+            });
+            
+            // 최종 상품매출 입력 필드에 이벤트 리스너 추가
+            document.getElementById('finalProductSales').addEventListener('input', function() {
+                formatNumber(this);
+                updateTotalRevenue();
+            });
+            
+            // 초기 계산 실행
+            calculateProductTotals();
+            updateTotalRevenue();
+            calculateProductSalesFromTotal(); // 페이지 로드 시 상품매출 초기 계산
+            calculateSimpleMarginRate(); // 페이지 로드 시 마진율 초기 계산
+            
+            // 5억/7.5억 계산 결과 설정
+            const fiveHundredMillion = 500000000;
+            const sevenFiveHundredMillion = 750000000;
+            const divisionResult = (fiveHundredMillion / sevenFiveHundredMillion).toFixed(3);
+            document.getElementById('revenueDivision').value = divisionResult;
+            
+            // 디버깅용 콘솔 로그
+            console.log('페이지 로드 완료');
+        }
+
+        // 상품매출 입력 필드 이벤트 리스너 - 제거
+        /* document.getElementById('productSales').addEventListener('input', function() {
+            formatNumber(this);
+            // 상품매출이 변경될 때마다 마진율 즉시 계산
+            const productSales = parseFloat(this.value.replace(/,/g, '')) || 0;
+            const totalDistributionPrice = parseFloat(document.getElementById('totalDistributionPrice').value.replace(/,/g, '')) || 0;
+            
+            if (productSales > 0 && totalDistributionPrice > 0) {
+                // 마진율 = (상품매출 / 총유통매입가액) * 100
+                const marginRate = Math.round((productSales / totalDistributionPrice) * 100);
+                document.getElementById('marginRate').value = marginRate;
+                document.getElementById('productMarginRate').value = marginRate;
+            }
+        }); */
+
+        // 상품매출 값이 변경될 때마다 마진율 자동 계산
+        const productSalesObserver = new MutationObserver(function(mutations) {
+            console.log("상품매출 값 변경 감지");
+            calculateSimpleMarginRate();
+        });
+        
+        // 상품매출 필드 관찰 시작
+        productSalesObserver.observe(document.getElementById('productSales'), {
+            attributes: true, 
+            attributeFilter: ['value']
+        });
+        
+        // 총 유통매입가액 값이 변경될 때마다 마진율 자동 계산
+        const totalDistributionPriceObserver = new MutationObserver(function(mutations) {
+            console.log("총 유통매입가액 변경 감지됨");
+            // 상품매출액 산출 식의 마진율 계산
+            calculateSimpleMarginRate();
+        });
+        
+        // 총 유통매입가액 필드 관찰 시작
+        totalDistributionPriceObserver.observe(document.getElementById('totalDistributionPrice'), {
+            attributes: true, 
+            attributeFilter: ['value']
+        });
+        
+        // 총 유통매입가액 입력 필드 읽기 전용으로 설정
+        document.getElementById('totalDistributionPrice').readOnly = true;
+
+        // 총 매출 값이 변경될 때마다 상품매출 자동 계산
+        const totalSalesObserver = new MutationObserver(function(mutations) {
+            calculateProductSalesFromTotal();
+        });
+        
+        // 총 매출 필드 관찰 시작
+        totalSalesObserver.observe(document.getElementById('totalSales'), {
+            attributes: true, 
+            attributeFilter: ['value']
+        });
+        
+        // 서비스 매출 값이 변경될 때마다 상품매출 자동 계산
+        const serviceSalesObserver = new MutationObserver(function(mutations) {
+            calculateProductSalesFromTotal();
+        });
+        
+        // 서비스 매출 필드 관찰 시작
+        serviceSalesObserver.observe(document.getElementById('serviceSales'), {
+            attributes: true, 
+            attributeFilter: ['value']
+        });
+
+        function addOtherGameCompanyRow() {
+            const otherGameCompanyTable = document.querySelector('.game-purchase-table');
+            if (!otherGameCompanyTable) {
+                console.error('테이블을 찾을 수 없습니다.');
+                return;
+            }
+            
+            const tbody = otherGameCompanyTable.querySelector('tbody');
+            const lastRow = tbody.lastElementChild;
+            
+            // 새로운 행 생성
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td style="padding: 0;"><input type="text" style="width: 100%; text-align: center; font-size: 1em; border: none; background-color: #ffffc0;"></td>
+                <td style="padding: 0;"><input type="text" style="width: 100%; text-align: right; font-size: 1em; border: none; background-color: #ffffc0;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td>
+            `;
+            
+            // 마지막 행 앞에 새 행 삽입
+            tbody.insertBefore(newRow, lastRow);
+            
+            // 총액 재계산
+            calculateOtherGameCompanyTotals();
+        }
+        
+        function deleteOtherGameCompanyRow() {
+            const otherGameCompanyTable = document.querySelector('.game-purchase-table');
+            if (!otherGameCompanyTable) {
+                console.error('테이블을 찾을 수 없습니다.');
+                return;
+            }
+            
+            const tbody = otherGameCompanyTable.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            
+            // 마지막 행(버튼이 있는 행)을 제외하고 최소 1행은 유지
+            if (rows.length > 2) {
+                tbody.removeChild(rows[rows.length - 2]);
+                // 총액 재계산
+                calculateOtherGameCompanyTotals();
+            }
+        }
+
+        // 상품매출 테이블 행 추가 함수
+        function addProductRow() {
+            const productTable = document.querySelector('.product-sales-table');
+            if (!productTable) {
+                console.error('상품매출 테이블을 찾을 수 없습니다.');
+                return;
+            }
+            
+            const tbody = productTable.querySelector('tbody');
+            const lastRow = tbody.lastElementChild;
+            
+            // 새로운 행 생성 (placeholder 제거)
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td style="padding: 0; height: 25px;"><input type="text" style="width: 100%; height: 100%; text-align: center; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;"></td>
+                <td style="padding: 0; height: 25px;"><input type="text" class="product-price-input" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" oninput="formatNumber(this); calculateProductTotals()"></td>
+            `;
+            
+            // 마지막 행 앞에 새 행 삽입
+            tbody.insertBefore(newRow, lastRow);
+            
+            // 총액 재계산
+            calculateProductTotals();
+        }
+        
+        function deleteProductRow() {
+            const productTable = document.querySelector('.product-sales-table');
+            if (!productTable) {
+                console.error('상품매출 테이블을 찾을 수 없습니다.');
+                return;
+            }
+            
+            const tbody = productTable.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+            
+            // 마지막 행(버튼이 있는 행)을 제외하고 최소 1행은 유지
+            if (rows.length > 2) {
+                tbody.removeChild(rows[rows.length - 2]);
+                // 총액 재계산
+                calculateProductTotals();
+            }
+        }
+
+        // 저장하기 기능
+        function saveData() {
+            try {
+                // 모든 입력 데이터 수집
+                const data = {
+                    shopName: document.getElementById('shopName').value,
+                    serviceSales: {
+                        nexon: document.querySelector('.game-cost-table tbody tr:nth-child(1) td:nth-child(3) input').value,
+                        riot: document.querySelector('.game-cost-table tbody tr:nth-child(2) td:nth-child(3) input').value,
+                        blizzard: document.querySelector('.game-cost-table tbody tr:nth-child(3) td:nth-child(3) input').value,
+                        ncsoft: document.querySelector('.game-cost-table tbody tr:nth-child(4) td:nth-child(3) input').value,
+                        kakao: document.querySelector('.game-cost-table tbody tr:nth-child(5) td:nth-child(3) input').value,
+                        other: document.querySelector('.game-cost-table tbody tr:nth-child(6) td:nth-child(3) input').value,
+                        gameFee: document.getElementById('gameFee').value,
+                        serviceSalesTotal: document.getElementById('serviceSales').value,
+                        totalSupplyPrice: document.getElementById('totalSupplyPrice').value,
+                        totalGamePurchaseTime: document.getElementById('totalGamePurchaseTime').value,
+                        timeBasedSales: document.getElementById('timeBasedSales').value,
+                        supplyMultiplier: document.getElementById('supplyMultiplier').value, // 추가: 배율 저장
+                        supplyX4Sales: document.getElementById('supplyX4Sales').value
+                    },
+                    otherGameCompanies: Array.from(document.querySelectorAll('.game-purchase-table tbody tr:not(:last-child)')).map(row => ({
+                        company: row.querySelector('td:first-child input').value,
+                        amount: row.querySelector('td:last-child input').value
+                    })),
+                    productSales: Array.from(document.querySelectorAll('.product-sales-table tbody tr:not(:last-child)')).map(row => ({
+                        distributor: row.querySelector('td:first-child input').value,
+                        amount: row.querySelector('td:last-child input').value
+                    })),
+                    calculations: {
+                        cardSales: document.getElementById('cardSales').value,
+                        ratio: document.getElementById('ratio').value,
+                        cashReceiptSales: document.getElementById('cashReceiptSales').value,
+                        cashSales: document.getElementById('cashSales').value,
+                        cashSalesSupplyPrice: document.getElementById('cashSalesSupplyPrice').value,
+                        totalSales: document.getElementById('totalSales').value,
+                        marginRate: document.getElementById('marginRate').value,
+                        productMarginRate: document.getElementById('productMarginRate').value,
+                        totalDistributionPrice: document.getElementById('totalDistributionPrice').value,
+                        finalProductSales: document.getElementById('finalProductSales').value,
+                        totalRevenue: document.getElementById('totalRevenue').value,
+                        creditCardTaxDeduction: document.getElementById('creditCardTaxDeduction').value,
+                        revenueDivision: document.getElementById('revenueDivision').value,
+                        convertedRevenue: document.getElementById('convertedRevenue').value,
+                        productSales: document.getElementById('productSales').value
+                    }
+                };
+
+                // localStorage에 데이터 저장
+                localStorage.setItem('pcRoomCalculatorData', JSON.stringify(data));
+                alert('데이터가 저장되었습니다.');
+            } catch (error) {
+                console.error('데이터 저장 중 오류 발생:', error);
+                alert('데이터 저장 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 삭제하기 기능
+        function clearData() {
+            if (confirm('모든 데이터를 삭제하시겠습니까?')) {
+                // localStorage에서 데이터 삭제
+                localStorage.removeItem('pcRoomCalculatorData');
+                
+                // 모든 입력 필드 초기화
+                document.getElementById('shopName').value = '';
+                
+                // 서비스 매출 테이블 초기화
+                document.querySelectorAll('.game-cost-table tbody tr td:nth-child(3) input').forEach(input => {
+                    input.value = '';
+                    // 게임매입시간 셀 초기화 (텍스트 내용)
+                    const timeCell = input.closest('tr').cells[3];
+                    if (timeCell) timeCell.textContent = '0';
+                });
+                
+                // 그 외 게임사별 매입금액 테이블 초기화 (행 삭제 및 기본 행 추가)
+                const otherGameTableBody = document.querySelector('.game-purchase-table tbody');
+                const otherButtonRow = otherGameTableBody.lastElementChild;
+                while (otherGameTableBody.firstChild && otherGameTableBody.firstChild !== otherButtonRow) {
+                    otherGameTableBody.removeChild(otherGameTableBody.firstChild);
+                }
+                for (let i = 0; i < 4; i++) { // 기본 4행 추가
+                    addOtherGameCompanyRow('', '');
+                }
+                
+                // 상품매출 테이블 초기화 (행 삭제 및 기본 행 추가)
+                const productTableBody = document.querySelector('.product-sales-table tbody');
+                const productButtonRow = productTableBody.lastElementChild;
+                while (productTableBody.firstChild && productTableBody.firstChild !== productButtonRow) {
+                    productTableBody.removeChild(productTableBody.firstChild);
+                }
+                for (let i = 0; i < 4; i++) { // 기본 4행 추가
+                    addProductRow('', '');
+                }
+                
+                // 계산 필드 초기화
+                const calcIds = [
+                    'gameFee', 'serviceSales', 'totalSupplyPrice', 'totalGamePurchaseTime', 
+                    'timeBasedSales', 'supplyX4Sales', 'cardSales', 'ratio', 'cashReceiptSales', 
+                    'cashSales', 'cashSalesSupplyPrice', 'totalSales', 'marginRate', 
+                    'productMarginRate', 'totalDistributionPrice', 'finalProductSales', 
+                    'totalRevenue', 'creditCardTaxDeduction', 'revenueDivision', 
+                    'convertedRevenue', 'productSales'
+                ];
+                calcIds.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.value = '';
+                });
+                
+                // 모든 계산 다시 실행
+                calculateTotals();
+                calculateOtherGameCompanyTotals();
+                calculateProductTotals();
+                
+                // 5억/7.5억 비율 복원
+                const fiveHundredMillion = 500000000;
+                const sevenFiveHundredMillion = 750000000;
+                const divisionResult = (fiveHundredMillion / sevenFiveHundredMillion).toFixed(3);
+                document.getElementById('revenueDivision').value = divisionResult;
+
+                alert('모든 데이터가 삭제되었습니다.');
+            }
+        }
+
+        // 페이지 로드 시 저장된 데이터 불러오기
+        window.addEventListener('load', function() {
+            const savedData = localStorage.getItem('pcRoomCalculatorData');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    
+                    // 상호명 복원
+                    if (data.shopName) {
+                        document.getElementById('shopName').value = data.shopName;
+                    }
+                    
+                    // 서비스 매출 데이터 복원
+                    if (data.serviceSales) {
+                        const serviceTable = document.querySelector('.game-cost-table tbody');
+                        if (serviceTable) {
+                            // 기본 필드 복원
+                            const serviceFields = [
+                                { key: 'nexon', selector: 'tr:nth-child(1) td:nth-child(3) input' },
+                                { key: 'riot', selector: 'tr:nth-child(2) td:nth-child(3) input' },
+                                { key: 'blizzard', selector: 'tr:nth-child(3) td:nth-child(3) input' },
+                                { key: 'ncsoft', selector: 'tr:nth-child(4) td:nth-child(3) input' },
+                                { key: 'kakao', selector: 'tr:nth-child(5) td:nth-child(3) input' },
+                                { key: 'other', selector: 'tr:nth-child(6) td:nth-child(3) input' }
+                            ];
+                            serviceFields.forEach(field => {
+                                const input = serviceTable.querySelector(field.selector);
+                                if (input && data.serviceSales[field.key] !== undefined) {
+                                    input.value = data.serviceSales[field.key];
+                                    // 게임 매입 시간 복원
+                                    calculateGamePurchaseTime(input);
+                                }
+                            });
+                        }
+                        // 추가 필드 복원
+                        const additionalServiceFields = ['gameFee', 'serviceSalesTotal', 'totalSupplyPrice', 'totalGamePurchaseTime', 'timeBasedSales', 'supplyMultiplier', 'supplyX4Sales'];
+                        additionalServiceFields.forEach(id => {
+                            const element = document.getElementById(id);
+                            if (element && data.serviceSales[id] !== undefined) {
+                                element.value = data.serviceSales[id];
+                            }
+                        });
+                    }
+                    
+                    // 그 외 게임사별 매입금액 데이터 복원
+                    if (data.otherGameCompanies && data.otherGameCompanies.length > 0) {
+                        const otherGameTableBody = document.querySelector('.game-purchase-table tbody');
+                        const buttonRow = otherGameTableBody.lastElementChild;
+                        // 기존 행들 제거
+                        while (otherGameTableBody.firstChild && otherGameTableBody.firstChild !== buttonRow) {
+                            otherGameTableBody.removeChild(otherGameTableBody.firstChild);
+                        }
+                        
+                        // 저장된 데이터로 행 추가 (최대 4개)
+                        let addedRowCount = 0;
+                        data.otherGameCompanies.slice(0, 4).forEach(item => {
+                            const newRow = document.createElement('tr');
+                            newRow.innerHTML = `
+                                <td style="padding: 0;"><input type="text" style="width: 100%; text-align: center; font-size: 1em; border: none; background-color: #ffffc0;" value="${item.company || ''}"></td>
+                                <td style="padding: 0;"><input type="text" style="width: 100%; text-align: right; font-size: 1em; border: none; background-color: #ffffc0;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()" value="${item.amount || ''}"></td>
+                            `;
+                            otherGameTableBody.insertBefore(newRow, buttonRow);
+                            addedRowCount++;
+                        });
+                        
+                        // 행이 4개 미만이면 빈 행 추가
+                        while (addedRowCount < 4) {
+                            addOtherGameCompanyRow('', '');
+                            addedRowCount++;
+                        }
+                    }
+                    
+                    // 상품매출 데이터 복원
+                    if (data.productSales && data.productSales.length > 0) {
+                        const productTableBody = document.querySelector('.product-sales-table tbody');
+                        const buttonRow = productTableBody.lastElementChild;
+                        // 기존 행들 제거
+                        while (productTableBody.firstChild && productTableBody.firstChild !== buttonRow) {
+                            productTableBody.removeChild(productTableBody.firstChild);
+                        }
+                        
+                        // 저장된 데이터로 행 추가 (최대 4개)
+                        let addedRowCount = 0;
+                        data.productSales.slice(0, 4).forEach(item => {
+                            const newRow = document.createElement('tr');
+                            newRow.innerHTML = `
+                                <td style="padding: 0; height: 25px;"><input type="text" style="width: 100%; height: 100%; text-align: center; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" value="${item.distributor || ''}"></td>
+                                <td style="padding: 0; height: 25px;"><input type="text" class="product-price-input" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" oninput="formatNumber(this); calculateProductTotals()" value="${item.amount || ''}"></td>
+                            `;
+                            productTableBody.insertBefore(newRow, buttonRow);
+                            addedRowCount++;
+                        });
+                        
+                        // 행이 4개 미만이면 빈 행 추가
+                        while (addedRowCount < 4) {
+                            addProductRow('', '');
+                            addedRowCount++;
+                        }
+                    }
+                    
+                    // 계산 데이터 복원
+                    if (data.calculations) {
+                        const calculationFields = [
+                            'cardSales', 'ratio', 'cashReceiptSales', 'cashSales', 'cashSalesSupplyPrice', 
+                            'totalSales', 'marginRate', 'productMarginRate', 'totalDistributionPrice', 
+                            'finalProductSales', 'totalRevenue', 'creditCardTaxDeduction', 
+                            'revenueDivision', 'convertedRevenue', 'productSales'
+                        ];
+                        
+                        calculationFields.forEach(id => {
+                            const element = document.getElementById(id);
+                            if (element && data.calculations[id] !== undefined) {
+                                element.value = data.calculations[id];
+                            }
+                        });
+                    }
+                    
+                    // 모든 계산 다시 실행
+                    calculateTotals();
+                    calculateOtherGameCompanyTotals();
+                    calculateProductTotals();
+                    calculateCashSales();
+                    calculateTotalSales();
+                    calculateServiceSales();
+                    calculateProductSalesFromTotal();
+                    calculateSimpleMarginRate();
+                    updateTotalRevenue();
+                    calculateConvertedRevenue();
+                } catch (error) {
+                    console.error('저장된 데이터 불러오기 중 오류 발생:', error);
+                    alert('저장된 데이터를 불러오는 중 오류가 발생했습니다.');
+                    localStorage.removeItem('pcRoomCalculatorData');
+                }
+            } else {
+                // 데이터가 없는 경우 기본값 설정
+                const fiveHundredMillion = 500000000;
+                const sevenFiveHundredMillion = 750000000;
+                const divisionResult = (fiveHundredMillion / sevenFiveHundredMillion).toFixed(3);
+                document.getElementById('revenueDivision').value = divisionResult;
+            }
+        });
     </script>
 </body>
 </html>
