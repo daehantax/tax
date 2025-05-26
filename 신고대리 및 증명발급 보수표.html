@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신고대리 및 증명발급 보수표 (VAT 별도)</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        h1 {
+            color: #005a9e;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,90,158,0.1);
+            font-size: 1.8em;
+        }
+        
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .table-section {
+            min-width: 280px;
+            position: relative;
+        }
+        
+        .unit-display {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 0.9em;
+            color: #666;
+            background-color: #f8f9fa;
+            padding: 2px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            z-index: 1;
+        }
+        
+        h2 {
+            color: #005a9e;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #005a9e;
+            padding-bottom: 8px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        h2:hover {
+            background-color: #f0f7ff;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        h2::after {
+            content: '▼';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+        }
+        
+        h2.collapsed::after {
+            transform: translateY(-50%) rotate(-90deg);
+        }
+        
+        .table-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .table-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,90,158,0.15);
+            border: 2px solid #005a9e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            border: 1px solid #b3d1ff;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.0em;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #005a9e, #0066b3);
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f0f7ff;
+        }
+        
+        tr:nth-child(odd) {
+            background-color: white;
+        }
+        
+        tr:hover {
+            background-color: #e6f2ff;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+        
+        .price {
+            text-align: center;
+            font-weight: bold;
+            color: #005a9e;
+            font-size: 1.1em;
+        }
+        
+        td:first-child {
+            font-size: 1.15em;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                margin: 10px;
+                font-size: 14px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+            
+            .tables-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                gap: 15px;
+            }
+            
+            .table-section {
+                max-width: 100%;
+            }
+            
+            h2 {
+                font-size: 1.1em;
+                padding: 10px;
+                background-color: #f8f9fa;
+                border: 1px solid #005a9e;
+                border-radius: 8px;
+                margin-bottom: 0;
+            }
+            
+            h2::after {
+                right: 15px;
+            }
+            
+            .unit-display {
+                position: static;
+                display: inline-block;
+                margin-left: 10px;
+                font-size: 0.8em;
+            }
+            
+            table {
+                font-size: 0.9em;
+                margin-bottom: 15px;
+            }
+            
+            th, td {
+                padding: 8px 4px;
+                font-size: 0.9em;
+            }
+            
+            .price {
+                font-size: 1.0em;
+            }
+            
+            td:first-child {
+                font-size: 1.0em;
+            }
+            
+            /* 모바일에서 테이블이 기본적으로 숨겨짐 */
+            .table-content {
+                max-height: 0;
+                opacity: 0;
+                margin-bottom: 0;
+            }
+            
+            .table-content.expanded {
+                max-height: 1000px;
+                opacity: 1;
+                margin-bottom: 15px;
+            }
+            
+            h2.collapsed::after {
+                transform: translateY(-50%) rotate(-90deg);
+            }
+            
+            h2.expanded::after {
+                transform: translateY(-50%) rotate(0deg);
+            }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .tables-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+            .table-section {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>신고대리 및 증명발급 보수표 (VAT 별도)</h1>
+    
+    <div class="tables-container">
+        <!-- 신고대리, 증명발급 보수표 (2열) -->
+        <div class="table-section">
+            <h2 class="table-header" data-target="table1">
+                신고대리, 증명발급 보수표
+                <span class="unit-display">단위:원</span>
+            </h2>
+            <div class="table-content" id="table1">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>기준액</th>
+                            <th>보수액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>V.A.T 신고 사업현황신고</td>
+                            <td class="price">건당50,000 ~ 300,000</td>
+                        </tr>
+                        <tr>
+                            <td>종소세 신고 (간편)</td>
+                            <td class="price">건당150,000 ~ 2,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>종소세신고 (추계)</td>
+                            <td class="price">건당100,000~ 1,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>재무제표확인</td>
+                            <td class="price">건당 10,000</td>
+                        </tr>
+                        <tr>
+                            <td>기타증명</td>
+                            <td class="price">건당 100,000</td>
+                        </tr>
+                        <tr>
+                            <td>사업장 현황신고서(면세)</td>
+                            <td class="price">150,000</td>
+                        </tr>
+                        <tr>
+                            <td>기타실적확인(경영진단 등)</td>
+                            <td class="price">협의</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 사업자 등록 신청 보수 (3열) -->
+        <div class="table-section">
+            <h2 class="table-header" data-target="table2">사업자 등록 신청 보수</h2>
+            <div class="table-content" id="table2">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="2">구분</th>
+                            <th>보수</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>개인</td>
+                            <td>사업자등록신청</td>
+                            <td class="price">150,000원</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">법인</td>
+                            <td>사업자등록신청</td>
+                            <td class="price">150,000원</td>
+                        </tr>
+                        <tr>
+                            <td>설립신고</td>
+                            <td class="price">200,000원</td>
+                        </tr>
+                        <tr>
+                            <td>공통</td>
+                            <td>사업양수도</td>
+                            <td class="price">150,000원</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 연말정산 보수 (2열) -->
+        <div class="table-section">
+            <h2 class="table-header" data-target="table3">연말정산 보수</h2>
+            <div class="table-content" id="table3">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>보수액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>기본보수</td>
+                            <td class="price">30,000원</td>
+                        </tr>
+                        <tr>
+                            <td>3인초과</td>
+                            <td class="price">정산인원 1인당 3,000원</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 그 외 (2열) -->
+        <div class="table-section">
+            <h2 class="table-header" data-target="table4">그 외</h2>
+            <div class="table-content" id="table4">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>추정재무제표 작성 보수</td>
+                            <td class="price">세무조정계산서 작성 보수표의 20%</td>
+                        </tr>
+                        <tr>
+                            <td>기타</td>
+                            <td class="price">기타 세무대리 이외의 업무 수행시<br>실비의 경비 또는 출장비</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const headers = document.querySelectorAll('.table-header');
+            
+            // 모바일에서 초기 상태 설정
+            function setInitialState() {
+                if (window.innerWidth <= 768) {
+                    headers.forEach(header => {
+                        header.classList.add('collapsed');
+                        const targetId = header.getAttribute('data-target');
+                        const content = document.getElementById(targetId);
+                        content.classList.add('collapsed');
+                        content.classList.remove('expanded');
+                    });
+                } else {
+                    headers.forEach(header => {
+                        header.classList.remove('collapsed', 'expanded');
+                        const targetId = header.getAttribute('data-target');
+                        const content = document.getElementById(targetId);
+                        content.classList.remove('collapsed', 'expanded');
+                    });
+                }
+            }
+            
+            // 클릭 이벤트 추가
+            headers.forEach(header => {
+                header.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        const targetId = this.getAttribute('data-target');
+                        const content = document.getElementById(targetId);
+                        
+                        if (content.classList.contains('collapsed')) {
+                            content.classList.remove('collapsed');
+                            content.classList.add('expanded');
+                            this.classList.remove('collapsed');
+                            this.classList.add('expanded');
+                        } else {
+                            content.classList.remove('expanded');
+                            content.classList.add('collapsed');
+                            this.classList.remove('expanded');
+                            this.classList.add('collapsed');
+                        }
+                    }
+                });
+            });
+            
+            // 초기 상태 설정
+            setInitialState();
+            
+            // 화면 크기 변경 시 상태 재설정
+            window.addEventListener('resize', setInitialState);
+        });
+    </script>
+</body>
+</html>
