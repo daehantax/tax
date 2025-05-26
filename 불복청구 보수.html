@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>불복청구 보수</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #005a9e;
+            padding-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #005a9e;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .amount {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        
+        .note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        .calculator {
+            background-color: #f8f9fa;
+            border: 2px solid #005a9e;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .calculator h2 {
+            color: #005a9e;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .input-group input:focus {
+            border-color: #005a9e;
+            outline: none;
+        }
+        
+        .result {
+            background-color: #e3f2fd;
+            border: 2px solid #005a9e;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .result-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d32f2f;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>불복청구 보수 (VAT 별도)</h1>
+        
+        <div class="calculator">
+            <h2>보수 계산기</h2>
+            <div class="input-group">
+                <label for="claimAmount">청구가액 (원):</label>
+                <input type="text" id="claimAmount" placeholder="청구가액을 입력하세요" oninput="formatAndCalculate(this)">
+            </div>
+            <div class="result" id="result" style="display: none;">
+                <div><strong>적용 구간:</strong> <span id="feeRange"></span></div>
+                <div class="result-amount">계산된 보수액: <span id="calculatedFee"></span>원</div>
+                <div style="margin-top: 10px; font-size: 14px; color: #666;">
+                    * VAT 별도 금액입니다
+                </div>
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">청구가액</th>
+                    <th>보수액</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>-</td>
+                    <td>5천만원 미만</td>
+                    <td>취소 경감세액의 30%</td>
+                </tr>
+                <tr>
+                    <td>5천만원 이상</td>
+                    <td>1억원 미만</td>
+                    <td>15,000,000 + 5천 초과액의 10%</td>
+                </tr>
+                <tr>
+                    <td>1억원 이상</td>
+                    <td>5억원 미만</td>
+                    <td>20,000,000 + 1억원 초과액의 20%</td>
+                </tr>
+                <tr>
+                    <td>5억원 이상</td>
+                    <td>10억원 미만</td>
+                    <td>100,000,000 + 5억원 초과액의 15%</td>
+                </tr>
+                <tr>
+                    <td>10억원 이상</td>
+                    <td>-</td>
+                    <td>40,000,000 + 10억원 초과액의 10%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+<script>
+function formatAndCalculate(input) {
+    // 숫자가 아닌 문자 제거
+    let value = input.value.replace(/[^0-9]/g, '');
+    
+    // 콤마 추가
+    if (value) {
+        input.value = parseInt(value).toLocaleString();
+    } else {
+        input.value = '';
+    }
+    
+    // 계산 실행
+    calculateFee();
+}
+
+function calculateFee() {
+    const inputValue = document.getElementById('claimAmount').value;
+    const claimAmount = parseInt(inputValue.replace(/[^0-9]/g, ''));
+    const resultDiv = document.getElementById('result');
+    const feeRangeSpan = document.getElementById('feeRange');
+    const calculatedFeeSpan = document.getElementById('calculatedFee');
+    
+    if (!claimAmount || claimAmount <= 0) {
+        resultDiv.style.display = 'none';
+        return;
+    }
+    
+    let fee = 0;
+    let range = '';
+    
+    if (claimAmount < 50000000) { // 5천만원 미만
+        fee = Math.floor(claimAmount * 0.3); // 취소 경감세액의 30%
+        range = '5천만원 미만';
+    } else if (claimAmount < 100000000) { // 5천만원 이상 1억원 미만
+        fee = 15000000 + Math.floor((claimAmount - 50000000) * 0.1);
+        range = '5천만원 이상 1억원 미만';
+    } else if (claimAmount < 500000000) { // 1억원 이상 5억원 미만
+        fee = 20000000 + Math.floor((claimAmount - 100000000) * 0.2);
+        range = '1억원 이상 5억원 미만';
+    } else if (claimAmount < 1000000000) { // 5억원 이상 10억원 미만
+        fee = 100000000 + Math.floor((claimAmount - 500000000) * 0.15);
+        range = '5억원 이상 10억원 미만';
+    } else { // 10억원 이상
+        fee = 175000000 + Math.floor((claimAmount - 1000000000) * 0.1);
+        range = '10억원 이상';
+    }
+    
+    feeRangeSpan.textContent = range;
+    calculatedFeeSpan.textContent = fee.toLocaleString();
+    resultDiv.style.display = 'block';
+}
+</script>
+</html>
