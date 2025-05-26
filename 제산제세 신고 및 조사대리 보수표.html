@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제산제세 신고 및 조사대리 보수표 (VAT 별도)</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .tables-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .table-section {
+            flex: 1;
+            position: relative;
+        }
+        .unit-label {
+            position: absolute;
+            top: 15px;
+            right: 0;
+            font-size: 14px;
+            color: #666;
+            background-color: white;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            z-index: 10;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 24px;
+            padding: 15px;
+            border-bottom: 2px solid #3498db;
+            cursor: pointer;
+            user-select: none;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        h2:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        h2::after {
+            content: '▼';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            font-size: 16px;
+            color: #3498db;
+        }
+        h2.collapsed::after {
+            transform: translateY(-50%) rotate(-90deg);
+        }
+        .table-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .table-content.hidden {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 18px;
+            text-align: center;
+            border: 1px solid #ecf0f1;
+            font-size: 16px;
+        }
+        th {
+            background: #005a9e;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            padding: 8px 18px;
+        }
+        td {
+            font-size: 18px;
+        }
+        .table-section:first-child td:nth-child(3),
+        .table-section:first-child td:nth-child(4),
+        .table-section:first-child td:nth-child(5) {
+            text-align: right;
+        }
+        .table-section:last-child td:nth-child(3),
+        .table-section:last-child td:nth-child(4),
+        .table-section:last-child td:nth-child(5) {
+            text-align: right;
+        }
+        .center-text {
+            text-align: center !important;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+            transition: all 0.3s ease;
+        }
+        .highlight {
+            background-color: #fff3e0 !important;
+            font-weight: bold;
+        }
+        .blue-text {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .icon {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+        th[rowspan="2"] {
+            font-size: 20px;
+        }
+        .note {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.4;
+            font-weight: bold;
+        }
+
+        /* 모바일 반응형 스타일 */
+        @media (max-width: 768px) {
+            body {
+                margin: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .tables-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            h1 {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+            h2 {
+                font-size: 20px;
+                padding: 12px;
+            }
+            .unit-label {
+                position: static;
+                display: inline-block;
+                margin-bottom: 10px;
+                font-size: 12px;
+            }
+            th, td {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+            th {
+                font-size: 14px;
+                padding: 6px 8px;
+            }
+            td {
+                font-size: 14px;
+            }
+            .note {
+                font-size: 14px;
+            }
+            
+            /* 테이블 가로 스크롤 */
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                min-width: 500px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            h2 {
+                font-size: 18px;
+                padding: 10px;
+            }
+            th, td {
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+            th {
+                font-size: 12px;
+                padding: 4px;
+            }
+            td {
+                font-size: 12px;
+            }
+            .note {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>제산제세 신고 및 조사대리 보수표 (VAT 별도)</h1>
+        
+        <div class="tables-container">
+            <div class="table-section">
+                <h2 onclick="toggleTable('transfer-tax')">양도세</h2>
+                <div class="table-content" id="transfer-tax">
+                    <div class="unit-label">단위:원</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th colspan="2" rowspan="2">기준액 (양도가액)</th>
+                                    <th colspan="3">보수액</th>
+                                </tr>
+                                <tr>
+                                    <th>신고대리</th>
+                                    <th>조사대리</th>
+                                    <th>통합</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>-</td>
+                                    <td>3억원 미만</td>
+                                    <td>300,000</td>
+                                    <td>1,000,000</td>
+                                    <td>1,300,000</td>
+                                </tr>
+                                <tr>
+                                    <td>3억원 이상</td>
+                                    <td>5억원 미만</td>
+                                    <td>400,000</td>
+                                    <td>2,000,000</td>
+                                    <td>2,400,000</td>
+                                </tr>
+                                <tr>
+                                    <td>5억원 이상</td>
+                                    <td>10억원 미만</td>
+                                    <td>500,000</td>
+                                    <td>3,000,000</td>
+                                    <td>3,500,000</td>
+                                </tr>
+                                <tr>
+                                    <td>10억원 이상</td>
+                                    <td>20억원 미만</td>
+                                    <td>1,000,000</td>
+                                    <td>4,000,000</td>
+                                    <td>5,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>20억원 이상</td>
+                                    <td>30억원 미만</td>
+                                    <td>2,000,000</td>
+                                    <td>5,000,000</td>
+                                    <td>7,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>30억원 이상</td>
+                                    <td>50억원 미만</td>
+                                    <td>5,000,000</td>
+                                    <td>10,000,000</td>
+                                    <td>15,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>50억원 이상</td>
+                                    <td>100억원 미만</td>
+                                    <td>10,000,000</td>
+                                    <td>30,000,000</td>
+                                    <td>40,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>100억원 이상</td>
+                                    <td>-</td>
+                                    <td class="center-text">협 의</td>
+                                    <td class="center-text">협 의</td>
+                                    <td class="center-text">협 의</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="note">
+                        ① 사전 컨설팅/조세감면/재개발·재건축/상가주택/비사업목적 검토시 50% ~ 300% 가산<br>
+                        ② 양도소득 구분대상 물건이 5개 이상일 경우 50%, 10개 이상일 경우 100% 가산<br>
+                        ③ 기장거래처 10% ~ 50% 경감
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h2 onclick="toggleTable('inheritance-gift-tax')">상속 증여세</h2>
+                <div class="table-content" id="inheritance-gift-tax">
+                    <div class="unit-label">단위:원</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th colspan="2" rowspan="2">기준액</th>
+                                    <th colspan="3">보수액</th>
+                                </tr>
+                                <tr>
+                                    <th>신고대리</th>
+                                    <th>조사대리</th>
+                                    <th>통합</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>-</td>
+                                    <td>5억원 미만</td>
+                                    <td>1,000,000</td>
+                                    <td>1,000,000</td>
+                                    <td>2,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>5억원 이상</td>
+                                    <td>10억원 미만</td>
+                                    <td>2,000,000</td>
+                                    <td>2,000,000</td>
+                                    <td>4,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>10억원 이상</td>
+                                    <td>20억원 미만</td>
+                                    <td>4,000,000</td>
+                                    <td>4,000,000</td>
+                                    <td>8,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>20억원 이상</td>
+                                    <td>40억원 미만</td>
+                                    <td>7,000,000</td>
+                                    <td>7,000,000</td>
+                                    <td>14,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>40억원 이상</td>
+                                    <td>60억원 미만</td>
+                                    <td>11,000,000</td>
+                                    <td>11,000,000</td>
+                                    <td>22,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>60억원 이상</td>
+                                    <td>80억원 미만</td>
+                                    <td>16,000,000</td>
+                                    <td>16,000,000</td>
+                                    <td>32,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>80억원 이상</td>
+                                    <td>100억원 미만</td>
+                                    <td>22,000,000</td>
+                                    <td>22,000,000</td>
+                                    <td>44,000,000</td>
+                                </tr>
+                                <tr>
+                                    <td>100억원 이상</td>
+                                    <td>-</td>
+                                    <td class="center-text">협 의</td>
+                                    <td class="center-text">협 의</td>
+                                    <td class="center-text">협 의</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="note">
+                        ① 사전 컨설팅 및 조세감면, 세액공제 검토 및 적용시 50% ~ 200% 가산<br>
+                        ② 기장거래처 10% ~ 50% 경감<br>
+                        ③ 주식평가 및 금융자산사용처 소명시 100% ~ 200% 가산
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTable(tableId) {
+            const tableContent = document.getElementById(tableId);
+            const header = tableContent.previousElementSibling;
+            
+            if (tableContent.classList.contains('hidden')) {
+                tableContent.classList.remove('hidden');
+                header.classList.remove('collapsed');
+            } else {
+                tableContent.classList.add('hidden');
+                header.classList.add('collapsed');
+            }
+        }
+
+        // 페이지 로드 시 모든 테이블을 기본적으로 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            // 모바일에서는 기본적으로 테이블을 숨김
+            if (window.innerWidth <= 768) {
+                const tableContents = document.querySelectorAll('.table-content');
+                const headers = document.querySelectorAll('h2');
+                
+                tableContents.forEach(content => content.classList.add('hidden'));
+                headers.forEach(header => header.classList.add('collapsed'));
+            }
+        });
+
+        // 화면 크기 변경 시 반응형 처리
+        window.addEventListener('resize', function() {
+            const tableContents = document.querySelectorAll('.table-content');
+            const headers = document.querySelectorAll('h2');
+            
+            if (window.innerWidth > 768) {
+                // 데스크톱에서는 모든 테이블 표시
+                tableContents.forEach(content => content.classList.remove('hidden'));
+                headers.forEach(header => header.classList.remove('collapsed'));
+            }
+        });
+    </script>
+</body>
+</html> 
