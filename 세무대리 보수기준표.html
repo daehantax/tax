@@ -162,11 +162,15 @@
                 padding: 8px 12px;
             }
             .pdf-button {
-                position: static;
-                margin: 10px auto;
-                display: block;
-                width: 100%;
-                max-width: 200px;
+                position: static !important;
+                margin: 0 !important;
+                margin-left: 10px !important;
+                display: inline-block !important;
+                width: auto !important;
+                max-width: none !important;
+                font-size: 0.85rem !important;
+                padding: 8px 12px !important;
+                white-space: nowrap;
             }
             /* 계산기 컨테이너 개선 */
             #adjustment > div, #accounting > div {
@@ -193,6 +197,18 @@
             /* 모바일에서 숨김 처리용 클래스 */
             .mobile-hidden {
                 display: none !important;
+            }
+            /* 모바일에서 제목과 PDF 버튼 컨테이너 스타일 */
+            .title-pdf-container {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                flex-wrap: nowrap !important;
+            }
+            .title-pdf-container h2 {
+                margin: 0 !important;
+                flex: 1 !important;
+                font-size: 1.1rem !important;
             }
         }
         
@@ -391,7 +407,7 @@
         
         <!-- 세무조정계산서 작성 보수표 -->
         <div id="adjustment" class="tab-content active">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="title-pdf-container" style="display: flex; align-items: center; justify-content: space-between;">
                 <h2 style="margin-bottom: 0;">세무조정계산서 보수액 계산기 (VAT 별도)</h2>
                 <!-- PDF 저장 버튼을 제목 오른쪽에 고정 -->
                 <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generatePDF()">PDF 저장</button>
@@ -694,7 +710,7 @@
         <!-- 기장대행 보수표 -->
         <div id="accounting" class="tab-content">
             <p style= "text-align:center; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px;">본 기준은 세무사법 개정으로 한국세무사회 보수표가 폐지됨에 따라<br>당 사무소의 운용을 위해 보수기준을 정한 것이며, 부가세 10%는 별도임</p>
-            <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="title-pdf-container" style="display: flex; align-items: center; justify-content: space-between;">
                 <h2 style="margin-bottom: 0;">기장대행보수액 계산기 (VAT 별도)</h2>
                 <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generateAccountingPDF()">PDF 저장</button>
             </div>
