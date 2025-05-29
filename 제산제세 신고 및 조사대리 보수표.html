@@ -11,17 +11,18 @@
             background-color: #f8f9fa;
         }
         .container {
-            max-width: 1400px;
+            max-width: 600px;
             margin: 0 auto;
             background-color: white;
-            padding: 40px;
+            padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
         .tables-container {
             display: flex;
-            gap: 30px;
-            align-items: flex-start;
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
         }
         .table-section {
             flex: 1;
@@ -42,16 +43,20 @@
         h1 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 32px;
+            margin-bottom: 10px;
+            font-size: 22px;
             font-weight: bold;
+        }
+        h1 .vat-text {
+            font-size: 14px;
+            font-weight: normal;
         }
         h2 {
             color: #34495e;
-            margin-top: 10px;
-            margin-bottom: 15px;
-            font-size: 24px;
-            padding: 15px;
+            margin-top: 5px;
+            margin-bottom: 8px;
+            font-size: 16px;
+            padding: 8px;
             border-bottom: 2px solid #3498db;
             cursor: pointer;
             user-select: none;
@@ -89,27 +94,29 @@
         }
         table {
             width: 100%;
+            max-width: 550px;
+            margin: 0 auto;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 2px solid #ecf0f1;
             border-radius: 10px;
             overflow: hidden;
         }
         th, td {
-            padding: 18px;
+            padding: 4px 2px;
             text-align: center;
             border: 1px solid #ecf0f1;
-            font-size: 16px;
+            font-size: 11px;
         }
         th {
             background: #005a9e;
             color: white;
             font-weight: bold;
-            font-size: 18px;
-            padding: 8px 18px;
+            font-size: 12px;
+            padding: 4px 3px;
         }
         td {
-            font-size: 18px;
+            font-size: 11px;
         }
         .table-section:first-child td:nth-child(3),
         .table-section:first-child td:nth-child(4),
@@ -144,35 +151,38 @@
             margin-right: 8px;
         }
         th[rowspan="2"] {
-            font-size: 20px;
+            font-size: 17px;
         }
         .note {
-            margin-top: 15px;
-            font-size: 16px;
+            margin-top: 8px;
+            font-size: 11px;
             color: #555;
-            line-height: 1.4;
+            line-height: 1.2;
             font-weight: bold;
         }
 
         /* 모바일 반응형 스타일 */
         @media (max-width: 768px) {
             body {
-                margin: 10px;
+                margin: 5px;
             }
             .container {
-                padding: 20px;
+                padding: 15px;
             }
             .tables-container {
                 flex-direction: column;
-                gap: 20px;
+                gap: 15px;
             }
             h1 {
-                font-size: 24px;
+                font-size: 22px;
                 margin-bottom: 15px;
             }
+            h1 .vat-text {
+                font-size: 14px;
+            }
             h2 {
-                font-size: 20px;
-                padding: 12px;
+                font-size: 18px;
+                padding: 10px;
             }
             .unit-label {
                 position: static;
@@ -180,63 +190,182 @@
                 margin-bottom: 10px;
                 font-size: 12px;
             }
-            th, td {
-                padding: 12px 8px;
-                font-size: 14px;
-            }
-            th {
-                font-size: 14px;
-                padding: 6px 8px;
-            }
-            td {
-                font-size: 14px;
-            }
-            .note {
-                font-size: 14px;
-            }
             
             /* 테이블 가로 스크롤 */
             .table-wrapper {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                margin: 0 -10px;
+                padding: 0 10px 0 10px;
+                box-sizing: border-box;
             }
             
             table {
-                min-width: 500px;
+                min-width: 550px;
+                width: 550px;
+                margin-right: 0;
+                padding-right: 0;
+                box-sizing: border-box;
+                display: block;
+            }
+            
+            th:last-child, td:last-child {
+                padding-right: 3px;
+                border-right: none;
+            }
+            
+            /* 컬럼별 최소 너비 설정 */
+            th:nth-child(1), td:nth-child(1) {
+                min-width: 60px;
+            }
+            th:nth-child(2), td:nth-child(2) {
+                min-width: 80px;
+            }
+            th:nth-child(3), td:nth-child(3) {
+                min-width: 80px;
+            }
+            th:nth-child(4), td:nth-child(4) {
+                min-width: 80px;
+            }
+            th:nth-child(5), td:nth-child(5) {
+                min-width: 80px;
+            }
+            
+            th, td {
+                padding: 8px 4px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+            th {
+                font-size: 14px;
+                padding: 6px 4px;
+            }
+            td {
+                font-size: 13px;
+            }
+            .note {
+                font-size: 13px;
+                margin: 0 -15px;
+                padding: 0 15px;
             }
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: 15px;
+                padding: 10px;
             }
             h1 {
                 font-size: 20px;
             }
-            h2 {
-                font-size: 18px;
-                padding: 10px;
+            h1 .vat-text {
+                font-size: 12px;
             }
+            h2 {
+                font-size: 16px;
+                padding: 8px;
+            }
+            
+            .table-wrapper {
+                margin: 0 -15px;
+                padding: 0 15px;
+            }
+            
+            .table-wrapper::after {
+                content: '';
+                display: block;
+                width: 40px;
+                height: 1px;
+                float: right;
+                clear: both;
+            }
+            
+            table {
+                min-width: 600px;
+                width: auto;
+                margin-right: 0;
+            }
+            
             th, td {
-                padding: 8px 4px;
+                padding: 6px 3px;
                 font-size: 12px;
             }
             th {
-                font-size: 12px;
-                padding: 4px;
+                font-size: 13px;
+                padding: 5px 3px;
             }
             td {
                 font-size: 12px;
             }
             .note {
                 font-size: 12px;
+                margin: 0 -15px;
+                padding: 0 15px;
+            }
+        }
+
+        /* 데스크톱 확대 스타일 */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 900px;
+                padding: 40px;
+                transform: scale(1.2);
+                transform-origin: top center;
+                margin-top: 20px;
+                margin-bottom: 50px;
+            }
+            
+            h1 {
+                font-size: 28px;
+                margin-bottom: 20px;
+            }
+            
+            h1 .vat-text {
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 20px;
+                padding: 12px;
+                margin-top: 10px;
+                margin-bottom: 15px;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+                font-size: 14px;
+            }
+            
+            th {
+                font-size: 16px;
+                padding: 8px 8px;
+            }
+            
+            table {
+                max-width: 650px;
+                margin-bottom: 20px;
+            }
+            
+            .note {
+                font-size: 14px;
+                margin-top: 15px;
+                line-height: 2.2;
+            }
+            
+            /* 번호별 줄바꿈 처리 */
+            .note br {
+                display: block;
+                margin-bottom: 10px;
+            }
+            
+            .tables-container {
+                gap: 25px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>제산제세 신고 및 조사대리 보수표 (VAT 별도)</h1>
+        <h1>제산제세 신고 및 조사대리 보수표 <span class="vat-text">(VAT 별도)</span></h1>
         
         <div class="tables-container">
             <div class="table-section">
@@ -425,28 +554,19 @@
             }
         }
 
-        // 페이지 로드 시 모든 테이블을 기본적으로 표시
+        // 페이지 로드 시 모든 테이블을 기본적으로 숨김
         document.addEventListener('DOMContentLoaded', function() {
-            // 모바일에서는 기본적으로 테이블을 숨김
-            if (window.innerWidth <= 768) {
-                const tableContents = document.querySelectorAll('.table-content');
-                const headers = document.querySelectorAll('h2');
-                
-                tableContents.forEach(content => content.classList.add('hidden'));
-                headers.forEach(header => header.classList.add('collapsed'));
-            }
-        });
-
-        // 화면 크기 변경 시 반응형 처리
-        window.addEventListener('resize', function() {
+            // 모든 화면 크기에서 기본적으로 테이블을 숨김
             const tableContents = document.querySelectorAll('.table-content');
             const headers = document.querySelectorAll('h2');
             
-            if (window.innerWidth > 768) {
-                // 데스크톱에서는 모든 테이블 표시
-                tableContents.forEach(content => content.classList.remove('hidden'));
-                headers.forEach(header => header.classList.remove('collapsed'));
-            }
+            tableContents.forEach(content => content.classList.add('hidden'));
+            headers.forEach(header => header.classList.add('collapsed'));
+        });
+
+        // 화면 크기 변경 시 반응형 처리 (테이블 표시 상태 유지)
+        window.addEventListener('resize', function() {
+            // 화면 크기가 변경되어도 현재 상태를 유지
         });
     </script>
 </body>
