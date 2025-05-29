@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세무상담·고문 및 조사대리 보수표</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            margin: 5px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #005a9e;
+            padding-bottom: 12px;
+            font-size: 28px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+            font-size: 18px;
+            table-layout: fixed;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            word-wrap: break-word;
+            white-space: nowrap;
+        }
+        
+        /* 컬럼 너비 조정 */
+        th:first-child, td:first-child {
+            width: 28%;
+        }
+        
+        th:nth-child(2), td:nth-child(2) {
+            width: 37%;
+        }
+        
+        th:last-child, td:last-child {
+            width: 35%;
+        }
+        
+        th {
+            background-color: #005a9e;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .amount {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        
+        .note {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        /* 모바일 반응형 디자인 */
+        @media screen and (max-width: 768px) {
+            body {
+                margin: 3px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            /* 테이블을 카드 형태로 변경 */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table {
+                font-size: 14px;
+                min-width: 100%;
+                margin-top: 10px;
+            }
+            
+            th, td {
+                padding: 6px;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+            
+            /* 작은 화면에서 테이블 헤더 고정 */
+            .responsive-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .responsive-table table {
+                width: 100%;
+                min-width: 250px;
+                white-space: normal;
+            }
+            
+            .responsive-table th, 
+            .responsive-table td {
+                white-space: normal;
+                word-break: keep-all;
+                overflow-wrap: break-word;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 8px;
+            }
+            
+            h1 {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+            
+            th, td {
+                padding: 4px;
+                font-size: 12px;
+                line-height: 1.3;
+            }
+            
+            .responsive-table table {
+                min-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>세무상담·고문 및 조사대리 보수표 (VAT 별도)</h1>
+        
+        <div style="text-align: right; margin-bottom: 10px; font-size: 14px; color: #666;">
+            단위: 원
+        </div>
+        
+        <div class="table-container responsive-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">구분</th>
+                        <th>보수표</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="3">상담 및 컨설팅</td>
+                        <td>구술·전화상담</td>
+                        <td>1회 30분미만 10만</td>
+                    </tr>
+                    <tr>
+                        <td>구술·전화상담</td>
+                        <td>1회 30분이상 1시간미만 15만</td>
+                    </tr>
+                    <tr>
+                        <td>서면상담</td>
+                        <td>소요시간당 20만~100만</td>
+                    </tr>
+                    <tr>
+                        <td>고 문</td>
+                        <td>기장 및 세무</td>
+                        <td>월 최소 30만원~최대 200만원</td>
+                    </tr>
+                    <tr>
+                        <td>조사대리</td>
+                        <td>의견진술 및 소명</td>
+                        <td>조사내용에 따라 협의</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
