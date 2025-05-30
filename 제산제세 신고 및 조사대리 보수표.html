@@ -195,54 +195,55 @@
             .table-wrapper {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                margin: 0 -10px;
-                padding: 0 10px 0 10px;
+                margin: 0 -15px;
+                padding: 0 15px;
                 box-sizing: border-box;
+                width: calc(100vw - 40px);
             }
             
             table {
-                min-width: 550px;
-                width: 550px;
-                margin-right: 0;
-                padding-right: 0;
-                box-sizing: border-box;
-                display: block;
+                min-width: 500px;
+                width: 500px;
+                margin: 0;
+                display: table;
+                table-layout: fixed;
             }
             
-            th:last-child, td:last-child {
-                padding-right: 3px;
-                border-right: none;
-            }
-            
-            /* 컬럼별 최소 너비 설정 */
+            /* 컬럼별 정확한 너비 설정 */
             th:nth-child(1), td:nth-child(1) {
-                min-width: 60px;
+                width: 15%;
             }
             th:nth-child(2), td:nth-child(2) {
-                min-width: 80px;
+                width: 20%;
             }
             th:nth-child(3), td:nth-child(3) {
-                min-width: 80px;
+                width: 20%;
             }
             th:nth-child(4), td:nth-child(4) {
-                min-width: 80px;
+                width: 20%;
             }
             th:nth-child(5), td:nth-child(5) {
-                min-width: 80px;
+                width: 25%;
             }
             
             th, td {
-                padding: 8px 4px;
+                padding: 8px 2px;
                 font-size: 13px;
                 white-space: nowrap;
+                border-right: 1px solid #ecf0f1;
             }
             th {
                 font-size: 14px;
-                padding: 6px 4px;
+                padding: 6px 2px;
             }
             td {
                 font-size: 13px;
             }
+            
+            th:last-child, td:last-child {
+                border-right: 2px solid #ecf0f1;
+            }
+            
             .note {
                 font-size: 13px;
                 margin: 0 -15px;
@@ -251,8 +252,14 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                margin: 0;
+                padding: 5px;
+            }
             .container {
                 padding: 10px;
+                margin: 0;
+                border-radius: 10px;
             }
             h1 {
                 font-size: 20px;
@@ -266,40 +273,61 @@
             }
             
             .table-wrapper {
-                margin: 0 -15px;
-                padding: 0 15px;
-            }
-            
-            .table-wrapper::after {
-                content: '';
-                display: block;
-                width: 40px;
-                height: 1px;
-                float: right;
-                clear: both;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -10px;
+                padding: 0 10px;
+                width: calc(100vw - 20px);
+                box-sizing: border-box;
             }
             
             table {
-                min-width: 600px;
-                width: auto;
-                margin-right: 0;
+                min-width: 480px;
+                width: 480px;
+                margin: 0;
+                display: table;
+                table-layout: fixed;
+            }
+            
+            /* 더 작은 화면에서의 컬럼 너비 */
+            th:nth-child(1), td:nth-child(1) {
+                width: 12%;
+            }
+            th:nth-child(2), td:nth-child(2) {
+                width: 23%;
+            }
+            th:nth-child(3), td:nth-child(3) {
+                width: 20%;
+            }
+            th:nth-child(4), td:nth-child(4) {
+                width: 20%;
+            }
+            th:nth-child(5), td:nth-child(5) {
+                width: 25%;
             }
             
             th, td {
-                padding: 6px 3px;
+                padding: 6px 1px;
                 font-size: 12px;
+                border-right: 1px solid #ecf0f1;
             }
             th {
                 font-size: 13px;
-                padding: 5px 3px;
+                padding: 5px 1px;
             }
             td {
                 font-size: 12px;
             }
+            
+            th:last-child, td:last-child {
+                border-right: 2px solid #ecf0f1;
+                padding-right: 2px;
+            }
+            
             .note {
                 font-size: 12px;
-                margin: 0 -15px;
-                padding: 0 15px;
+                margin: 0 -10px;
+                padding: 0 10px;
             }
         }
 
