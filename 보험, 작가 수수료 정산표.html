@@ -26,6 +26,7 @@
             margin-bottom: 30px;
             border-bottom: 3px solid #005a9e;
             padding-bottom: 10px;
+            font-size: 1.5em;
         }
         
         table {
@@ -62,6 +63,46 @@
             background-color: #e6f0f7;
             font-weight: bold;
         }
+        
+        /* 데스크톱 기본 스타일 */
+        .mobile-header .mobile-only-br {
+            display: none;
+        }
+        
+        .mobile-header .mobile-only-float {
+            float: none;
+        }
+        
+        /* 모바일 반응형 스타일 */
+        @media (max-width: 768px) {
+            .number {
+                word-break: break-all;
+                line-height: 1.2;
+            }
+            
+            .mobile-break {
+                word-break: break-all;
+                line-height: 1.3;
+            }
+            
+            .small-text {
+                font-size: 0.8em;
+                line-height: 1.1;
+            }
+            
+            .mobile-header {
+                word-break: keep-all;
+                line-height: 1.2;
+            }
+            
+            .mobile-header .mobile-only-br {
+                display: inline;
+            }
+            
+            .mobile-header .mobile-only-float {
+                float: right;
+            }
+        }
     </style>
 </head>
 <body>
@@ -73,7 +114,7 @@
                 <tr>
                     <th style="width: 40%;">수입금액</th>
                     <th style="width: 30%;">수수료</th>
-                    <th style="width: 30%;">환급율 / 소득율</th>
+                    <th style="width: 30%;" class="mobile-header">환급율<br class="mobile-only-br"><span class="mobile-only-float">/ 소득율</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -153,7 +194,7 @@
                     <td>표준소득율 * 80%</td>
                 </tr>
                 <tr>
-                    <td rowspan="3">PC방 타소득 (추가건당)</td>
+                    <td rowspan="3" class="mobile-break">PC방 타소득<br>(추가건당)</td>
                     <td class="number">300,000원</td>
                     <td>(장부시)</td>
                 </tr>
@@ -163,7 +204,7 @@
                 </tr>
                 <tr>
                     <td class="number">100,000원</td>
-                    <td>(근로소득만)</td>
+                    <td class="small-text">(근로소득만)</td>
                 </tr>
             </tbody>
         </table>
