@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대한세무법인 세무대리 보수기준표</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow-x: hidden;
+            padding-bottom: 100px; /* 하단 여백 추가 */
+        }
+        h1 {
+            text-align: center;
+            color: #005a9e;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        h2 {
+            color: #005a9e;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #005a9e;
+            padding-bottom: 10px;
+            font-size: 1.7rem;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 1.05rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #005a9e;
+            color: white;
+            font-size: 1.1rem;
+        }
+        /* 기준액 하위 헤더 스타일 */
+        .sub-header th {
+            background-color: #0277bd;
+            font-size: 1rem;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .category {
+            background-color: #e6f3ff;
+            font-weight: bold;
+        }
+        .notes {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border-left: 5px solid #005a9e;
+            font-size: 0.9rem;
+        }
+        .notes h3 {
+            margin-top: 0;
+            color: #005a9e;
+            font-size: 1.1rem;
+        }
+        .tab-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            background-color: #f1f1f1;
+            border: none;
+            color: #333;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px 5px 0 0;
+            flex: 1 0 auto;
+        }
+        .tab-button.active {
+            background-color: #005a9e;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .footer-info {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+        
+        /* 반응형 스타일 */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                font-size: 14px;
+            }
+            .container {
+                padding-bottom: 80px; /* 모바일에서 하단 여백 */
+            }
+            h1 {
+                font-size: 1.4rem;
+                margin-bottom: 15px;
+            }
+            h2 {
+                font-size: 1.2rem;
+            }
+            .tab-button {
+                font-size: 0.8rem;
+                padding: 8px 5px;
+                width: 100%;
+                margin-bottom: 2px;
+            }
+            table {
+                font-size: 0.75rem;
+            }
+            th, td {
+                padding: 6px 3px;
+            }
+            .notes {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+            .notes h3 {
+                font-size: 0.95rem;
+            }
+            .option-button {
+                font-size: 0.85rem;
+                padding: 6px 8px;
+                width: 100%;
+                display: block;
+                margin: 3px 0;
+            }
+            input[type="text"], input[type="number"], select {
+                font-size: 0.9rem;
+                padding: 6px;
+            }
+            button {
+                font-size: 0.95rem;
+                padding: 8px 12px;
+            }
+            .pdf-button {
+                position: static !important;
+                margin: 0 !important;
+                margin-left: 10px !important;
+                display: inline-block !important;
+                width: auto !important;
+                max-width: none !important;
+                font-size: 0.85rem !important;
+                padding: 8px 12px !important;
+                white-space: nowrap;
+            }
+            /* 계산기 컨테이너 개선 */
+            #adjustment > div, #accounting > div {
+                flex-direction: column !important;
+            }
+            /* 모바일에서 가로 스크롤 허용 */
+            .options-container {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 5px;
+            }
+            /* 모바일에서 계산기 선택기 표시 및 계산기 하나만 표시 */
+            .calculator-selector {
+                display: block !important;
+            }
+            /* 모바일에서 계산기 레이아웃 조정 */
+            #personal-calculator, #personalB-calculator, #personal-tables, #personalB-tables {
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                flex: none !important;
+            }
+            /* 모바일에서 숨김 처리용 클래스 */
+            .mobile-hidden {
+                display: none !important;
+            }
+            /* 모바일에서 제목과 PDF 버튼 컨테이너 스타일 */
+            .title-pdf-container {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                flex-wrap: nowrap !important;
+                margin-bottom: 15px !important;
+            }
+            .title-pdf-container h2 {
+                margin: 0 !important;
+                flex: 1 !important;
+                font-size: 1.1rem !important;
+                margin-right: 10px !important;
+            }
+            /* 계산기 선택 버튼과의 간격 조정 */
+            .calculator-selector {
+                margin-top: 0 !important;
+                margin-bottom: 15px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 3px;
+                font-size: 13px;
+            }
+            .container {
+                padding-bottom: 60px; /* 작은 모바일에서 하단 여백 */
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
+            h2 {
+                font-size: 1.1rem;
+            }
+            table {
+                font-size: 0.7rem;
+            }
+            th, td {
+                padding: 4px 2px;
+            }
+            .tab-button {
+                font-size: 0.75rem;
+                padding: 6px 3px;
+                margin-right: 1px;
+            }
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .option-button {
+                font-size: 0.8rem;
+                padding: 5px 6px;
+            }
+            input[type="text"], input[type="number"], select {
+                font-size: 0.85rem;
+                padding: 5px;
+                min-height: 30px;
+            }
+            #personal-bookkeeping-amount, #personalB-bookkeeping-amount, #personal-refund-amount {
+                width: 100px !important;
+            }
+            #bookkeeping-option1-count {
+                min-width: 40px;
+            }
+            /* PDF 버튼 모바일 최적화 */
+            .pdf-button {
+                font-size: 0.8rem !important;
+                padding: 6px 8px !important;
+                margin-left: 8px !important;
+                white-space: nowrap !important;
+            }
+            /* 계산기 선택 버튼 모바일 최적화 */
+            .calculator-selector {
+                margin-bottom: 10px;
+            }
+            .calc-selector-btn {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+            /* 모바일에서 제목과 PDF 버튼 컨테이너 스타일 강화 */
+            .title-pdf-container {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                flex-wrap: nowrap !important;
+                margin-bottom: 15px !important;
+            }
+            .title-pdf-container h2 {
+                margin: 0 !important;
+                flex: 1 !important;
+                font-size: 1rem !important;
+                margin-right: 8px !important;
+                line-height: 1.2 !important;
+            }
+        }
+        
+        /* 계산기 입력 필드 및 버튼 스타일 */
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            font-size: 1.05rem;
+        }
+        
+        select {
+            padding: 8px;
+            font-size: 1.05rem;
+        }
+        
+        button {
+            padding: 10px 15px;
+            font-size: 1.05rem;
+            background-color: #005a9e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* 계산기 결과 스타일 */
+        div[id$="-result"] {
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+        
+        /* 계산기 컨테이너 스타일 */
+        div.table-container {
+            margin-bottom: 25px;
+        }
+        
+        /* 체크박스 버튼 스타일 */
+        .option-button {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 5px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        /* 호버 효과 완전히 제거 */
+        .option-button:hover {
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+        
+        .option-button.active {
+            background-color: #fff8ba; /* 더 밝고 선명한 노란색 */
+            border-color: #ffa500; /* 주황색 테두리 */
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(255, 165, 0, 0.5); /* 주황색 그림자 효과 */
+        }
+        
+        .option-button input[type="checkbox"] {
+            display: none;
+        }
+        
+        /* 선택 메뉴 스타일 */
+        .option-select {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            background-color: white;
+        }
+        
+        /* 옵션 그룹 스타일 */
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        /* PDF 버튼 스타일 */
+        .pdf-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background-color: #005a9e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .pdf-button:hover {
+            background-color: #004a8e;
+        }
+        
+        /* PDF용 페이지 브레이크 */
+        .page-break {
+            page-break-before: always;
+        }
+        
+        /* 모바일 계산기 선택 버튼 스타일 */
+        .calc-selector-btn {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .calc-selector-btn.active {
+            background-color: #005a9e !important;
+            color: white !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>대한세무법인 개인 세무대리 보수기준표</h1>
+        
+        <!-- 세무조정계산서 작성 보수표 -->
+        <div id="adjustment" class="tab-content active">
+            <div class="title-pdf-container" style="display: flex; align-items: center; justify-content: space-between;">
+                <h2 style="margin-bottom: 0;">세무조정계산서 보수액 계산기</h2>
+                <!-- PDF 저장 버튼을 제목 오른쪽에 고정 -->
+                <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generatePDF()">PDF 저장</button>
+            </div>
+            
+            <!-- 계산기 컨테이너 부분 -->
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
+                
+                <!-- 모바일에서 계산기 선택 버튼 -->
+                <div class="calculator-selector" style="display: none; width: 100%; margin-bottom: 15px; text-align: center;">
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #005a9e; font-size: 1.1rem;">계산기 유형 선택</div>
+                    <div style="display: flex; justify-content: center; gap: 10px;">
+                        <button id="personal-calc-btn" class="calc-selector-btn active" style="flex: 1; max-width: 150px; background-color: #005a9e; color: white;" onclick="switchCalculator('personal')">PC방 조정료 계산기</button>
+                        <button id="personalB-calc-btn" class="calc-selector-btn" style="flex: 1; max-width: 150px; background-color: #f1f1f1; color: #333;" onclick="switchCalculator('personalB')">사업소득자 수수료 계산기</button>
+                    </div>
+                </div>
+                
+                <!-- 개인 계산기 -->
+                <div id="personal-calculator" style="flex: 1; min-width: 45%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <h3 style="margin: 0; color: #005a9e;">PC방 조정료 계산기</h3>
+                        <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
+                    </div>
+                    
+                    <!-- 개인 계산기 추가 -->
+                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">총 수익</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" id="personal-amount" placeholder="수입(자산)금액 입력 (단위: 원)" style="flex: 1; padding: 8px;" oninput="formatInputWithCommas(this); calculatePersonalFee()">
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.9rem;">
+                            <div class="options-container">
+                                <label class="option-button" onclick="toggleBookkeepingOption(this, 'personal-refund-option')">
+                                    <input type="checkbox" id="personal-refund-option" style="display: none;">
+                                    근로소득, 사업소득 합산 신고 시 건당 100,000원 추가
+                                    <input type="text" id="personal-refund-amount" placeholder="입력" style="width: 36px; margin-left: 10px; padding: 6px; font-size: 1rem; text-align: right;" oninput="this.value=this.value.replace(/[^0-9]/g,''); onBookkeepingInput(this, this.closest('.option-button'), 'personal-refund-option'); calculatePersonalFee(); event.stopPropagation();" onclick="event.stopPropagation()">
+                                    <span style="margin-left: 4px;">건</span>
+                                </label>
+                                <div style="margin-top: 8px; color: #444; font-size: 0.95rem; font-weight: 700;">합산 사업소득 결산업무 진행 시 상담후 협의</div>
+                            </div>
+                        </div>
+                        <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
+                        <div id="personal-result" style="margin-top: 10px; font-weight: bold;"></div>
+                    </div>
+                </div>
+                
+                <!-- 개인B 계산기 -->
+                <div id="personalB-calculator" style="flex: 1; min-width: 45%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <h3 style="margin: 0; color: #005a9e;">사업소득자 수수료 계산기</h3>
+                        <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
+                    </div>
+                    
+                    <!-- 개인B 계산기 추가 -->
+                    <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                        <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">개인B (특별개인) 총 수익</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" id="personalB-amount" placeholder="수입(자산)금액 입력 (단위: 원)" style="flex: 1; padding: 8px;" oninput="formatInputWithCommas(this); calculatePersonalBFee()">
+                        </div>
+                        <hr style="border: 0; height: 1px; background-color: #ccc; margin: 15px 0;">
+                        <div id="personalB-result" style="margin-top: 10px; font-weight: bold;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 테이블 컨테이너 부분 -->
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
+                <!-- 개인 보수표 -->
+                <div id="personal-tables" style="flex: 1; min-width: 45%;">
+                    <div class="toggle-header" onclick="toggleTable('personal-table-container')" style="cursor: pointer; background-color: #e6f3ff; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; color: #005a9e;">개인 보수기준표 </h3>
+                        <span id="personal-table-toggle" style="font-weight: bold;">▼</span>
+                    </div>
+                    <div id="personal-table-container" class="table-container" style="display: none;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>수입(자산)금액</th>
+                                    <th>조정료</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2억원 미만</td>
+                                    <td>조정료 없음</td>
+                                </tr>
+                                <tr>
+                                    <td>2억원 이상 ~ 2억5000만원 미만</td>
+                                    <td>300,000</td>
+                                </tr>
+                                <tr>
+                                    <td>2억5000만원 이상 ~ 3억원 미만</td>
+                                    <td>400,000</td>
+                                </tr>
+                                <tr>
+                                    <td>3억원 이상 ~ 3억5000만원 미만</td>
+                                    <td>500,000</td>
+                                </tr>
+                                <tr>
+                                    <td>3억5000만원 이상 ~ 4억원 미만</td>
+                                    <td>600,000</td>
+                                </tr>
+                                <tr>
+                                    <td>4억원 이상 ~ 4억5000만원 미만</td>
+                                    <td>700,000</td>
+                                </tr>
+                                <tr>
+                                    <td>4억5000만원 이상 ~ 5억원 미만</td>
+                                    <td>800,000</td>
+                                </tr>
+                                <tr>
+                                    <td>5억원 이상</td>
+                                    <td>900,000</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">이후 수입금액 5000만원 이상 구간마다 100,000원 추가</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 개인B 보수표 -->
+                <div id="personalB-tables" style="flex: 1; min-width: 45%;">
+                    <div class="toggle-header" onclick="toggleTable('personalB-table-container')" style="cursor: pointer; background-color: #e6f3ff; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; color: #005a9e;">개인B (특별개인) 보수기준표</h3>
+                        <span id="personalB-table-toggle" style="font-weight: bold;">▼</span>
+                    </div>
+                    <div id="personalB-table-container" class="table-container" style="display: none;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>수입금액</th>
+                                    <th>작가, PD</th>
+                                    <th>보험, 영업직, 기타자영업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2,000만원 이하</td>
+                                    <td>150,000</td>
+                                    <td>150,000</td>
+                                </tr>
+                                <tr>
+                                    <td>2,000만원 이상 ~ 3,000만원 미만</td>
+                                    <td>200,000</td>
+                                    <td>200,000</td>
+                                </tr>
+                                <tr>
+                                    <td>3,000만원 이상 ~ 4,000만원 미만</td>
+                                    <td>250,000</td>
+                                    <td>250,000</td>
+                                </tr>
+                                <tr>
+                                    <td>4,000만원 이상 ~ 5,000만원 미만</td>
+                                    <td>300,000</td>
+                                    <td>300,000</td>
+                                </tr>
+                                <tr>
+                                    <td>5,000만원 이상 ~ 6,000만원 미만</td>
+                                    <td>400,000</td>
+                                    <td>400,000</td>
+                                </tr>
+                                <tr>
+                                    <td>6,000만원 이상 ~ 7,000만원 미만</td>
+                                    <td>600,000</td>
+                                    <td>500,000</td>
+                                </tr>
+                                <tr>
+                                    <td>7,000만원 이상 ~ 8,000만원 미만</td>
+                                    <td>700,000</td>
+                                    <td>600,000</td>
+                                </tr>
+                                <tr>
+                                    <td>8,000만원 이상 ~ 9,000만원 미만</td>
+                                    <td>800,000</td>
+                                    <td>700,000</td>
+                                </tr>
+                                <tr>
+                                    <td>9,000만원 이상 ~ 1억원 미만</td>
+                                    <td>900,000</td>
+                                    <td>800,000</td>
+                                </tr>
+                                <tr>
+                                    <td>1억원 이상 ~ 1억2000만원 미만</td>
+                                    <td>1,200,000</td>
+                                    <td>1,000,000</td>
+                            </tr>
+                                <tr>
+                                    <td>1억2000만원 이상 ~ 1억4000만원 미만</td>
+                                    <td>1,500,000</td>
+                                    <td>1,000,000</td>
+                            </tr>
+                            <tr>
+                                    <td>1억4000만원 이상 ~ 1억6000만원 미만</td>
+                                    <td>1,800,000</td>
+                                    <td>1,200,000</td>
+                            </tr>
+                            <tr>
+                                    <td>1억6000만원 이상 ~ 1억8000만원 미만</td>
+                                    <td>2,100,000</td>
+                                    <td>1,500,000</td>
+                            </tr>
+                            <tr>
+                                    <td>1억8000만원 이상 ~ 2억원 미만</td>
+                                    <td>2,400,000</td>
+                                    <td>1,600,000</td>
+                            </tr>
+                            <tr>
+                                    <td>2억원 이상 </td>
+                                    <td colspan="2">상담 후 협의</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 페이지 로드시 기본 탭 설정 및 모바일 디바이스 체크
+        window.onload = function() {
+            // 세무조정계산서 작성 보수표가 기본 탭이 되도록 설정
+            document.getElementById("adjustment").classList.add("active");
+            document.getElementsByClassName("tab-button")[0].classList.add("active");
+            
+            // 현재 선택된 계산기 타입을 저장할 변수
+            window.currentCalculatorType = 'personal';
+            
+            // 모바일 디바이스 체크 (화면 크기로 판단)
+            checkMobileDevice();
+            
+            // 화면 크기 변경 시 모바일 체크 다시 실행 (디바운싱 적용)
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    checkMobileDevice();
+                }, 100);
+            });
+        };
+        
+        // 모바일 디바이스 체크 함수
+        function checkMobileDevice() {
+            if (window.innerWidth <= 768) {
+                // 모바일 화면에서는 현재 선택된 계산기 유지
+                switchCalculator(window.currentCalculatorType || 'personal');
+            } else {
+                // 데스크톱에서는 모두 표시 - 클래스 제거
+                document.getElementById('personal-calculator').classList.remove('mobile-hidden');
+                document.getElementById('personalB-calculator').classList.remove('mobile-hidden');
+                document.getElementById('personal-tables').classList.remove('mobile-hidden');
+                document.getElementById('personalB-tables').classList.remove('mobile-hidden');
+                
+                // 인라인 스타일도 제거
+                document.getElementById('personal-calculator').style.display = '';
+                document.getElementById('personalB-calculator').style.display = '';
+                document.getElementById('personal-tables').style.display = '';
+                document.getElementById('personalB-tables').style.display = '';
+                
+                // 선택 버튼 초기화
+                var calcButtons = document.getElementsByClassName('calc-selector-btn');
+                for (var i = 0; i < calcButtons.length; i++) {
+                    calcButtons[i].classList.remove('active');
+                }
+                if (document.getElementById('personal-calc-btn')) {
+                    document.getElementById('personal-calc-btn').classList.add('active');
+                }
+            }
+        }
+        
+        // 계산기 전환 함수
+        function switchCalculator(type) {
+            // 선택된 타입을 전역 변수에 저장
+            window.currentCalculatorType = type;
+            
+            // 모바일에서만 작동하도록 체크
+            if (window.innerWidth > 768) {
+                return;
+            }
+            
+            // 모든 계산기에 숨김 클래스 추가
+            document.getElementById('personal-calculator').classList.add('mobile-hidden');
+            document.getElementById('personalB-calculator').classList.add('mobile-hidden');
+            document.getElementById('personal-tables').classList.add('mobile-hidden');
+            document.getElementById('personalB-tables').classList.add('mobile-hidden');
+            
+            // 선택한 계산기만 표시 (클래스 제거)
+            if (type === 'personal') {
+                document.getElementById('personal-calculator').classList.remove('mobile-hidden');
+                document.getElementById('personal-tables').classList.remove('mobile-hidden');
+                document.getElementById('personal-calc-btn').style.backgroundColor = '#005a9e';
+                document.getElementById('personal-calc-btn').style.color = 'white';
+                document.getElementById('personalB-calc-btn').style.backgroundColor = '#f1f1f1';
+                document.getElementById('personalB-calc-btn').style.color = '#333';
+            } else if (type === 'personalB') {
+                document.getElementById('personalB-calculator').classList.remove('mobile-hidden');
+                document.getElementById('personalB-tables').classList.remove('mobile-hidden');
+                document.getElementById('personalB-calc-btn').style.backgroundColor = '#005a9e';
+                document.getElementById('personalB-calc-btn').style.color = 'white';
+                document.getElementById('personal-calc-btn').style.backgroundColor = '#f1f1f1';
+                document.getElementById('personal-calc-btn').style.color = '#333';
+            }
+            
+            // 선택 버튼 상태 업데이트
+            var calcButtons = document.getElementsByClassName('calc-selector-btn');
+            for (var i = 0; i < calcButtons.length; i++) {
+                calcButtons[i].classList.remove('active');
+            }
+            document.getElementById(type + '-calc-btn').classList.add('active');
+        }
+        
+        // 천 단위 구분 쉼표 포맷팅 함수
+        function formatInputWithCommas(input) {
+            // 숫자 이외의 문자 제거
+            let value = input.value.replace(/[^\d]/g, '');
+            
+            // 천 단위 구분 쉼표 추가
+            if (value.length > 0) {
+                value = parseInt(value).toLocaleString('ko-KR');
+            }
+            
+            input.value = value;
+        }
+        
+        // 개인 세무조정계산서 보수 계산 함수
+        function calculatePersonalFee() {
+            const amount = parseFloat(document.getElementById('personal-amount').value.replace(/,/g, ''));
+            if (isNaN(amount) || amount < 0) {
+                document.getElementById('personal-result').innerHTML = "수입 금액을 입력해주세요.";
+                return;
+            }
+            let fee = 0;
+            let feeDescription = "";
+            if (amount < 200000000) {
+                fee = 0;
+                feeDescription = "조정료 없음";
+            } else if (amount < 250000000) {
+                fee = 300000;
+                feeDescription = "300,000원";
+            } else if (amount < 300000000) {
+                fee = 400000;
+                feeDescription = "400,000원";
+            } else if (amount < 350000000) {
+                fee = 500000;
+                feeDescription = "500,000원";
+            } else if (amount < 400000000) {
+                fee = 600000;
+                feeDescription = "600,000원";
+            } else if (amount < 450000000) {
+                fee = 700000;
+                feeDescription = "700,000원";
+            } else if (amount < 500000000) {
+                fee = 800000;
+                feeDescription = "800,000원";
+            } else {
+                fee = 900000 + Math.floor((amount - 500000000) / 50000000) * 100000;
+                feeDescription = `900,000원 + 5천만원 초과마다 100,000원 추가`;
+            }
+            // 근로소득, 사업소득 합산 신고 시 건당 100,000원 추가
+            let addedFee = fee;
+            let addedFeeDescription = "";
+            if (document.getElementById('personal-refund-option').checked) {
+                const count = parseInt(document.getElementById('personal-refund-amount').value.replace(/,/g, ''));
+                if (!isNaN(count) && count > 0) {
+                    const addFee = count * 100000;
+                    addedFee = addedFee + addFee;
+                    addedFeeDescription += ` + ${count}건 × 100,000원 추가: ${formatNumber(addFee)}원`;
+                }
+            }
+            let resultHTML = `
+            <div style=\"font-size: 1rem; color: #444; margin-bottom: 5px;\">수입금액: ${formatNumber(amount)}원</div>\n<div style=\"font-size: 1rem; color: #444; margin-bottom: 10px;\">기본 보수기준: ${feeDescription}</div>`;
+            if (addedFeeDescription) {
+                resultHTML += `<div style=\"font-size: 1rem; color: #444; margin-bottom: 10px;\">가산 사항: ${addedFeeDescription}</div>`;
+            }
+            resultHTML += `<div style=\"font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;\">최종 보수기준: ${addedFee === 0 ? '조정료 없음' : formatNumber(Math.round(addedFee)) + '원'}</div>`;
+            document.getElementById('personal-result').innerHTML = resultHTML;
+        }
+        
+        // 개인B 세무조정계산서 보수 계산 함수
+        function calculatePersonalBFee() {
+            const amount = parseFloat(document.getElementById('personalB-amount').value.replace(/,/g, ''));
+            if (isNaN(amount) || amount < 0) {
+                document.getElementById('personalB-result').innerHTML = "수입 금액을 입력해주세요.";
+                return;
+            }
+            let fee = 0;
+            let feeDescription = "";
+            if (amount <= 20000000) {
+                    fee = 150000;
+                    feeDescription = "150,000원";
+            } else if (amount <= 30000000) {
+                    fee = 200000;
+                    feeDescription = "200,000원";
+            } else if (amount <= 40000000) {
+                    fee = 250000;
+                    feeDescription = "250,000원";
+            } else if (amount <= 50000000) {
+                    fee = 300000;
+                    feeDescription = "300,000원";
+            } else if (amount <= 60000000) {
+                    fee = 400000;
+                    feeDescription = "400,000원";
+            } else if (amount <= 70000000) {
+                fee = 600000;
+                feeDescription = "600,000원";
+            } else if (amount <= 80000000) {
+                fee = 700000;
+                feeDescription = "700,000원";
+            } else if (amount <= 90000000) {
+                fee = 800000;
+                feeDescription = "800,000원";
+            } else if (amount <= 100000000) {
+                fee = 900000;
+                feeDescription = "900,000원";
+            } else if (amount <= 120000000) {
+                fee = 1200000;
+                feeDescription = "1,200,000원";
+            } else if (amount <= 140000000) {
+                fee = 1500000;
+                feeDescription = "1,500,000원";
+            } else if (amount <= 160000000) {
+                fee = 1800000;
+                feeDescription = "1,800,000원";
+            } else if (amount <= 180000000) {
+                fee = 2100000;
+                feeDescription = "2,100,000원";
+            } else if (amount <= 200000000) {
+                fee = 2400000;
+                feeDescription = "2,400,000원";
+                } else {
+                feeDescription = "상담 후 협의";
+            }
+            let resultHTML = `
+            <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">수입금액: ${formatNumber(amount)}원</div>
+            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
+            resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${feeDescription === '상담 후 협의' ? feeDescription : formatNumber(Math.round(fee)) + '원'}</div>`;
+            document.getElementById('personalB-result').innerHTML = resultHTML;
+        }
+        
+        // 숫자 형식화 함수
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // PDF 생성 함수 (세무조정계산서 전체)
+        function generatePDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: 10,
+                filename: '세무대리_보수기준표.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+        
+        // 테이블 표시/숨김 토글 함수 추가
+        function toggleTable(containerId) {
+            const container = document.getElementById(containerId);
+            const toggleIcon = document.getElementById(containerId + '-toggle');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                toggleIcon.innerText = '▲';
+            } else {
+                container.style.display = 'none';
+                toggleIcon.innerText = '▼';
+            }
+        }
+        
+        // 선택 옵션 관련 함수 추가 (toggleOption, toggleBookkeepingOption, onBookkeepingInput)
+        function toggleOption(id, element) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+            calculatePersonalFee();
+        }
+        function toggleBookkeepingOption(element, checkboxId) {
+            const checkbox = document.getElementById(checkboxId);
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+            calculatePersonalFee();
+            event.stopPropagation();
+        }
+        function onBookkeepingInput(element, parentButton, checkboxId) {
+            const value = element.value.replace(/[^\d]/g, '');
+            const checkbox = document.getElementById(checkboxId);
+            if (value) {
+                parentButton.classList.add('active');
+                checkbox.checked = true;
+            } else {
+                parentButton.classList.remove('active');
+                checkbox.checked = false;
+            }
+        }
+    </script>
+</body>
+</html>
