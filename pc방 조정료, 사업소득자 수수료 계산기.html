@@ -53,7 +53,7 @@
             color: white;
             font-size: 1.1rem;
         }
-        /* 기준액 하위 헤더 스타일 */
+        /* 보수기준표 하위 헤더 스타일 */
         .sub-header th {
             background-color: #0277bd;
             font-size: 1rem;
@@ -111,7 +111,7 @@
             font-size: 0.9rem;
         }
         
-        /* 반응형 스타일 */
+        /* 모바일 반응형 스타일 (768px 이하) */
         @media (max-width: 768px) {
             body {
                 padding: 5px;
@@ -219,6 +219,7 @@
             }
         }
         
+        /* 소형 모바일 반응형 스타일 (480px 이하) */
         @media (max-width: 480px) {
             body {
                 padding: 3px;
@@ -340,7 +341,7 @@
             transition: all 0.3s;
         }
         
-        /* 호버 효과 완전히 제거 */
+        /* 옵션 버튼 호버 효과 (기본값 유지) */
         .option-button:hover {
             background-color: #f5f5f5;
             border-color: #ddd;
@@ -375,7 +376,7 @@
             margin-bottom: 10px;
         }
         
-        /* PDF 버튼 스타일 */
+        /* PDF 저장 버튼 스타일 */
         .pdf-button {
             position: fixed;
             bottom: 20px;
@@ -400,7 +401,7 @@
             page-break-before: always;
         }
         
-        /* 모바일 계산기 선택 버튼 스타일 */
+        /* 모바일 환경 계산기 선택 버튼 스타일 */
         .calc-selector-btn {
             padding: 10px 15px;
             border-radius: 5px;
@@ -422,18 +423,18 @@
     <div class="container">
         <h1>대한세무법인 개인 세무대리 보수기준표</h1>
         
-        <!-- 세무조정계산서 작성 보수표 -->
+        <!-- PC방 조정료 및 사업소득자 수수료 계산기 섹션 -->
         <div id="adjustment" class="tab-content active">
             <div class="title-pdf-container" style="display: flex; align-items: center; justify-content: space-between;">
                 <h2 style="margin-bottom: 0;">세무조정계산서 보수액 계산기</h2>
-                <!-- PDF 저장 버튼을 제목 오른쪽에 고정 -->
+                <!-- PDF 저장 버튼 (제목 오른쪽 고정 배치) -->
                 <button class="pdf-button" style="position: static; margin-left: 20px; margin-bottom: 0;" onclick="generatePDF()">PDF 저장</button>
             </div>
             
-            <!-- 계산기 컨테이너 부분 -->
+            <!-- 계산기 컨테이너 영역 -->
             <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
                 
-                <!-- 모바일에서 계산기 선택 버튼 -->
+                <!-- 모바일 환경에서 계산기 타입 선택 버튼 -->
                 <div class="calculator-selector" style="display: none; width: 100%; margin-bottom: 15px; text-align: center;">
                     <div style="font-weight: bold; margin-bottom: 10px; color: #005a9e; font-size: 1.1rem;">계산기 유형 선택</div>
                     <div style="display: flex; justify-content: center; gap: 10px;">
@@ -442,14 +443,14 @@
                     </div>
                 </div>
                 
-                <!-- 개인 계산기 -->
+                <!-- PC방 조정료 계산기 -->
                 <div id="personal-calculator" style="flex: 1; min-width: 45%;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                         <h3 style="margin: 0; color: #005a9e;">PC방 조정료 계산기</h3>
                         <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
                     </div>
                     
-                    <!-- 개인 계산기 추가 -->
+                    <!-- PC방 조정료 계산기 입력 폼 -->
                     <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
                         <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">총 수익</h4>
                         <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -471,14 +472,14 @@
                     </div>
                 </div>
                 
-                <!-- 개인B 계산기 -->
+                <!-- 사업소득자 수수료 계산기 -->
                 <div id="personalB-calculator" style="flex: 1; min-width: 45%;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                         <h3 style="margin: 0; color: #005a9e;">사업소득자 수수료 계산기</h3>
                         <div style="text-align: right; font-size: 1.2rem;"><small>[단위: 원]</small></div>
                     </div>
                     
-                    <!-- 개인B 계산기 추가 -->
+                    <!-- 사업소득자 수수료 계산기 입력 폼 -->
                     <div style="margin-top: 15px; margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
                         <h4 style="color: #005a9e; margin-top: 0; font-size: 1rem;">총 수익</h4>
                         <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -490,9 +491,9 @@
                 </div>
             </div>
             
-            <!-- 테이블 컨테이너 부분 -->
+            <!-- 보수기준표 테이블 컨테이너 -->
             <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between;">
-                <!-- 개인 보수표 -->
+                <!-- PC방 조정료 기준표 -->
                 <div id="personal-tables" style="flex: 1; min-width: 45%;">
                     <div class="toggle-header" onclick="toggleTable('personal-table-container')" style="cursor: pointer; background-color: #e6f3ff; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="margin: 0; color: #005a9e;">PC방 조정료 기준표 </h3>
@@ -547,7 +548,7 @@
                     </div>
                 </div>
                 
-                <!-- 개인B 보수표 -->
+                <!-- 사업소득 수수료 기준표 -->
                 <div id="personalB-tables" style="flex: 1; min-width: 45%;">
                     <div class="toggle-header" onclick="toggleTable('personalB-table-container')" style="cursor: pointer; background-color: #e6f3ff; padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="margin: 0; color: #005a9e;">사업소득 수수료 기준표</h3>
@@ -646,19 +647,19 @@
     </div>
     
     <script>
-        // 페이지 로드시 기본 탭 설정 및 모바일 디바이스 체크
+        // 페이지 로드 시 초기 설정 및 모바일 환경 체크
         window.onload = function() {
-            // 세무조정계산서 작성 보수표가 기본 탭이 되도록 설정
+            // 보수기준표 섹션을 기본 활성화
             document.getElementById("adjustment").classList.add("active");
             document.getElementsByClassName("tab-button")[0].classList.add("active");
             
-            // 현재 선택된 계산기 타입을 저장할 변수
+            // 현재 선택된 계산기 타입을 저장하는 전역 변수
             window.currentCalculatorType = 'personal';
             
-            // 모바일 디바이스 체크 (화면 크기로 판단)
+            // 모바일 디바이스 체크 (화면 크기 기준)
             checkMobileDevice();
             
-            // 화면 크기 변경 시 모바일 체크 다시 실행 (디바운싱 적용)
+            // 화면 크기 변경 시 모바일 체크 재실행 (디바운싱 적용)
             let resizeTimeout;
             window.addEventListener('resize', function() {
                 clearTimeout(resizeTimeout);
@@ -668,25 +669,25 @@
             });
         };
         
-        // 모바일 디바이스 체크 함수
+        // 모바일 환경 체크 및 적절한 레이아웃 적용
         function checkMobileDevice() {
             if (window.innerWidth <= 768) {
-                // 모바일 화면에서는 현재 선택된 계산기 유지
+                // 모바일 화면에서는 현재 선택된 계산기만 표시
                 switchCalculator(window.currentCalculatorType || 'personal');
             } else {
-                // 데스크톱에서는 모두 표시 - 클래스 제거
+                // 데스크톱에서는 모든 계산기 동시 표시 - 모바일 숨김 클래스 제거
                 document.getElementById('personal-calculator').classList.remove('mobile-hidden');
                 document.getElementById('personalB-calculator').classList.remove('mobile-hidden');
                 document.getElementById('personal-tables').classList.remove('mobile-hidden');
                 document.getElementById('personalB-tables').classList.remove('mobile-hidden');
                 
-                // 인라인 스타일도 제거
+                // 인라인 스타일 초기화
                 document.getElementById('personal-calculator').style.display = '';
                 document.getElementById('personalB-calculator').style.display = '';
                 document.getElementById('personal-tables').style.display = '';
                 document.getElementById('personalB-tables').style.display = '';
                 
-                // 선택 버튼 초기화
+                // 계산기 선택 버튼 상태 초기화
                 var calcButtons = document.getElementsByClassName('calc-selector-btn');
                 for (var i = 0; i < calcButtons.length; i++) {
                     calcButtons[i].classList.remove('active');
@@ -697,23 +698,23 @@
             }
         }
         
-        // 계산기 전환 함수
+        // 모바일 환경에서 계산기 타입 전환 함수
         function switchCalculator(type) {
-            // 선택된 타입을 전역 변수에 저장
+            // 선택된 계산기 타입을 전역 변수에 저장
             window.currentCalculatorType = type;
             
-            // 모바일에서만 작동하도록 체크
+            // 모바일 환경에서만 작동 (데스크톱은 모두 표시)
             if (window.innerWidth > 768) {
                 return;
             }
             
-            // 모든 계산기에 숨김 클래스 추가
+            // 모든 계산기와 테이블에 모바일 숨김 클래스 추가
             document.getElementById('personal-calculator').classList.add('mobile-hidden');
             document.getElementById('personalB-calculator').classList.add('mobile-hidden');
             document.getElementById('personal-tables').classList.add('mobile-hidden');
             document.getElementById('personalB-tables').classList.add('mobile-hidden');
             
-            // 선택한 계산기만 표시 (클래스 제거)
+            // 선택된 계산기만 표시 (모바일 숨김 클래스 제거)
             if (type === 'personal') {
                 document.getElementById('personal-calculator').classList.remove('mobile-hidden');
                 document.getElementById('personal-tables').classList.remove('mobile-hidden');
@@ -730,7 +731,7 @@
                 document.getElementById('personal-calc-btn').style.color = '#333';
             }
             
-            // 선택 버튼 상태 업데이트
+            // 계산기 선택 버튼 활성화 상태 업데이트
             var calcButtons = document.getElementsByClassName('calc-selector-btn');
             for (var i = 0; i < calcButtons.length; i++) {
                 calcButtons[i].classList.remove('active');
@@ -738,7 +739,7 @@
             document.getElementById(type + '-calc-btn').classList.add('active');
         }
         
-        // 천 단위 구분 쉼표 포맷팅 함수
+        // 입력값에 천 단위 구분 쉼표 포맷팅 적용
         function formatInputWithCommas(input) {
             // 숫자 이외의 문자 제거
             let value = input.value.replace(/[^\d]/g, '');
@@ -751,7 +752,7 @@
             input.value = value;
         }
         
-        // 개인 세무조정계산서 보수 계산 함수
+        // PC방 조정료 계산 함수
         function calculatePersonalFee() {
             const amount = parseFloat(document.getElementById('personal-amount').value.replace(/,/g, ''));
             if (isNaN(amount) || amount < 0) {
@@ -785,7 +786,7 @@
                 fee = 900000 + Math.floor((amount - 500000000) / 50000000) * 100000;
                 feeDescription = `900,000원 + 5천만원 초과마다 100,000원 추가`;
             }
-            // 근로소득, 사업소득 합산 신고 시 건당 100,000원 추가
+            // 근로소득, 사업소득 합산 신고 시 건당 100,000원 추가 계산
             let addedFee = fee;
             let addedFeeDescription = "";
             if (document.getElementById('personal-refund-option').checked) {
@@ -797,15 +798,15 @@
                 }
             }
             let resultHTML = `
-            <div style=\"font-size: 1rem; color: #444; margin-bottom: 5px;\">수입금액: ${formatNumber(amount)}원</div>\n<div style=\"font-size: 1rem; color: #444; margin-bottom: 10px;\">기본 보수기준: ${feeDescription}</div>`;
+            <div style=\"font-size: 1rem; color: #444; margin-bottom: 5px;\">수입금액: ${formatNumber(amount)}원</div>\n<div style=\"font-size: 1rem; color: #444; margin-bottom: 10px;\">기본 조정료기준: ${feeDescription}</div>`;
             if (addedFeeDescription) {
                 resultHTML += `<div style=\"font-size: 1rem; color: #444; margin-bottom: 10px;\">가산 사항: ${addedFeeDescription}</div>`;
             }
-            resultHTML += `<div style=\"font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;\">최종 보수기준: ${addedFee === 0 ? '조정료 없음' : formatNumber(Math.round(addedFee)) + '원'}</div>`;
+            resultHTML += `<div style=\"font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;\">최종 조정료: ${addedFee === 0 ? '조정료 없음' : formatNumber(Math.round(addedFee)) + '원'}</div>`;
             document.getElementById('personal-result').innerHTML = resultHTML;
         }
         
-        // 개인B 세무조정계산서 보수 계산 함수
+        // 사업소득자 수수료 계산 함수
         function calculatePersonalBFee() {
             const amount = parseFloat(document.getElementById('personalB-amount').value.replace(/,/g, ''));
             if (isNaN(amount) || amount < 0) {
@@ -861,8 +862,8 @@
             }
             let resultHTML = `
             <div style="font-size: 1rem; color: #444; margin-bottom: 5px;">수입금액: ${formatNumber(amount)}원</div>
-            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 보수기준: ${feeDescription}</div>`;
-            resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 보수기준: ${feeDescription === '상담 후 협의' ? feeDescription : formatNumber(Math.round(fee)) + '원'}</div>`;
+            <div style="font-size: 1rem; color: #444; margin-bottom: 10px;">기본 수수료기준: ${feeDescription}</div>`;
+            resultHTML += `<div style="font-size: 1.3rem; font-weight: bold; color: #000; padding: 10px; background-color: #ffffcc; border-radius: 5px; text-align: center;">최종 조정료: ${feeDescription === '상담 후 협의' ? feeDescription : formatNumber(Math.round(fee)) + '원'}</div>`;
             document.getElementById('personalB-result').innerHTML = resultHTML;
         }
         
@@ -871,7 +872,7 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
-        // PDF 생성 함수 (세무조정계산서 전체)
+        // PDF 문서 생성 함수 (전체 보수기준표 출력)
         function generatePDF() {
             const element = document.querySelector('.container');
             const opt = {
@@ -884,7 +885,7 @@
             html2pdf().set(opt).from(element).save();
         }
         
-        // 테이블 표시/숨김 토글 함수 추가
+        // 보수기준표 테이블 펼치기/접기 토글 함수
         function toggleTable(containerId) {
             const container = document.getElementById(containerId);
             const toggleIcon = document.getElementById(containerId + '-toggle');
@@ -898,7 +899,7 @@
             }
         }
         
-        // 선택 옵션 관련 함수 추가 (toggleOption, toggleBookkeepingOption, onBookkeepingInput)
+        // 추가 옵션 선택 관련 함수들 (toggleOption, toggleBookkeepingOption, onBookkeepingInput)
         function toggleOption(id, element) {
             const checkbox = document.getElementById(id);
             checkbox.checked = !checkbox.checked;
