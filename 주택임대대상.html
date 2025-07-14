@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>주택임대소득 과세대상 판별</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7;
+    }
+    header {
+      background-color: #264653;
+      color: #ffffff;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: 1rem auto;
+      padding: 1rem;
+      background-color: #ffffff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+    }
+    .question {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .options label {
+      display: block;
+      margin: 0.2rem 0;
+    }
+    .btn-container {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: #2a9d8f;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #21867a;
+    }
+    .result {
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #fafafa;
+      margin-top: 1rem;
+    }
+    .result h2 {
+      margin-top: 0;
+    }
+    .result p {
+      margin-bottom: 0.5rem;
+    }
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>주택임대소득 과세대상 판별 프로그램</h1>
+  </header>
+
+  <div class="container">
+    <!-- 1단계: 부부 합산 보유 주택 수 -->
+    <div class="step active" id="step1">
+      <div class="question">
+        1. 부부가 합산해서 보유한 주택 수가 몇 채인지 선택해 주세요.
+      </div>
+      <div class="options">
+        <label>
+          <input type="radio" name="houseCount" value="1" /> 1주택
+        </label>
+        <label>
+          <input type="radio" name="houseCount" value="2plus" /> 2주택 이상
+        </label>
+      </div>
+      <div class="btn-container">
+        <span></span> <!-- placeholder for alignment -->
+        <button type="button" onclick="nextStep(1)">다음</button>
+      </div>
+    </div>
+
+    <!-- 2단계(1주택 세부 질문) -->
+    <div class="step" id="step2_1">
+      <div class="question">
+        2. 1주택인 경우, 해당 주택이 국내 소재 주택입니까?
+      </div>
+      <div class="options">
+        <label>
+          <input type="radio" name="isDomestic" value="yes" /> 예 (국내 주택)
+        </label>
+        <label>
+          <input type="radio" name="isDomestic" value="no" /> 아니오 (해외 주택)
+        </label>
+      </div>
+      <div class="btn-container">
+        <button type="button" onclick="prevStep()">이전</button>
+        <button type="button" onclick="nextStep(2)">다음</button>
+      </div>
+    </div>
+
+    <!-- 3단계(1주택 국내인 경우) -->
+    <div class="step" id="step3_1">
+      <div class="question">
+        3. 국내 주택이라면, 기준시가가 12억 원을 초과합니까?
+      </div>
+      <div class="options">
+        <label>
+          <input type="radio" name="isOver12" value="yes" /> 예 (12억 원 초과)
+        </label>
+        <label>
+          <input type="radio" name="isOver12" value="no" /> 아니오 (12억 원 이하)
+        </label>
+      </div>
+      <div class="btn-container">
+        <button type="button" onclick="prevStep()">이전</button>
+        <button type="button" onclick="nextStep(3)">다음</button>
+      </div>
+    </div>
+
+    <!-- 4단계(1주택이고 12억 초과인 경우) -->
+    <div class="step" id="step4_1">
+      <div class="question">
+        4. 해당 주택(12억 초과)에 월세 임대 수입이 있습니까?
+      </div>
+      <div class="options">
+        <label>
+          <input type="radio" name="monthlyRent1" value="yes" /> 예 (월세 수입 있음)
+        </label>
+        <label>
+          <input type="radio" name="monthlyRent1" value="no" /> 아니오 (월세 수입 없음)
+        </label>
+      </div>
+      <div class="btn-container">
+        <button type="button" onclick="prevStep()">이전</button>
+        <button type="button" onclick="finalResult()">결과 보기</button>
+      </div>
+    </div>
+
+    <!-- 2단계(2주택 이상) -->
+    <div class="step" id="step2_2plus">
+      <div class="question">
+        2. 2주택 이상 보유 시, 월세 임대수입이 있습니까?
+      </div>
+      <div class="options">
+        <label>
+          <input type="radio" name="monthlyRent2plus" value="yes" /> 예 (월세 수입 있음)
+        </label>
+        <label>
+          <input type="radio" name="monthlyRent2plus" value="no" /> 아니오 (월세 수입 없음)
+        </label>
+      </div>
+      <div class="btn-container">
+        <button type="button" onclick="prevStep()">이전</button>
+        <button type="button" onclick="nextStep(4)">다음</button>
+      </div>
+    </div>
+
+    <!-- 3단계(2주택 이상, 월세 없을 때: 3주택 이상 여부) -->
+    <div class="step" id="step3_2plus">
+      <div class="question">
+        3. 비소형 주택(면적 등 요건에 따라)의 개수가 3채 이상입니까?
+      </div>
+      <div class="options">
+        <label>
+          <input type="radio" name="over3NonSmall" value="yes" /> 예 (비소형 3채 이상)
+        </label>
+        <label>
+          <input type="radio" name="over3NonSmall" value="no" /> 아니오 (3채 미만)
+        </label>
+      </div>
+      <div class="btn-container">
+        <button type="button" onclick="prevStep()">이전</button>
+        <button type="button" onclick="nextStep(5)">다음</button>
+      </div>
+    </div>
+
+    <!-- 4단계(비소형 주택 3채 이상 보유 시 보증금 합) -->
+    <div class="step" id="step4_2plus">
+      <div class="question">
+        4. 비소형 주택의 보증금(전세금) 합계가 3억 원을 초과합니까?
+      </div>
+      <div class="options">
+        <label>
+          <input type="radio" name="depositOver3" value="yes" /> 예 (3억 원 초과)
+        </label>
+        <label>
+          <input type="radio" name="depositOver3" value="no" /> 아니오 (3억 원 이하)
+        </label>
+      </div>
+      <div class="btn-container">
+        <button type="button" onclick="prevStep()">이전</button>
+        <button type="button" onclick="finalResult()">결과 보기</button>
+      </div>
+    </div>
+
+    <!-- 최종 결과 표시 영역 -->
+    <div class="result" id="resultArea" style="display: none;">
+      <h2>결과</h2>
+      <p id="conclusion"></p>
+      <p id="reason"></p>
+    </div>
+  </div>
+
+  <footer>
+    ※ 본 프로그램은 일반적인 기준을 요약한 참고용입니다.<br/>
+      정확한 과세 여부 판단을 위해서는 세무 전문가와 상담이 권장됩니다.
+  </footer>
+
+  <script>
+    // 현재 스텝을 추적하기 위한 변수
+    let currentStep = 1;
+
+    // 사용자가 선택한 라디오 버튼 값을 저장할 객체
+    const userData = {
+      houseCount: "",        // 1 or 2plus
+      isDomestic: "",        // yes or no
+      isOver12: "",          // yes or no
+      monthlyRent1: "",      // yes or no
+      monthlyRent2plus: "",  // yes or no
+      over3NonSmall: "",     // yes or no
+      depositOver3: ""       // yes or no
+    };
+
+    function nextStep(stepIndex) {
+      // stepIndex에 따라 어떤 라디오 값을 읽어올지 분기
+      switch(stepIndex) {
+        // step1 -> 선택값 저장 후 이동
+        case 1:
+          {
+            const selected = document.querySelector('input[name="houseCount"]:checked');
+            if (!selected) {
+              alert("주택 수를 선택해 주세요.");
+              return;
+            }
+            userData.houseCount = selected.value;
+            // 다음 스텝 결정
+            document.getElementById("step1").classList.remove("active");
+            if (userData.houseCount === "1") {
+              document.getElementById("step2_1").classList.add("active");
+              currentStep = 2.1;
+            } else {
+              document.getElementById("step2_2plus").classList.add("active");
+              currentStep = 2.2;
+            }
+          }
+          break;
+
+        // step2_1 -> 국내/해외 여부
+        case 2:
+          {
+            const selected = document.querySelector('input[name="isDomestic"]:checked');
+            if (!selected) {
+              alert("국내 소재 여부를 선택해 주세요.");
+              return;
+            }
+            userData.isDomestic = selected.value;
+            document.getElementById("step2_1").classList.remove("active");
+            // 해외 주택이면 월세 수입이 있으면 과세대상(국외 주택은 과세), 없으면?
+            // 실제 법령상 해외주택 월세는 과세대상. 그러나 문제에서 직접 '해외 주택' 언급 -> YES로 분기됨.
+            // 흐름에 맞추어 '국내'인 경우에만 다음 질문(12억 초과)으로 간다.
+            if (userData.isDomestic === "yes") {
+              document.getElementById("step3_1").classList.add("active");
+              currentStep = 3.1;
+            } else {
+              // 해외주택이면 과세 대상 -> 바로 결과 가능
+              // 하지만 질문에서 “국외 소재 주택이면 과세”라 했으므로 월세 유무도 필요!
+              // 추가 질문할 수도 있지만, 일단 예시에선 국외주택 소유=월세 임대수입 존재시 과세. 
+              // 본문 흐름상 “국외 주택 -> 월세 수입이 있다면 과세, 없으면 과세대상 아님”으로 처리
+              // 여기서는 간단히 월세 수입 있다고 가정하여 추가 질문하도록 하겠습니다.
+              // 필요한 경우 코드를 수정해 즉시 결과 페이지로 보내도 무방합니다.
+
+              // 다음 단계(12억 초과) 생략하고 4단계(월세 질문) 재사용
+              document.getElementById("step4_1").classList.add("active");
+              currentStep = 4.1;
+            }
+          }
+          break;
+
+        // step3_1 -> 12억 초과 여부
+        case 3:
+          {
+            const selected = document.querySelector('input[name="isOver12"]:checked');
+            if (!selected) {
+              alert("12억 원 초과 여부를 선택해 주세요.");
+              return;
+            }
+            userData.isOver12 = selected.value;
+            document.getElementById("step3_1").classList.remove("active");
+            if (userData.isOver12 === "yes") {
+              document.getElementById("step4_1").classList.add("active");
+              currentStep = 4.1;
+            } else {
+              // 12억 이하 -> 과세대상 아님(월세, 보증금 모두 비과세)
+              // 바로 결과 도출 가능
+              finalResult();
+            }
+          }
+          break;
+
+        // step2_2plus -> 2주택 이상에서 월세 유무
+        case 4:
+          {
+            const selected = document.querySelector('input[name="monthlyRent2plus"]:checked');
+            if (!selected) {
+              alert("월세 임대수입 보유 여부를 선택해 주세요.");
+              return;
+            }
+            userData.monthlyRent2plus = selected.value;
+            document.getElementById("step2_2plus").classList.remove("active");
+
+            if (userData.monthlyRent2plus === "yes") {
+              // 월세 수입이 있으면 바로 과세대상
+              finalResult();
+            } else {
+              // 월세 수입이 없을 경우 -> 3주택 이상인지 확인
+              document.getElementById("step3_2plus").classList.add("active");
+              currentStep = 3.2;
+            }
+          }
+          break;
+
+        // step3_2plus -> 비소형 3채 이상 여부
+        case 5:
+          {
+            const selected = document.querySelector('input[name="over3NonSmall"]:checked');
+            if (!selected) {
+              alert("비소형 주택 3채 이상 보유 여부를 선택해 주세요.");
+              return;
+            }
+            userData.over3NonSmall = selected.value;
+            document.getElementById("step3_2plus").classList.remove("active");
+
+            if (userData.over3NonSmall === "yes") {
+              // 보증금 합계 질문
+              document.getElementById("step4_2plus").classList.add("active");
+              currentStep = 4.2;
+            } else {
+              // 3채 미만이면 과세대상 아님
+              finalResult();
+            }
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    function prevStep() {
+      // 간단히 currentStep에 따라 이전 단계 표시
+      switch(currentStep) {
+        case 2.1:
+          document.getElementById("step2_1").classList.remove("active");
+          document.getElementById("step1").classList.add("active");
+          currentStep = 1;
+          break;
+        case 3.1:
+          document.getElementById("step3_1").classList.remove("active");
+          document.getElementById("step2_1").classList.add("active");
+          currentStep = 2.1;
+          break;
+        case 4.1:
+          document.getElementById("step4_1").classList.remove("active");
+          if (userData.isDomestic === "no") {
+            // 해외주택이면 step2_1로
+            document.getElementById("step2_1").classList.add("active");
+            currentStep = 2.1;
+          } else {
+            // 국내주택 12억 초과
+            document.getElementById("step3_1").classList.add("active");
+            currentStep = 3.1;
+          }
+          break;
+        case 2.2:
+          document.getElementById("step2_2plus").classList.remove("active");
+          document.getElementById("step1").classList.add("active");
+          currentStep = 1;
+          break;
+        case 3.2:
+          document.getElementById("step3_2plus").classList.remove("active");
+          document.getElementById("step2_2plus").classList.add("active");
+          currentStep = 2.2;
+          break;
+        case 4.2:
+          document.getElementById("step4_2plus").classList.remove("active");
+          document.getElementById("step3_2plus").classList.add("active");
+          currentStep = 3.2;
+          break;
+        default:
+          break;
+      }
+    }
+
+    // 최종 결과 도출 함수
+    function finalResult() {
+      // 필요한 경우 마지막 질문(예: 1주택 월세 유무, 2주택 이상 보증금 등) 값 읽어오기
+      if (currentStep === 4.1) {
+        const selected = document.querySelector('input[name="monthlyRent1"]:checked');
+        if (!selected) {
+          alert("월세 임대수입 여부를 선택해 주세요.");
+          return;
+        }
+        userData.monthlyRent1 = selected.value;
+        document.getElementById("step4_1").classList.remove("active");
+      }
+      if (currentStep === 4.2) {
+        const selected = document.querySelector('input[name="depositOver3"]:checked');
+        if (!selected) {
+          alert("보증금 합계 여부를 선택해 주세요.");
+          return;
+        }
+        userData.depositOver3 = selected.value;
+        document.getElementById("step4_2plus").classList.remove("active");
+      }
+
+      // 로직에 따라 과세/비과세 판별
+      let conclusion = "";
+      let reason = "";
+
+      // 1주택 로직
+      if (userData.houseCount === "1") {
+        // 국외 주택 여부
+        if (userData.isDomestic === "no") {
+          // 국외 주택 -> 월세 임대수입 있으면 과세
+          if (userData.monthlyRent1 === "yes") {
+            conclusion = "주택임대소득 과세 대상입니다.";
+            reason = "국외 소재 1주택에서 발생한 월세 수입은 과세 대상입니다.";
+          } else {
+            conclusion = "주택임대소득 과세 대상 아님";
+            reason = "국외 소재 1주택이지만 월세 임대수입이 없으므로 과세 대상이 아닙니다.";
+          }
+        } else {
+          // 국내 주택
+          if (userData.isOver12 === "no") {
+            conclusion = "주택임대소득 과세 대상 아님";
+            reason = "국내 기준시가 12억 원 이하 1주택의 월세/보증금은 과세 대상이 아닙니다.";
+          } else {
+            // 12억 초과
+            if (userData.monthlyRent1 === "yes") {
+              conclusion = "주택임대소득 과세 대상입니다.";
+              reason = "국내 기준시가 12억 원을 초과하는 주택의 월세 수입은 과세 대상입니다.";
+            } else {
+              conclusion = "주택임대소득 과세 대상 아님";
+              reason = "12억 초과 1주택이라도 월세 임대수입이 없으면 과세 대상이 아닙니다.";
+            }
+          }
+        }
+      }
+
+      // 2주택 이상 로직
+      if (userData.houseCount === "2plus") {
+        // 월세 임대수입이 있다면 전부 과세 대상
+        if (userData.monthlyRent2plus === "yes") {
+          conclusion = "주택임대소득 과세 대상입니다.";
+          reason = "2주택 이상일 경우, 월세 임대수입은 모두 과세 대상입니다.";
+        } else {
+          // 월세 수입이 없다면, 비소형 주택 3채 이상 & 보증금 3억 초과 여부
+          if (userData.over3NonSmall === "yes") {
+            if (userData.depositOver3 === "yes") {
+              conclusion = "주택임대소득 과세 대상입니다.";
+              reason = "비소형 주택 3채 이상을 보유하고 보증금 합이 3억 원을 초과하면 간주임대료 과세 대상입니다.";
+            } else {
+              conclusion = "주택임대소득 과세 대상 아님";
+              reason = "비소형 주택 3채 이상이더라도 보증금이 3억 원 이하이면 과세되지 않습니다.";
+            }
+          } else {
+            conclusion = "주택임대소득 과세 대상 아님";
+            reason = "2주택 이상이지만 비소형 주택이 3채 이상이 아니고 월세도 없으므로 과세 대상이 아닙니다.";
+          }
+        }
+      }
+
+      // 결과 영역에 출력
+      const conclusionEl = document.getElementById("conclusion");
+      const reasonEl = document.getElementById("reason");
+      conclusionEl.textContent = conclusion;
+      reasonEl.textContent = reason;
+
+      document.getElementById("resultArea").style.display = "block";
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+  </script>
+</body>
+</html>
