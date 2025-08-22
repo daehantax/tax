@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2024년 근로소득세 계산기 (완전판)</title>
+    <title>2024년 근로소득세 계산기</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f7fa;
             min-height: 100vh;
             padding: 20px;
         }
@@ -28,8 +28,8 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #0B3D91;
+            color: #ffffff;
             padding: 30px;
             text-align: center;
         }
@@ -72,15 +72,15 @@
 
         .input-group input:focus, .input-group select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #0B5ED7;
+            box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.2);
         }
 
         .calculate-btn {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #0B5ED7;
+            color: #ffffff;
             border: none;
             border-radius: 10px;
             font-size: 1.2em;
@@ -92,7 +92,7 @@
 
         .calculate-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(11, 94, 215, 0.35);
         }
 
         .result {
@@ -115,7 +115,7 @@
         }
 
         .result h3 {
-            color: #667eea;
+            color: #0B3D91;
             margin-bottom: 20px;
             font-size: 1.5em;
         }
@@ -132,7 +132,7 @@
             border-bottom: none;
             font-weight: 600;
             font-size: 1.2em;
-            color: #667eea;
+            color: #0B3D91;
         }
 
         .result-label {
@@ -176,13 +176,160 @@
                 padding: 20px;
             }
         }
+
+        /* Animated toggle switch for insurance checkboxes */
+        .insurance-toggle input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .insurance-toggle .toggle-switch {
+            width: 40px;
+            height: 22px;
+            background: #e9ecef;
+            border-radius: 999px;
+            position: relative;
+            transition: background 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: inset 0 0 0 2px #dee2e6;
+        }
+        .insurance-toggle .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.25s ease;
+        }
+        .insurance-toggle input[type="checkbox"]:checked + .toggle-switch {
+            background: #0B5ED7;
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.25);
+        }
+        .insurance-toggle input[type="checkbox"]:checked + .toggle-switch::after {
+            transform: translateX(18px);
+        }
+        /* Subtle highlight of row when enabled/disabled */
+        .result-item.toggled-off {
+            opacity: 0.55;
+        }
+        /* Summary card (blue box) */
+        .summary-card {
+            background: #0B5ED7;
+            color: #ffffff;
+            border-radius: 14px;
+            padding: 28px;
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 24px rgba(11, 94, 215, 0.25);
+            border-bottom: none;
+        }
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+        }
+        .summary-title {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        .summary-amount {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.8em;
+        }
+        .summary-sub {
+            display: none;
+            margin-top: 10px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            flex-direction: column;
+            gap: 6px;
+        }
+        .summary-sub-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .summary-sub-label {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+        .summary-sub-value {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.8em;
+        }
+        /* Improve legibility of white text on blue summary cards with outline */
+        .summary-card .summary-title,
+        .summary-card .summary-amount,
+        .summary-card .summary-sub-label,
+        .summary-card .summary-sub-value {
+            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.4);
+            text-shadow:
+                1px 0 0 rgba(0, 0, 0, 0.4),
+                -1px 0 0 rgba(0, 0, 0, 0.4),
+                0 1px 0 rgba(0, 0, 0, 0.4),
+                0 -1px 0 rgba(0, 0, 0, 0.4),
+                1px 1px 0 rgba(0, 0, 0, 0.35),
+                1px -1px 0 rgba(0, 0, 0, 0.35),
+                -1px 1px 0 rgba(0, 0, 0, 0.35),
+                -1px -1px 0 rgba(0, 0, 0, 0.35);
+        }
+        /* Emphasis: Income tax and total deduction first */
+        .tax-primary .result-label {
+            font-weight: 700;
+            color: #0B3D91;
+        }
+        .tax-primary .result-value {
+            font-weight: 800;
+            color: #dc3545;
+            font-size: 1.15em;
+        }
+        #row-total-deduction .result-label {
+            font-weight: 800;
+            font-size: 1.1em;
+            color: #0B3D91;
+        }
+        #row-total-deduction .result-value {
+            color: #dc3545;
+            font-weight: 800;
+            font-size: 1.25em;
+        }
+        /* Slightly enhance visibility for '다른 계산 결과' section */
+        #other-results .result-item {
+            padding: 18px 0;
+        }
+        #other-results .result-label {
+            font-size: 1.12em;
+            font-weight: 700;
+        }
+        #other-results .result-value {
+            font-size: 1.22em;
+            font-weight: 700;
+        }
+        /* Prevent last item in '다른 계산 결과' from being larger than others */
+        #other-results .result-item:last-child {
+            font-size: 1em;
+            font-weight: 400;
+            color: inherit;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>근로소득세 계산기</h1>
-            <p>2024년 근로소득 간이세액표 기준 (완전판)</p>
+            <p>2024년 근로소득 간이세액표 기준</p>
         </div>
 
         <div class="calculator">
@@ -191,6 +338,13 @@
                 <select id="salaryType" onchange="updateSalaryLabel()">
                     <option value="monthly">월급여</option>
                     <option value="annual">연봉</option>
+                    <option value="net">월 실수령액</option>
+                    <option value="netAnnual">연 실수령액</option>
+                    <option value="npInput">국민연금 금액</option>
+                    <option value="hiInput">건강보험 금액</option>
+                    <option value="ltcInput">장기요양보험 금액</option>
+                    <option value="uiInput">고용보험 금액</option>
+                    <option value="itInput">소득세 금액</option>
                 </select>
             </div>
 
@@ -220,18 +374,11 @@
 
             <div class="result" id="result">
                 <h3>📊 계산 결과</h3>
-                <div class="result-item">
-                    <span class="result-label">월 급여액</span>
-                    <span class="result-value" id="monthly-salary">-</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">부양가족 수</span>
-                    <span class="result-value" id="dependents-count">-</span>
-                </div>
+                
                 
                 <div class="result-section">
-                    <h4 style="color: #667eea; margin: 20px 0 10px 0; font-size: 1.2em;">💰 세금</h4>
-                    <div class="result-item">
+                    <h4 style="color: #0B3D91; margin: 20px 0 10px 0; font-size: 1.2em;">💰 세금</h4>
+                    <div class="result-item tax-primary" id="row-income-tax">
                         <span class="result-label">소득세</span>
                         <span class="result-value" id="income-tax">-</span>
                     </div>
@@ -239,11 +386,15 @@
                         <span class="result-label">지방소득세</span>
                         <span class="result-value" id="local-tax">-</span>
                     </div>
+                    <div class="result-item" style="border-top: 2px solid #0B3D91; padding-top: 15px; margin-top: 10px;">
+                        <span class="result-label" style="font-weight: 600;">합계</span>
+                        <span class="result-value" style="color: #0B3D91; font-weight: 600;" id="income-local-total">-</span>
+                    </div>
                 </div>
 
                 <!-- 고소득 구간 계산 공식 (1,000만원 초과 시에만 표시) -->
                 <div class="result-section" id="high-income-formula" style="display: none;">
-                    <h4 style="color: #333; margin: 20px 0 10px 0; font-size: 1.1em;">📊 고소득 구간 계산 공식</h4>
+                    <h4 style="color: #333; margin: 20px 0 10px 0; font-size: 1.1em;">📊 고소득 구간 세액 계산 공식</h4>
                     <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 0.9em;">
                         <div class="result-item" style="border-bottom: 1px solid #e9ecef; padding: 8px 0;">
                             <span class="result-label" style="color: #333; font-size: 0.9em;">적용 구간</span>
@@ -277,37 +428,68 @@
                 </div>
 
                 <div class="result-section">
-                    <h4 style="color: #667eea; margin: 20px 0 10px 0; font-size: 1.2em;">🏥 4대보험</h4>
-                    <div class="result-item">
-                        <span class="result-label">국민연금 (4.5%)</span>
+                    <h4 style="color: #0B3D91; margin: 20px 0 10px 0; font-size: 1.2em;">🏥 4대보험</h4>
+                    <div class="result-item" id="item-np">
+                        <span class="result-label"><label class="insurance-toggle" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative;"><input type="checkbox" id="toggle-np" checked><span class="toggle-switch" aria-hidden="true"></span> 국민연금 (4.5%)</label></span>
                         <span class="result-value" id="national-pension">-</span>
                     </div>
-                    <div class="result-item">
-                        <span class="result-label">건강보험 (3.545%)</span>
+                    <div class="result-item" id="item-hi">
+                        <span class="result-label"><label class="insurance-toggle" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative;"><input type="checkbox" id="toggle-hi" checked><span class="toggle-switch" aria-hidden="true"></span> 건강보험 (3.545%)</label></span>
                         <span class="result-value" id="health-insurance">-</span>
                     </div>
-                    <div class="result-item">
-                        <span class="result-label">장기요양보험 (건강보험료의 12.95%)</span>
+                    <div class="result-item" id="item-ltc">
+                        <span class="result-label"><label class="insurance-toggle" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative;"><input type="checkbox" id="toggle-ltc" checked><span class="toggle-switch" aria-hidden="true"></span> 장기요양보험 (건강보험료×12.95%)</label></span>
                         <span class="result-value" id="long-term-care">-</span>
                     </div>
-                    <div class="result-item">
-                        <span class="result-label">고용보험 (0.9%)</span>
+                    <div class="result-item" id="item-ui">
+                        <span class="result-label"><label class="insurance-toggle" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;position:relative;"><input type="checkbox" id="toggle-ui" checked><span class="toggle-switch" aria-hidden="true"></span> 고용보험 (0.9%)</label></span>
                         <span class="result-value" id="unemployment-insurance">-</span>
                     </div>
-                    <div class="result-item" style="border-top: 2px solid #667eea; padding-top: 15px; margin-top: 10px;">
+                    <div class="result-item" style="border-top: 2px solid #0B3D91; padding-top: 15px; margin-top: 10px;">
                         <span class="result-label" style="font-weight: 600;">4대보험 합계</span>
-                        <span class="result-value" style="color: #667eea; font-weight: 600;" id="total-insurance">-</span>
+                        <span class="result-value" style="color: #0B3D91; font-weight: 600;" id="total-insurance">-</span>
                     </div>
                 </div>
 
-                <div class="result-item" style="border-top: 3px solid #667eea; padding-top: 20px; margin-top: 20px; background: #f8f9fa;">
-                    <span class="result-label" style="font-weight: 700; font-size: 1.1em;">총 공제액</span>
-                    <span class="result-value" style="color: #dc3545; font-weight: 700; font-size: 1.1em;" id="total-deduction">-</span>
-                </div>
                 
-                <div class="result-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; padding: 20px; margin-top: 15px;">
-                    <span class="result-label" style="color: white; font-weight: 700; font-size: 1.3em;">💵 실수령액</span>
-                    <span class="result-value" style="color: white; font-weight: 700; font-size: 1.3em;" id="real-salary">-</span>
+                <div id="summary-tax-card" class="result-item summary-card">
+                    <div class="summary-header">
+                        <span class="summary-title">💰 세금 총액</span>
+                        <span class="summary-amount" id="summary-tax-value">-</span>
+                    </div>
+                </div>
+
+                <div id="summary-card" class="result-item summary-card">
+                    <div class="summary-header">
+                        <span class="summary-title" id="summary-label">💵 실수령액</span>
+                        <span class="summary-amount" id="summary-value">-</span>
+                    </div>
+                    <div id="summary-sub" class="summary-sub">
+                        <div class="summary-sub-row">
+                            <span class="summary-sub-label" id="summary-sub-label">세금 총액</span>
+                            <span class="summary-sub-value" id="summary-annual">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-section" id="other-results" style="margin-top: 10px;">
+                    <h4 style="color: #0B3D91; margin: 20px 0 10px 0; font-size: 1.2em;">🔁 다른 계산 결과</h4>
+                    <div class="result-item" id="row-alt-monthly-gross">
+                        <span class="result-label">월 급여액</span>
+                        <span class="result-value" id="alt-monthly-gross">-</span>
+                    </div>
+                    <div class="result-item" id="row-alt-monthly-net">
+                        <span class="result-label">월 실수령액</span>
+                        <span class="result-value" id="alt-monthly-net">-</span>
+                    </div>
+                    <div class="result-item" id="row-alt-annual-gross">
+                        <span class="result-label">연봉</span>
+                        <span class="result-value" id="alt-annual-gross">-</span>
+                    </div>
+                    <div class="result-item" id="row-alt-annual-net" style="border-bottom: none;">
+                        <span class="result-label">연 실수령액</span>
+                        <span class="result-value" id="alt-annual-net">-</span>
+                    </div>
                 </div>
             </div>
 
@@ -317,7 +499,7 @@
                     <li><strong>급여 구분:</strong> 연봉 선택 시 12개월로 나누어 월급여로 계산</li>
                     <li><strong>2024년 기준:</strong> 근로소득 간이세액표 + 4대보험료율 적용</li>
                     <li><strong>4대보험 요율:</strong> 국민연금 4.5%, 건강보험 3.545%, 장기요양보험 12.95%(건강보험료의), 고용보험 0.9%</li>
-                                          <li><strong>상한액:</strong> 국민연금 637만원, 건강보험 9,008,340원 기준</li>
+                    <li><strong>상한액:</strong> 국민연금 637만원, 건강보험 9,008,340원 기준</li>
                     <li><strong>고소득 구간:</strong> 1,000만원 초과 시 누진세율 적용</li>
                     <li><strong>지방소득세:</strong> 소득세의 10%로 계산</li>
                 </ul>
@@ -393,6 +575,27 @@
             if (salaryType === 'annual') {
                 salaryLabel.textContent = '연봉 (원)';
                 salaryInput.placeholder = '예: 60,000,000';
+            } else if (salaryType === 'net') {
+                salaryLabel.textContent = '월 실수령액 (원)';
+                salaryInput.placeholder = '예: 2,500,000';
+            } else if (salaryType === 'netAnnual') {
+                salaryLabel.textContent = '연 실수령액 (원)';
+                salaryInput.placeholder = '예: 30,000,000';
+            } else if (salaryType === 'npInput') {
+                salaryLabel.textContent = '국민연금 금액 (원)';
+                salaryInput.placeholder = '예: 135,000';
+            } else if (salaryType === 'hiInput') {
+                salaryLabel.textContent = '건강보험 금액 (원)';
+                salaryInput.placeholder = '예: 106,350';
+            } else if (salaryType === 'ltcInput') {
+                salaryLabel.textContent = '장기요양보험 금액 (원)';
+                salaryInput.placeholder = '예: 13,780';
+            } else if (salaryType === 'uiInput') {
+                salaryLabel.textContent = '고용보험 금액 (원)';
+                salaryInput.placeholder = '예: 27,000';
+            } else if (salaryType === 'itInput') {
+                salaryLabel.textContent = '소득세 금액 (원)';
+                salaryInput.placeholder = '예: 74,350';
             } else {
                 salaryLabel.textContent = '월 급여액 (원)';
                 salaryInput.placeholder = '예: 3,000,000';
@@ -1237,14 +1440,163 @@
                 return;
             }
 
-            // 연봉/월급 구분에 따른 월급여 계산
+            // 연봉/월급/실수령액/연 실수령액 구분에 따른 월급여 계산
             let monthlySalary;
             let displaySalaryLabel;
-            
+
+            // helper: compute net for a given gross with current toggles
+            function computeNetForGross(gross, dep) {
+                const tRes = getTaxFromTable(gross, dep);
+                const taxOnly = (typeof tRes === 'object' && tRes.tax !== undefined) ? tRes.tax : tRes;
+                const localOnly = Math.floor(taxOnly * 0.1);
+                const ins = calculateInsurance(gross);
+                const includeNP = document.getElementById('toggle-np') ? document.getElementById('toggle-np').checked : true;
+                const includeHI = document.getElementById('toggle-hi') ? document.getElementById('toggle-hi').checked : true;
+                const includeLTC = document.getElementById('toggle-ltc') ? document.getElementById('toggle-ltc').checked : true;
+                const includeUI = document.getElementById('toggle-ui') ? document.getElementById('toggle-ui').checked : true;
+                const npVal = includeNP ? ins.nationalPension : 0;
+                const hiVal = includeHI ? ins.healthInsurance : 0;
+                const ltcVal = (includeHI && includeLTC) ? ins.longTermCare : 0;
+                const uiVal = includeUI ? ins.unemploymentInsurance : 0;
+                const totalDed = taxOnly + localOnly + npVal + hiVal + ltcVal + uiVal;
+                return gross - totalDed;
+            }
+
             if (salaryType === 'annual') {
                 monthlySalary = Math.floor(inputSalary / 12);
                 displaySalaryLabel = `연봉 ${inputSalary.toLocaleString()}원 (월 ${monthlySalary.toLocaleString()}원)`;
-                } else {
+            } else if (salaryType === 'net') {
+                const targetNet = inputSalary;
+                // 이분 탐색으로 월급여 역산
+                let lo = 0, hi = Math.max(targetNet * 2, 1000000); // 초기 상한선
+                // 상한선 확장: 실수령액이 상한선 순수입보다 큰 경우 증가
+                for (let i = 0; i < 20 && computeNetForGross(hi, dependents) < targetNet; i++) {
+                    hi *= 2;
+                    if (hi > 200000000) break; // 2억원 상한
+                }
+                for (let i = 0; i < 50; i++) {
+                    const mid = Math.floor((lo + hi) / 2);
+                    const net = computeNetForGross(mid, dependents);
+                    if (net >= targetNet) {
+                        hi = mid;
+                    } else {
+                        lo = mid + 1;
+                    }
+                }
+                monthlySalary = hi;
+                displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
+            } else if (salaryType === 'netAnnual') {
+                const targetNetAnnual = inputSalary;
+                const targetNetMonthly = Math.floor(targetNetAnnual / 12);
+                // 이분 탐색으로 월급여 역산 (월 실수령액 기준)
+                let lo = 0, hi = Math.max(targetNetMonthly * 2, 1000000);
+                for (let i = 0; i < 20 && computeNetForGross(hi, dependents) < targetNetMonthly; i++) {
+                    hi *= 2;
+                    if (hi > 200000000) break;
+                }
+                for (let i = 0; i < 50; i++) {
+                    const mid = Math.floor((lo + hi) / 2);
+                    const net = computeNetForGross(mid, dependents);
+                    if (net >= targetNetMonthly) {
+                        hi = mid;
+                    } else {
+                        lo = mid + 1;
+                    }
+                }
+                monthlySalary = hi;
+                displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
+            } else if (salaryType === 'npInput') {
+                // 국민연금 금액으로부터 월급여 역산 (요율 4.5%, 상한 고려)
+                const targetNP = inputSalary;
+                // 역산: gross ≈ ceil(targetNP / 0.045), 단 상한 6,370,000 적용 전후 체크
+                let candidate = Math.ceil(targetNP / 0.045);
+                if (candidate > 6370000) candidate = 6370000; // 상한 구간에서는 모두 동일보험료라 역산 불가 → 상한치로 설정
+                // 정밀 보정: 실제 계산함수로 검증
+                const verify = calculateInsurance(candidate).nationalPension;
+                if (verify !== targetNP) {
+                    // 주변 값 탐색(±100원 범위)으로 보정
+                    let best = candidate, bestDiff = Math.abs(verify - targetNP);
+                    for (let d = -20000; d <= 20000; d += 100) {
+                        const g = Math.max(0, candidate + d);
+                        const v = calculateInsurance(g).nationalPension;
+                        const diff = Math.abs(v - targetNP);
+                        if (diff < bestDiff) { best = g; bestDiff = diff; if (diff === 0) break; }
+                    }
+                    candidate = best;
+                }
+                monthlySalary = candidate;
+                displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
+            } else if (salaryType === 'hiInput') {
+                // 건강보험 금액으로부터 월급여 역산 (요율 3.545%, 상한 9,008,340)
+                const targetHI = inputSalary;
+                let candidate = Math.ceil(targetHI / 0.03545);
+                if (candidate > 9008340) candidate = 9008340;
+                const verify = calculateInsurance(candidate).healthInsurance;
+                if (verify !== targetHI) {
+                    let best = candidate, bestDiff = Math.abs(verify - targetHI);
+                    for (let d = -20000; d <= 20000; d += 100) {
+                        const g = Math.max(0, candidate + d);
+                        const v = calculateInsurance(g).healthInsurance;
+                        const diff = Math.abs(v - targetHI);
+                        if (diff < bestDiff) { best = g; bestDiff = diff; if (diff === 0) break; }
+                    }
+                    candidate = best;
+                }
+                monthlySalary = candidate;
+                displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
+            } else if (salaryType === 'ltcInput') {
+                // 장기요양보험 = 건강보험료 × 12.95% → 건강보험료 역산 후 급여 역산
+                const targetLTC = inputSalary;
+                const estHI = Math.ceil(targetLTC / 0.1295);
+                let candidate = Math.ceil(estHI / 0.03545);
+                if (candidate > 9008340) candidate = 9008340;
+                const verifyLTC = calculateInsurance(candidate).longTermCare;
+                if (verifyLTC !== targetLTC) {
+                    let best = candidate, bestDiff = Math.abs(verifyLTC - targetLTC);
+                    for (let d = -20000; d <= 20000; d += 100) {
+                        const g = Math.max(0, candidate + d);
+                        const v = calculateInsurance(g).longTermCare;
+                        const diff = Math.abs(v - targetLTC);
+                        if (diff < bestDiff) { best = g; bestDiff = diff; if (diff === 0) break; }
+                    }
+                    candidate = best;
+                }
+                monthlySalary = candidate;
+                displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
+            } else if (salaryType === 'uiInput') {
+                // 고용보험 = 급여 × 0.9%
+                const targetUI = inputSalary;
+                let candidate = Math.ceil(targetUI / 0.009);
+                const verify = calculateInsurance(candidate).unemploymentInsurance;
+                if (verify !== targetUI) {
+                    let best = candidate, bestDiff = Math.abs(verify - targetUI);
+                    for (let d = -20000; d <= 20000; d += 100) {
+                        const g = Math.max(0, candidate + d);
+                        const v = calculateInsurance(g).unemploymentInsurance;
+                        const diff = Math.abs(v - targetUI);
+                        if (diff < bestDiff) { best = g; bestDiff = diff; if (diff === 0) break; }
+                    }
+                    candidate = best;
+                }
+                monthlySalary = candidate;
+                displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
+            } else if (salaryType === 'itInput') {
+                // 소득세 금액으로부터 월급여 역산 (간이세액표 역탐색)
+                const targetIT = inputSalary;
+                let lo = 0, hi = 20000000; // 월 2천만원까지 탐색 범위
+                for (let i = 0; i < 50; i++) {
+                    const mid = Math.floor((lo + hi) / 2);
+                    const tRes = getTaxFromTable(mid, dependents);
+                    const taxOnly = (typeof tRes === 'object' && tRes.tax !== undefined) ? tRes.tax : tRes;
+                    if (taxOnly >= targetIT) {
+                        hi = mid;
+                    } else {
+                        lo = mid + 1;
+                    }
+                }
+                monthlySalary = hi;
+                displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
+            } else {
                 monthlySalary = inputSalary;
                 displaySalaryLabel = `월 급여액 ${monthlySalary.toLocaleString()}원`;
             }
@@ -1255,21 +1607,110 @@
             const localTax = Math.floor(incomeTax * 0.1);
             const insurance = calculateInsurance(monthlySalary);
             
-            const totalDeduction = incomeTax + localTax + insurance.total;
+            // 4대보험 선택 상태 반영
+            const includeNP = document.getElementById('toggle-np') ? document.getElementById('toggle-np').checked : true;
+            const includeHI = document.getElementById('toggle-hi') ? document.getElementById('toggle-hi').checked : true;
+            const includeLTC = document.getElementById('toggle-ltc') ? document.getElementById('toggle-ltc').checked : true;
+            const includeUI = document.getElementById('toggle-ui') ? document.getElementById('toggle-ui').checked : true;
+
+            const npVal = includeNP ? insurance.nationalPension : 0;
+            const hiVal = includeHI ? insurance.healthInsurance : 0;
+            const ltcVal = (includeHI && includeLTC) ? insurance.longTermCare : 0;
+            const uiVal = includeUI ? insurance.unemploymentInsurance : 0;
+
+            const selectedInsuranceTotal = npVal + hiVal + ltcVal + uiVal;
+
+            const totalDeduction = incomeTax + localTax + selectedInsuranceTotal;
             const realSalary = monthlySalary - totalDeduction;
 
-            // 결과 표시
-            document.getElementById('monthly-salary').textContent = displaySalaryLabel;
-            document.getElementById('dependents-count').textContent = dependents + '명';
+            // 결과 표시 (상단 요약 항목 제거됨)
             document.getElementById('income-tax').textContent = incomeTax.toLocaleString() + '원';
             document.getElementById('local-tax').textContent = localTax.toLocaleString() + '원';
-            document.getElementById('national-pension').textContent = insurance.nationalPension.toLocaleString() + '원';
-            document.getElementById('health-insurance').textContent = insurance.healthInsurance.toLocaleString() + '원';
-            document.getElementById('long-term-care').textContent = insurance.longTermCare.toLocaleString() + '원';
-            document.getElementById('unemployment-insurance').textContent = insurance.unemploymentInsurance.toLocaleString() + '원';
-            document.getElementById('total-insurance').textContent = insurance.total.toLocaleString() + '원';
-            document.getElementById('total-deduction').textContent = totalDeduction.toLocaleString() + '원';
-            document.getElementById('real-salary').textContent = realSalary.toLocaleString() + '원';
+            const incomeLocalTotal = incomeTax + localTax;
+            const incomeLocalTotalEl = document.getElementById('income-local-total');
+            if (incomeLocalTotalEl) incomeLocalTotalEl.textContent = incomeLocalTotal.toLocaleString() + '원';
+            document.getElementById('national-pension').textContent = npVal.toLocaleString() + '원';
+            document.getElementById('health-insurance').textContent = hiVal.toLocaleString() + '원';
+            document.getElementById('long-term-care').textContent = ltcVal.toLocaleString() + '원';
+            document.getElementById('unemployment-insurance').textContent = uiVal.toLocaleString() + '원';
+            document.getElementById('total-insurance').textContent = selectedInsuranceTotal.toLocaleString() + '원';
+            const totalDeductionEl = document.getElementById('total-deduction');
+            if (totalDeductionEl) totalDeductionEl.textContent = totalDeduction.toLocaleString() + '원';
+            // Summary card content
+            const summaryLabelEl = document.getElementById('summary-label');
+            const summaryValueEl = document.getElementById('summary-value');
+            const summarySub = document.getElementById('summary-sub');
+            const summaryAnnual = document.getElementById('summary-annual');
+            // Other results rows
+            const altMonthlyGrossEl = document.getElementById('alt-monthly-gross');
+            const altAnnualGrossEl = document.getElementById('alt-annual-gross');
+            const altMonthlyNetEl = document.getElementById('alt-monthly-net');
+            const altAnnualNetEl = document.getElementById('alt-annual-net');
+
+            // 선택한 급여 구분에 따라 카드 내용 표시
+            const summarySubLabel = document.getElementById('summary-sub-label');
+            // 파란 박스: 실수령액만 표시 (라벨은 항상 "월 실수령액")
+            const totalTax = incomeTax + localTax + selectedInsuranceTotal;
+            summaryLabelEl.textContent = '💵 월 실수령액';
+            summaryValueEl.textContent = `${realSalary.toLocaleString()}원`;
+            summarySub.style.display = 'none';
+
+            // 세금 총액 파란 박스 값 채우기
+            const summaryTaxValueEl = document.getElementById('summary-tax-value');
+            if (summaryTaxValueEl) {
+                summaryTaxValueEl.textContent = `${totalTax.toLocaleString()}원`;
+            }
+
+            // 파란 요약 카드(세금 총액 / 월 실수령액) 표시 제어
+            const summaryTaxCardEl = document.getElementById('summary-tax-card');
+            const summaryCardEl = document.getElementById('summary-card');
+            if (salaryType === 'net') {
+                if (summaryCardEl) summaryCardEl.style.display = 'none';
+                if (summaryTaxCardEl) summaryTaxCardEl.style.display = 'flex';
+            } else {
+                if (summaryCardEl) summaryCardEl.style.display = 'flex';
+                if (summaryTaxCardEl) summaryTaxCardEl.style.display = 'flex';
+            }
+
+            // 공통: 선택된 월급여 기준으로 나머지 3종 결과 채우기
+            altMonthlyGrossEl.textContent = `${monthlySalary.toLocaleString()}원`;
+            altAnnualGrossEl.textContent = `${(monthlySalary * 12).toLocaleString()}원`;
+            altMonthlyNetEl.textContent = `${realSalary.toLocaleString()}원`;
+            altAnnualNetEl.textContent = `${(realSalary * 12).toLocaleString()}원`;
+
+            // 선택한 구분에 따라 중복 정보는 숨김 처리
+            const rowAltMonthlyGross = document.getElementById('row-alt-monthly-gross');
+            const rowAltAnnualGross = document.getElementById('row-alt-annual-gross');
+            const rowAltMonthlyNet = document.getElementById('row-alt-monthly-net');
+            const rowAltAnnualNet = document.getElementById('row-alt-annual-net');
+
+            // 기본적으로 모두 표시
+            [rowAltMonthlyGross, rowAltAnnualGross, rowAltMonthlyNet, rowAltAnnualNet].forEach(function(row){
+                if (row) row.style.display = 'flex';
+            });
+
+            if (salaryType === 'monthly') {
+                // 월급여 선택 시: 월 급여액/월 실수령액은 이미 알고 있으므로 숨김
+                if (rowAltMonthlyGross) rowAltMonthlyGross.style.display = 'none';
+                if (rowAltMonthlyNet) rowAltMonthlyNet.style.display = 'none';
+            } else if (salaryType === 'annual') {
+                // 연봉 선택 시: 월 실수령액은 메인 카드에 표시되므로 숨김
+                if (rowAltMonthlyNet) rowAltMonthlyNet.style.display = 'none';
+                if (rowAltAnnualGross) rowAltAnnualGross.style.display = 'none';
+            } else if (
+                salaryType === 'net' ||
+                salaryType === 'npInput' ||
+                salaryType === 'hiInput' ||
+                salaryType === 'ltcInput' ||
+                salaryType === 'uiInput'
+            ) {
+                // '월 실수령액' 입력 또는 4대보험 금액 입력 시: '다른 계산 결과'에서 월 실수령액 숨김
+                if (rowAltMonthlyNet) rowAltMonthlyNet.style.display = 'none';
+            } else if (salaryType === 'netAnnual') {
+                // 연 실수령액 입력: 중복 방지를 위해 '연 실수령액' 행 숨김 (DOM 순서 유지)
+                if (rowAltAnnualNet) rowAltAnnualNet.style.display = 'none';
+            }
+
 
             // 고소득 구간 계산 공식 표시
             if (taxResult.isHighIncome) {
@@ -1293,6 +1734,52 @@
         document.getElementById('salary').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 calculateTax();
+            }
+        });
+
+        // 유효 입력 시에만 재계산
+        function calculateIfPossible() {
+            const salaryValue = document.getElementById('salary').value;
+            const inputSalary = parseInt(removeCommas(salaryValue));
+            if (inputSalary && inputSalary > 0 && !isNaN(inputSalary)) {
+                calculateTax();
+            }
+        }
+
+        // 4대보험 토글 및 관련 입력 변경 시 자동 재계산
+        ['toggle-np','toggle-hi','toggle-ltc','toggle-ui','dependents','salaryType'].forEach(function(id){
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', function(){
+                    // 시각적 상태 업데이트
+                    const map = {
+                        'toggle-np': 'item-np',
+                        'toggle-hi': 'item-hi',
+                        'toggle-ltc': 'item-ltc',
+                        'toggle-ui': 'item-ui'
+                    };
+                    const rowId = map[id];
+                    if (rowId) {
+                        const row = document.getElementById(rowId);
+                        if (row) {
+                            if (el.checked) {
+                                row.classList.remove('toggled-off');
+                            } else {
+                                row.classList.add('toggled-off');
+                            }
+                        }
+                    }
+                    // 장기요양보험을 켜면 건강보험도 자동으로 켬
+                    if (id === 'toggle-ltc' && el.checked) {
+                        const hiToggle = document.getElementById('toggle-hi');
+                        if (hiToggle && !hiToggle.checked) {
+                            hiToggle.checked = true;
+                            const hiRow = document.getElementById('item-hi');
+                            if (hiRow) hiRow.classList.remove('toggled-off');
+                        }
+                    }
+                    calculateIfPossible();
+                });
             }
         });
     </script>
