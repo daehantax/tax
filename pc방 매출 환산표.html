@@ -307,147 +307,7 @@
             margin-bottom: 5px;
         }
 
-        /* 모바일 반응형 스타일 */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 10px 15px 20px 15px;
-            }
-            
-            /* 메인 레이아웃을 세로로 변경 */
-            .main-layout {
-                flex-direction: column !important;
-                gap: 20px !important;
-            }
-            
-            /* 섹션별 최소 너비 제거 */
-            .main-layout > div {
-                min-width: 100% !important;
-                flex: none !important;
-            }
-            
-            /* 서비스 매출 테이블과 계산 영역을 세로 배치 */
-            .service-sales-container {
-                flex-direction: column !important;
-                gap: 15px !important;
-            }
-            
-            .service-sales-container .game-cost-table {
-                width: 100% !important;
-            }
-            
-            .service-sales-container .calculation-area {
-                width: 100% !important;
-                margin-top: 0 !important;
-                margin-left: 0 !important;
-            }
-            
-            /* 그 외 게임사별 매입금액 테이블을 세로 배치 */
-            .other-game-container {
-                flex-direction: column !important;
-                gap: 15px !important;
-            }
-            
-            .other-game-container .other-game-companies-table {
-                width: 100% !important;
-            }
-            
-            /* 상품매출 테이블과 계산 영역을 세로 배치 */
-            .product-sales-container {
-                flex-direction: column !important;
-                gap: 15px !important;
-            }
-            
-            .product-sales-container .other-game-companies-table {
-                width: 100% !important;
-            }
-            
-            .product-sales-container .calculation-area {
-                width: 100% !important;
-                margin-top: 0 !important;
-                margin-left: 0 !important;
-            }
-            
-            /* 버튼 위치 조정 */
-            .product-sales-container .other-game-companies-table tbody tr:last-child td:last-child {
-                position: relative;
-            }
-            
-            .product-sales-container .other-game-companies-table tbody tr:last-child td:last-child button {
-                position: static !important;
-                margin: 5px !important;
-                display: inline-block;
-            }
-            
-            .other-game-container .other-game-companies-table tbody tr:last-child td:last-child {
-                position: relative;
-            }
-            
-            .other-game-container .other-game-companies-table tbody tr:last-child td:last-child button {
-                position: static !important;
-                margin: 5px !important;
-                display: inline-block;
-            }
-            
-            /* 폰트 크기 조정 */
-            h1 {
-                font-size: 1.3em;
-            }
-            
-            h2 {
-                font-size: 1.1em;
-            }
-            
-            h3 {
-                font-size: 1em;
-            }
-            
-            /* 테이블 반응형 */
-            table {
-                font-size: 0.9em;
-            }
-            
-            th, td {
-                padding: 8px 4px;
-            }
-            
-            /* 입력 필드 크기 조정 */
-            input {
-                font-size: 14px;
-                padding: 4px;
-            }
-            
-                         /* 저장/삭제 버튼 영역 */
-             .button-area {
-                 text-align: center !important;
-                 margin-top: 30px !important;
-             }
-             
-             .button-area button {
-                 display: block;
-                 width: 100%;
-                 margin: 10px 0;
-             }
-             
-             /* 총매출 섹션을 모바일에서 별도로 표시 */
-             .mobile-total-revenue-section {
-                 display: block !important;
-                 width: 100%;
-                 background-color: #f8f9fa;
-                 padding: 15px;
-                 border-radius: 5px;
-                 margin-top: 20px;
-                 order: 999; /* 가장 아래로 */
-             }
-             
-             /* 기존 총매출 섹션 숨기기 */
-             .total-revenue-section {
-                 display: none !important;
-             }
-         }
+        
 
         /* 그 외 게임사별 매입금액 테이블 스타일 수정 */
         .other-game-companies-table {
@@ -543,7 +403,7 @@
                     <div class="formula-item" style="background-color: #fff3cd; border: 1px solid #ffeeba; padding: 4px; border-radius: 4px;">
                         <div class="formula-content" style="font-size: 0.9em;">
                             <p style="font-weight: bold;">※ 게임료는 실제보다 50~100원 낮게 </p>
-                            <p style="font-weight: bold;">※ 게임매입4배와 시간당환산금액 중 작은 금액을 서비스매출 신고</p>
+                            <p style="font-weight: bold;">※ 게임매입4배와 시간당환산금액 중 큰 금액을 서비스매출 신고</p>
                         </div>
                     </div>
                 </div>
@@ -558,9 +418,9 @@
                             </div>
                         </div>
                         <div style="display: flex; align-items: center;">
-                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">배율</label>
+                            <label style="width: 160px; margin-right: 15px; font-size: 1.1em; font-weight: bold; white-space: nowrap;">현금매출 배율</label>
                             <div style="display: flex; align-items: center;">
-                                <input type="text" id="ratio" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; background-color: #ffffc0; border: 1px solid #ddd; border-radius: 4px;" oninput="formatNumber(this); calculateCashSales();">
+                                <input type="text" id="ratio" inputmode="decimal" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; background-color: #ffffc0; border: 1px solid #ddd; border-radius: 4px;" oninput="formatNumber(this); calculateCashSales();">
                                 <span style="font-size: 15px; margin-left: 3px;">%</span>
                             </div>
                         </div>
@@ -594,7 +454,7 @@
                                 <input type="text" id="productSales" style="width: 110px; appearance: textfield; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; border: none; border-radius: 4px; background-color: transparent; color: #000; font-weight: 700;" readonly tabindex="-1" onfocus="this.blur()">
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: none; align-items: center; gap: 8px;">
                             <label style="width: 160px; margin-right: 15px; font-size: 1.3em; white-space: nowrap; text-align: right;">마진율:</label>
                             <div style="display: flex; align-items: center;">
                                 <input type="text" id="marginRate" style="width: 110px; font-size: 15px; text-align: right; padding: 5px 8px; line-height: 1.3; border: none; background: transparent; outline: none; caret-color: transparent; color: #333; appearance: none; -webkit-appearance: none; -moz-appearance: none; user-select: none;" value="0" readonly tabindex="-1" onfocus="this.blur()">
@@ -622,7 +482,7 @@
                 <div>
                     <h3 style="color: #333; margin-bottom: -5px; font-size: 1em;">서비스 매출</h3>
                     <div class="service-sales-container" style="display: flex; gap: 15px; align-items: flex-start;">
-                        <table class="game-cost-table" style="width: 65%; font-size: 0.95em;">
+                        <table id="serviceSalesTable" class="game-cost-table" style="width: 65%; font-size: 0.95em;">
                             <thead>
                                 <tr>
                                     <th style="width: 180px; padding: 5px; height: 28px;">게임사</th>
@@ -665,7 +525,7 @@
                                 <tr>
                                     <td style="padding: 5px; height: 28px;">그외</td>
                                     <td style="padding: 5px; height: 28px;">200원</td>
-                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffff; font-size: 0.95em; padding: 5px; box-sizing: border-box;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td>
+                                    <td style="padding: 0; height: 28px;"><input type="text" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffff; font-size: 0.95em; padding: 5px; box-sizing: border-box;" readonly tabindex="-1" onfocus="this.blur()"></td>
                                     <td style="padding: 5px; height: 28px;">0</td>
                                 </tr>
                             </tbody>
@@ -739,7 +599,7 @@
                     </div>
 
                     <div style="margin-top: 10px;">
-                        <h3 style="color: #333; margin-bottom: -10px; font-size: 1.2em;">상품매출</h3>
+                        <h3 style="color: #333; margin-bottom: -10px; font-size: 1.2em;">상품매입</h3>
                         <div class="product-sales-container" style="display: flex; gap: 15px; align-items: flex-start;">
                             <table class="other-game-companies-table product-sales-table" style="font-size: 0.95em;">
                                 <thead>
@@ -808,7 +668,7 @@
                                         </div>
                                         
                                         <div style="display: flex; align-items: center; gap: 20px;">
-                                            <label style="font-size: 1.6em; white-space: nowrap; width: 130px; text-align: right; font-weight: bold; color: #000;">환산매출:</label>
+                                            <label style="font-size: 1.6em; white-space: nowrap; width: 130px; text-align: right; font-weight: bold; color: #000;">환산총매출:</label>
                                             <input type="text" id="convertedRevenue" style="width: 180px; text-align: right; border: none; background: transparent; font-size: 1.6em; font-weight: 700; color: #000; padding: 5px 8px;" readonly tabindex="-1" onfocus="this.blur()">
                                             <span id="convertedRevenueWarning" style="display: none; color: #b71c1c; font-weight: 800; font-size: 1.2em; background-color: #ffebee; border: 1px solid #e53935; padding: 4px 10px; border-radius: 6px;">성실신고가능성</span>
                                         </div>
@@ -828,40 +688,15 @@
             </div>
         </div>
         
-        <!-- 모바일용 총매출 섹션 (768px 이하에서만 표시) -->
-        <div class="mobile-total-revenue-section" style="display: none;">
-            <h3 style="color: #333; margin-bottom: 15px; font-size: 1.2em; text-align: center;">총매출 및 환산매출</h3>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label style="font-size: 1.1em; white-space: nowrap; width: 160px; text-align: right;">총매출:</label>
-                    <input type="text" id="totalRevenueMobile" style="flex: 1; text-align: right; border: 1px solid #777; background-color: #f9f9f9; font-size: 1.1em; padding: 4px 6px;" readonly>
-                </div>
-                
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label style="font-size: 1.1em; white-space: nowrap; width: 160px; text-align: right;">신용카드발행세액공제:</label>
-                    <input type="text" id="creditCardTaxDeductionMobile" style="flex: 1; text-align: right; border: none; background: transparent; font-size: 1.1em; padding: 0;" readonly tabindex="-1" onfocus="this.blur()">
-                </div>
-                
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label style="font-size: 1.1em; white-space: nowrap; width: 160px; text-align: right;">5억/7.5억:</label>
-                    <input type="text" id="revenueDivisionMobile" style="flex: 1; text-align: right; border: none; background-color: #f9f9f9; font-size: 1.1em; padding: 4px 6px;" value="0.667" readonly>
-                </div>
-                
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label style="font-size: 1.6em; white-space: nowrap; width: 130px; text-align: right; font-weight: bold; color: #000;">환산매출:</label>
-                    <input type="text" id="convertedRevenueMobile" style="flex: 1; text-align: right; border: none; background: transparent; font-size: 1.6em; font-weight: 700; color: #000; padding: 5px 8px;" readonly>
-                    <span id="convertedRevenueWarningMobile" style="display: none; color: #b71c1c; font-weight: 800; font-size: 1.2em; background-color: #ffebee; border: 1px solid #e53935; padding: 4px 10px; border-radius: 6px;">성실신고가능성</span>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
     <script>
         function formatNumber(input) {
-            // 캐럿 위치 보존을 위해 현재 커서 기준 왼쪽의 숫자 개수를 기록
+            // 캐럿 위치 보존: 커서 왼쪽의 "숫자 또는 소수점" 개수를 기록
             const currentValue = input.value || '';
             const selectionStart = typeof input.selectionStart === 'number' ? input.selectionStart : currentValue.length;
-            const digitsLeftOfCaret = currentValue.slice(0, selectionStart).replace(/[^\d]/g, '').length;
+            const allowedLeftOfCaret = currentValue.slice(0, selectionStart).replace(/[^\d.]/g, '').length;
 
             // 숫자와 소수점만 유지
             let value = currentValue.replace(/[^\d.]/g, '');
@@ -872,7 +707,7 @@
                 value = value.slice(0, firstDotIndex + 1) + value.slice(firstDotIndex + 1).replace(/\./g, '');
             }
 
-            // 천 단위 구분자 적용
+            // 천 단위 구분자 적용 (소수부는 그대로 유지)
             if (value) {
                 const parts = value.split('.');
                 parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -882,13 +717,13 @@
             // 값 반영
             input.value = value;
 
-            // 동일한 "숫자 개수 기준"으로 커서 위치 복원
+            // 동일한 "숫자 또는 소수점 개수" 기준으로 커서 위치 복원
             if (typeof input.setSelectionRange === 'function') {
                 let newCursor = 0;
-                let seenDigits = 0;
-                while (newCursor < value.length && seenDigits < digitsLeftOfCaret) {
-                    if (/\d/.test(value.charAt(newCursor))) {
-                        seenDigits++;
+                let seenAllowed = 0;
+                while (newCursor < value.length && seenAllowed < allowedLeftOfCaret) {
+                    if (/[\d.]/.test(value.charAt(newCursor))) {
+                        seenAllowed++;
                     }
                     newCursor++;
                 }
@@ -974,8 +809,10 @@
             const cashReceiptSales = parseFloat(cashReceiptSalesInput.value.replace(/,/g, '')) || 0;
             const cashSalesSupplyPrice = parseFloat(cashSalesSupplyPriceInput.value.replace(/,/g, '')) || 0;
 
-            // 계산: (카드매출/1.1) + (현금영수증매출/1.1) + 현금매출 매출(공급가액)
-            const totalSales = Math.floor((cardSales / 1.1) + (cashReceiptSales / 1.1) + cashSalesSupplyPrice);
+            // 계산: 각 항목별 공급가액을 반올림한 후 합산
+            const cardSupply = Math.round(cardSales / 1.1);
+            const cashReceiptSupply = Math.round(cashReceiptSales / 1.1);
+            const totalSales = cardSupply + cashReceiptSupply + cashSalesSupplyPrice;
 
             // 결과를 천 단위 구분자로 포맷팅
             if (totalSales) {
@@ -989,17 +826,10 @@
         }
 
         function calculateTotals() {
-            // 서비스 매출 테이블의 행들 선택
-            const h3Elements = document.querySelectorAll('h3');
-            let serviceTable;
-            for (const h3 of h3Elements) {
-                if (h3.textContent.includes('서비스 매출')) {
-                    serviceTable = h3.nextElementSibling.querySelector('.game-cost-table');
-                    break;
-                }
-            }
+            // 서비스 매출 테이블: id로 직접 선택
+            const serviceTable = document.getElementById('serviceSalesTable');
             
-            const rows = serviceTable.querySelectorAll('tbody tr');
+            const rows = serviceTable ? serviceTable.querySelectorAll('tbody tr') : [];
             let totalSupplyPrice = 0;
             let totalGamePurchaseTime = 0;
 
@@ -1183,17 +1013,8 @@
             
             console.log('계산된 총 매입금액:', total);
             
-            // 서비스 매출 테이블의 "그외" 행 찾기
-            let serviceTable;
-            for (const h3 of h3Elements) {
-                if (h3.textContent.includes('서비스 매출')) {
-                    const nextDiv = h3.nextElementSibling;
-                    if (nextDiv && nextDiv.tagName === 'DIV') {
-                        serviceTable = nextDiv.querySelector('table');
-                    }
-                    break;
-                }
-            }
+            // 서비스 매출 테이블의 "그외" 행 찾기 (id 기반)
+            const serviceTable = document.getElementById('serviceSalesTable');
             
             if (!serviceTable) {
                 console.error('서비스 매출 테이블을 찾을 수 없습니다.');
@@ -1277,36 +1098,7 @@
             }
         }
         
-        // 모바일과 데스크톱 필드 동기화 함수
-        function syncMobileToDesktop(fieldName) {
-            const mobileField = document.getElementById(fieldName + 'Mobile');
-            const desktopField = document.getElementById(fieldName);
-            
-            if (mobileField && desktopField) {
-                desktopField.value = mobileField.value;
-                // 원본 필드의 이벤트도 트리거
-                if (fieldName === 'creditCardTaxDeduction') {
-                    calculateConvertedRevenue();
-                }
-            }
-        }
         
-        function syncDesktopToMobile(fieldName) {
-            const desktopField = document.getElementById(fieldName);
-            const mobileField = document.getElementById(fieldName + 'Mobile');
-            
-            if (desktopField && mobileField) {
-                mobileField.value = desktopField.value;
-            }
-        }
-        
-        // 모든 필드 동기화
-        function syncAllFields() {
-            const fieldsToSync = ['totalRevenue', 'creditCardTaxDeduction', 'revenueDivision', 'convertedRevenue'];
-            fieldsToSync.forEach(fieldName => {
-                syncDesktopToMobile(fieldName);
-            });
-        }
 
         // 환산매출 계산 함수
         function calculateConvertedRevenue() {
@@ -1323,20 +1115,17 @@
             // 세액공제 표시 필드도 동기화
             const formattedDeduction = creditCardTaxDeduction ? creditCardTaxDeduction.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '';
             const ccField = document.getElementById('creditCardTaxDeduction');
-            const ccFieldMobile = document.getElementById('creditCardTaxDeductionMobile');
             if (ccField) ccField.value = formattedDeduction;
-            if (ccFieldMobile) ccFieldMobile.value = formattedDeduction;
 
             const convertedRounded = Math.round(convertedRevenue);
             document.getElementById('convertedRevenue').value = convertedRounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             
-            // 모바일 필드도 동기화
-            syncDesktopToMobile('convertedRevenue');
+            
 
             // 성실신고가능성 경고 토글 (3.5억 초과 시 표시)
             const warnDesktop = document.getElementById('convertedRevenueWarning');
             const warnMobile = document.getElementById('convertedRevenueWarningMobile');
-            const threshold = 350000000;
+            const threshold = 250000000;
             const show = convertedRounded > threshold;
             if (warnDesktop) warnDesktop.style.display = show ? 'inline' : 'none';
             if (warnMobile) warnMobile.style.display = show ? 'inline' : 'none';
@@ -1354,8 +1143,7 @@
             // 총매출 입력 필드에 값 표시
             document.getElementById('totalRevenue').value = totalRevenue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             
-            // 모바일 필드도 동기화
-            syncDesktopToMobile('totalRevenue');
+            
             
             // 환산매출도 업데이트
             calculateConvertedRevenue();
@@ -1577,8 +1365,7 @@
                 calculateConvertedRevenue();
             }
             document.getElementById('creditCardTaxDeduction').readOnly = true;
-            const ccTaxMobile = document.getElementById('creditCardTaxDeductionMobile');
-            if (ccTaxMobile) ccTaxMobile.readOnly = true;
+            
             
             // 카드매출 변경 시 세액공제 자동 업데이트
             document.getElementById('cardSales').addEventListener('input', updateCreditCardTaxDeduction);
@@ -1594,8 +1381,8 @@
                 calculateConvertedRevenue();
             });
             
-            // 서비스 매출 테이블의 공급가액 입력 필드에 이벤트 리스너 추가
-            const serviceInputs = document.querySelectorAll('.game-cost-table tbody tr td:nth-child(3) input');
+            // 서비스 매출 테이블의 공급가액 입력 필드에 이벤트 리스너 추가 (id 기반 선택)
+            const serviceInputs = document.querySelectorAll('#serviceSalesTable tbody tr td:nth-child(3) input');
             serviceInputs.forEach(input => {
                 input.addEventListener('input', function() {
                     formatNumber(this);
@@ -1659,14 +1446,7 @@
             const divisionResult = (fiveHundredMillion / sevenFiveHundredMillion).toFixed(3);
             document.getElementById('revenueDivision').value = divisionResult;
             
-            // 모바일 필드 초기화 및 동기화
-            const revenueDivisionMobile = document.getElementById('revenueDivisionMobile');
-            if (revenueDivisionMobile) {
-                revenueDivisionMobile.value = divisionResult;
-            }
             
-            // 모든 필드 동기화
-            syncAllFields();
             
             // 디버깅용 콘솔 로그
             console.log('페이지 로드 완료');
@@ -1827,12 +1607,12 @@
             const data = {
                 shopName: document.getElementById('shopName').value,
                 serviceSales: {
-                    nexon: document.querySelector('.game-cost-table tbody tr:nth-child(1) td:nth-child(3) input').value,
-                    riot: document.querySelector('.game-cost-table tbody tr:nth-child(2) td:nth-child(3) input').value,
-                    blizzard: document.querySelector('.game-cost-table tbody tr:nth-child(3) td:nth-child(3) input').value,
-                    ncsoft: document.querySelector('.game-cost-table tbody tr:nth-child(4) td:nth-child(3) input').value,
-                    kakao: document.querySelector('.game-cost-table tbody tr:nth-child(5) td:nth-child(3) input').value,
-                    other: document.querySelector('.game-cost-table tbody tr:nth-child(6) td:nth-child(3) input').value,
+                    nexon: document.querySelector('#serviceSalesTable tbody tr:nth-child(1) td:nth-child(3) input').value,
+                    riot: document.querySelector('#serviceSalesTable tbody tr:nth-child(2) td:nth-child(3) input').value,
+                    blizzard: document.querySelector('#serviceSalesTable tbody tr:nth-child(3) td:nth-child(3) input').value,
+                    ncsoft: document.querySelector('#serviceSalesTable tbody tr:nth-child(4) td:nth-child(3) input').value,
+                    kakao: document.querySelector('#serviceSalesTable tbody tr:nth-child(5) td:nth-child(3) input').value,
+                    other: document.querySelector('#serviceSalesTable tbody tr:nth-child(6) td:nth-child(3) input').value,
                     gameFee: document.getElementById('gameFee').value,
                     serviceSalesTotal: document.getElementById('serviceSales').value,
                     totalSupplyPrice: document.getElementById('totalSupplyPrice').value,
@@ -2105,7 +1885,7 @@
             }
             // 서비스 매출 데이터 복원
             if (data.serviceSales) {
-                const serviceTable = document.querySelector('.game-cost-table tbody');
+                const serviceTable = document.querySelector('#serviceSalesTable tbody');
                 if (serviceTable) {
                     const serviceFields = [
                         { key: 'nexon', selector: 'tr:nth-child(1) td:nth-child(3) input' },
@@ -2151,6 +1931,50 @@
                 while (addedRowCount < 4) {
                     addOtherGameCompanyRow('', '');
                     addedRowCount++;
+                }
+            }
+            // 그 외 게임사별 매입금액 데이터 복원
+            if (data.otherGameCompanies && Array.isArray(data.otherGameCompanies)) {
+                const otherBody = document.querySelector('.game-purchase-table tbody');
+                if (otherBody) {
+                    const lastRow = otherBody.lastElementChild; // + / - 버튼이 있는 마지막 행
+                    // 데이터 행 비우기 (버튼 행은 유지)
+                    while (otherBody.firstChild && otherBody.firstChild !== lastRow) {
+                        otherBody.removeChild(otherBody.firstChild);
+                    }
+                    // 저장된 행 추가
+                    data.otherGameCompanies.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding: 0;"><input type="text" style="width: 100%; text-align: center; font-size: 1em; border: none; background-color: #ffffc0;" value="${(item.company || '').replace(/"/g, '&quot;')}"></td>
+                            <td style="padding: 0;"><input type="text" style="width: 100%; text-align: right; font-size: 1em; border: none; background-color: #ffffc0;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()" value="${item.amount || ''}"></td>
+                        `;
+                        otherBody.insertBefore(tr, lastRow);
+                    });
+                    // 합계/연동 재계산
+                    calculateOtherGameCompanyTotals();
+                }
+            }
+            // 상품매출(유통사/공급가액) 데이터 복원
+            if (data.productSales && Array.isArray(data.productSales)) {
+                const productBody = document.querySelector('.product-sales-table tbody');
+                if (productBody) {
+                    const lastRow = productBody.lastElementChild; // + / - 버튼이 있는 마지막 행
+                    // 데이터 행 비우기 (버튼 행은 유지)
+                    while (productBody.firstChild && productBody.firstChild !== lastRow) {
+                        productBody.removeChild(productBody.firstChild);
+                    }
+                    // 저장된 행 추가
+                    data.productSales.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="padding: 0; height: 25px;"><input type="text" style="width: 100%; height: 100%; text-align: center; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" value="${(item.distributor || '').replace(/"/g, '&quot;')}"></td>
+                            <td style="padding: 0; height: 25px;"><input type="text" class="product-price-input" style="width: 100%; height: 100%; text-align: right; border: none; background-color: #ffffc0; font-size: 0.95em; padding: 4px; box-sizing: border-box;" oninput="formatNumber(this); calculateProductTotals()" value="${item.amount || ''}"></td>
+                        `;
+                        productBody.insertBefore(tr, lastRow);
+                    });
+                    // 합계/연동 재계산
+                    calculateProductTotals();
                 }
             }
             // 상품매출 데이터 복원
