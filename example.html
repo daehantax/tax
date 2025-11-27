@@ -1,344 +1,376 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상속세 과세가액 명세서</title>
+    <title>상속으로 인한 양도세 시뮬레이션</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.4;
+            font-family: 'Malgun Gothic', sans-serif;
+            line-height: 1.6;
+            color: #333;
             margin: 0;
-            padding: 30px;
-            font-size: 15px;
+            padding: 20px;
+            background-color: #f4f7f6;
         }
 
-        h1, h2 {
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        .calculator-section {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+        }
+
+        input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2); /* 체크박스 크기 키우기 */
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .premium-button {
+            background-color: #007bff;
+            font-size: 18px;
+            padding: 15px 20px;
+        }
+
+        .premium-button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            background-color: #e9f7ef;
+            border: 1px solid #d4edda;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .result ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .result li {
+            margin-bottom: 10px;
+            color: #155724;
+        }
+
+        #resultTableTrance {
+            margin-top: 30px;
+            overflow-x: auto; /* 모바일에서 테이블 스크롤 가능하게 */
+        }
+
+        #resultTableTrance h2 {
             text-align: center;
+            border-bottom: none;
         }
 
-        h3, h4 {
-            text-align: left;
-        }
-
-        table {
+        #resultTableTrance table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 0px;
-            margin-top: 10px; 
+            margin-top: 15px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
         }
 
-        th, td {
-            border: 1px solid;
-            padding: 1px;
-            text-align: center; 
+        #resultTableTrance th,
+        #resultTableTrance td {
+            border: 1px solid #ddd;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 14px; /* 모바일 가독성 향상 */
         }
 
-        td {
-            white-space: nowrap; /* 텍스트 줄바꿈 방지 */ 
+        #resultTableTrance th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #444;
         }
 
-        /* total 및 grandTotal 등 셀을 오른쪽 정렬 , input 도다 구체성 높임*/
-        td.total, 
-        td#grandTotal, /* 쉼표 추가 */
-        td input.input-field, 
-        td input.currency-input {
-            text-align: right; /* total과 grandTotal 셀의 텍스트를 오른쪽 정렬 */
-        }
+        /* 모바일 최적화 */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
 
-        /* 위쪽과 아래쪽 굵은 테두리 */
-        table tr:first-child {
-            border-top: 2px solid #000;
-        }
-        table tr:last-child {
-            border-bottom: 2px solid #000;
-        }
+            h2 {
+                font-size: 22px;
+            }
 
-        /* 옆쪽 테두리 제거 */
-        table, th, td {
-            border-left: none;
-            border-right: none;
-        }
+            p {
+                font-size: 14px;
+            }
 
-        /* 모든 입력 필드 기본 스타일 */
-        input[type="text"], input[type="number"] {
-            width: 100%;           
-            box-sizing: border-box;           
-            text-align: center; /* 기본적으로 가운데 정렬 */
-            white-space: nowrap; /* 텍스트 줄 바꿈 방지 */
-            font-size: 15px;
-        }
+            label {
+                font-size: 15px;
+            }
 
-        /* 특정 클래스에 대해 오른쪽 정렬 */
-        .input-field,
-        .currency-input {
-            text-align: right; /* 텍스트를 오른쪽으로 정렬 */
-        }
+            input[type="text"],
+            input[type="number"] {
+                font-size: 15px;
+                padding: 12px;
+            }
 
-        /* 인쇄 시 선택되지 않은 행 숨기기 */
-        @media print {
-            /* 선택되지 않은 행을 숨김 */
-            #debtTableBody tr:not(.has-selection),
-            #utilityTableBody tr:not(.has-selection),
-            #funeralTableBody tr:not(.has-selection) {
-                display: none;
+            button {
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .premium-button {
+                font-size: 16px;
+                padding: 18px 20px;
+            }
+
+            #resultTableTrance th,
+            #resultTableTrance td {
+                font-size: 12px; /* 모바일에서 더 작은 폰트 */
+                padding: 10px 5px;
             }
         }
     </style>
 </head>
 <body>
+    <h2>상속으로 인한 양도세 시뮬레이션</h2>
+    <p> 상속인이 농사짓지 않는 "비사업용 토지"는 사망일로부터 5년 이후 양도하는 경우 기본세율에  10% 추가합니다.</p>
+    <p>※ 보유기간 : 사망일 ~ 양도일 (만, 년)</p>
+    
+    <div id="calculator-1" class="calculator-section">
+        <h2>1) 6개월 이내 양도시</h2>
+        <p>※ 양도가액과 취득가액이 동일하여 양도차익이 없습니다. 감정을 받을 필요없습니다.</p>
+        <label for="transferPrice1">양도가액:</label>
+        <input type="text" id="transferPrice1" inputmode="numeric" oninput="formatNumber(this)"><br>
+       <label for="acquisitionPrice1">취득가액(=양도가액):</label>
+        <input type="text" id="acquisitionPrice1" readonly><br>
+    </div>
 
-    <!-- 채무 테이블 -->
-    <h3>가. 채무 </h3>
-    <table id="debtTable">
-        <thead>
-            <tr>
-                <th>채무종류</th>
-                <th>발생연원일</th>
-                <th>종료(예정)연월일</th>
-                <th>성명(상호)</th>
-                <th>주민등록번호<br>(사업자등록번호)</th>
-                <th>금액</th>
-            </tr>
-        </thead>
-        <tbody id="debtTableBody">
-            <!-- 행이 동적으로 생성됩니다. -->
-        </tbody>
-        <tfoot>
-            <tr class="total">
-                <td colspan="5">계</td>
-                <td id="debtTotal">0</td>
-            </tr>
-        </tfoot>
-    </table>
+    <div id="calculator-2" class="calculator-section">
+        <h2>2) 시가 신고후 미래 양도시</h2>
+        <p>※ 상속세 신고후 몇년이 지난후를 예상한 경우입니다.</p>
+        <p>※ 상속세 신고한 가격이 취득가액이 됩니다.</p>
+        
+        <label for="transferPrice2">양도가액:</label>
+        <input type="text" id="transferPrice2" inputmode="numeric" oninput="formatNumber(this); syncTransferPrice();"><br>
+        <label for="acquisitionPrice2">취득가액(상속세신고시 신고한 가액) : </label>
+        <input type="text" id="acquisitionPrice2" inputmode="numeric" oninput="formatNumber(this)"><br>
+        <label for="holdingPeriod2">보유기간(년):</label>
+        <input type="number" id="holdingPeriod2" step="0.1" min="0" oninput="syncHoldingPeriod();"><br>
+        <label for="nonBusinessUse2">비사업용 여부(5년이내 항상 사업용으로 봄):</label>
+        <input type="checkbox" id="nonBusinessUse2" onchange="syncNonBusinessUse();"><br>
+    </div>
 
-    <!-- 공과금 테이블 -->
-    <h3>나. 공과금 </h3>
-    <table id="utilityTable">
-        <thead>
-            <tr>
-                <th>공과금종류코드</th>
-                <th>연도별</th>
-                <th>분기별</th>
-                <th>금액</th>
-            </tr>
-        </thead>
-        <tbody id="utilityTableBody">
-            <!-- 행이 동적으로 생성됩니다. -->
-        </tbody>
-        <tfoot>
-            <tr class="total">
-                <td colspan="3">계</td>
-                <td id="utilityTotal">0</td>
-            </tr>
-        </tfoot>
-    </table>
+    <div id="calculator-3" class="calculator-section">
+        <h2>3) 기준시가 신고후 미래 양도시</h2>
+        <p>※ 기준시가로 신고하거나 무신고한 경우 경우입니다.</p>
+        <p>※ 취득가액이 기준시가가 됩니다. </p>
+        <label for="transferPrice3">양도가액:</label>
+        <input type="text" id="transferPrice3" inputmode="numeric" readonly><br>
+        <label for="acquisitionPrice3">취득가액(상속당시 기준시가): </label>
+        <input type="text" id="acquisitionPrice3" inputmode="numeric" oninput="formatNumber(this)"><br>
+        <label for="holdingPeriod3">보유기간(년): </label>
+        <input type="number" id="holdingPeriod3" step="0.1" min="0" readonly><br>
+        <label for="nonBusinessUse3">비사업용 여부(5년이내 항상 사업용으로 봄):</label>
+        <input type="checkbox" id="nonBusinessUse3" disabled><br>
+    </div>
 
-    <!-- 장례비용 테이블 -->
-    <h3>다. 장례비용 </h3>
-    <table id="funeralTable">
-        <thead>
-            <tr>
-                <th>장례비용종류</th>
-                <th>발생연원일</th>
-                <th>종료(예정)연월일</th>
-                <th>성명(상호)</th>
-                <th>주민등록번호<br>(사업자등록번호)</th>
-                <th>금액</th>
-            </tr>
-        </thead>
-        <tbody id="funeralTableBody">
-            <!-- 행이 동적으로 생성됩니다. -->
-        </tbody>
-        <tfoot>
-            <tr class="total">
-                <td colspan="5">계</td>
-                <td id="funeralTotal">0</td>
-            </tr>
-        </tfoot>
-    </table>
+    <button onclick="calculateAllTaxes()">모두 계산하기</button>
+
+    <div id="resultTableTrance" style="display:none;"></div>
+
+    <div class="result">
+        <ul>
+            <li>상속세는 줄일수 있는 세금입니다.</li>
+            <li>상속으로 인한 취득세, 상속받은 물건을 팔때 양도세, 1세대 1주택 비과세 등 중요한 문제가 많습니다</li>
+            
+            <li>상속,취득,양도,종부세 한번에 줄이는 모든 방법이 [상속세 절세 보고서]에 담겨 있습니다.</li>
+
+        </ul>
+     <br>
+    
+
+   
+    <button class="premium-button" onclick="goToPremiumPage()">진짜! 상속,취득,양도,종부세 한번에 줄이기 ! [ 상속세 절세 보고서 ]</button>
 
     <script>
-        function generateTableRows(tableBodyId, rowCount, columns, classPrefix) {
-            const tableBody = document.getElementById(tableBodyId);
-            for (let i = 0; i < rowCount; i++) {
-                const tr = document.createElement('tr');
-                columns.forEach(col => {
-                    const td = document.createElement('td');
-                    if (col.type === 'select') {
-                        const select = document.createElement('select');
+    let results = {};
 
-                        // 빈 옵션 추가 (텍스트 없음)
-                        const blankOption = document.createElement('option');
-                        blankOption.value = '';
-                        blankOption.textContent = ''; // 텍스트 없음
-                        blankOption.selected = true; // 기본 선택 상태로 설정
-                        select.appendChild(blankOption);
+    function formatNumber(input) {
+        let numericValue = input.value.replace(/,/g, '').replace(/\D/g, '');
+        input.value = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 
-                        // 제공된 옵션 추가
-                        col.options.forEach(opt => {
-                            const option = document.createElement('option');
-                            option.value = opt.value;
-                            option.textContent = opt.text;
-                            select.appendChild(option);
-                        });
+    function syncTransferPrice() {
+        document.getElementById('transferPrice3').value = document.getElementById('transferPrice2').value;
+    }
 
-                        // 선택 시 클래스 추가/제거
-                        select.addEventListener('change', function() {
-                            if (this.value !== '') {
-                                tr.classList.add('has-selection');
-                            } else {
-                                tr.classList.remove('has-selection');
-                            }
-                        });
+    function syncHoldingPeriod() {
+        document.getElementById('holdingPeriod3').value = document.getElementById('holdingPeriod2').value;
+    }
 
-                        td.appendChild(select);
-                    } else if (col.type === 'input') {
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        if (col.className) input.className = col.className;
-                        if (col.onInput) input.setAttribute('onInput', col.onInput);
-                        td.appendChild(input);
-                    }
-                    tr.appendChild(td);
-                });
-                tableBody.appendChild(tr);
-            }
+    function syncNonBusinessUse() {
+        document.getElementById('nonBusinessUse3').checked = document.getElementById('nonBusinessUse2').checked;
+    }
+
+    function calculateAllTaxes() {
+       calculateTaxes('1');
+       calculateTaxes('2');
+       calculateTaxes('3');
+        updateResultTable();
+    }
+
+    function calculateTaxes(section) {
+        let transferPrice = parseFloat(document.getElementById('transferPrice' + section).value.replace(/,/g, ''));
+        let acquisitionPrice = parseFloat(document.getElementById('acquisitionPrice' + section).value.replace(/,/g, ''));
+        let holdingPeriod = section === '1' ? 0.5 : parseFloat(document.getElementById('holdingPeriod' + section).value);
+        let isNonBusinessUse = section !== '1' && document.getElementById('nonBusinessUse' + section).checked;
+
+        if (section === '1') {
+            document.getElementById('acquisitionPrice1').value = transferPrice.toLocaleString();
+            acquisitionPrice = transferPrice;
         }
 
-        // 채무 테이블 행 생성
-        generateTableRows('debtTableBody', 5, [
-            { type: 'select', options: [
-                { value: 'finance', text: '금융채무' },
-                { value: 'personal', text: '개인사채' },
-                { value: 'deposit', text: '임대보증금' },
-                { value: 'other', text: '기타' }
-            ] },
-            { type: 'input' },
-            { type: 'input' },
-            { type: 'input' },
-            { type: 'input' },
-            { type: 'input', className: 'debt-amount', onInput: "formatAndCalculateDebtUtility(this, 'debt')" },
-        ]);
+        let capitalGain = transferPrice - acquisitionPrice;
+        let longTermDeduction = calculateLongTermDeduction(capitalGain, holdingPeriod);
+        let taxableIncome = capitalGain - longTermDeduction;
+        let taxBase = Math.max(0, taxableIncome - (section === '1' ? 0 : 2500000));
+        let transferTax = calculateTransferTax(taxBase, holdingPeriod >= 5 && isNonBusinessUse);
+        let localIncomeTax = transferTax * 0.1;
+        let totalTax = transferTax + localIncomeTax;
 
-        // 공과금 테이블 행 생성
-        generateTableRows('utilityTableBody', 5, [
-            { type: 'select', options: [
-                { value: '01', text: '01:국세' },
-                { value: '02', text: '02:지방세' },
-                { value: '03', text: '03:공공요금' },
-                { value: '04', text: '04:과태료/범칙금' },
-                { value: '05', text: '05:회비' },
-                { value: '06', text: '06:기타' }
-            ] },
-            { type: 'input' },
-            { type: 'input' },
-            { type: 'input', className: 'utility-amount', onInput: "formatAndCalculateDebtUtility(this, 'utility')" },
-        ]);
+        results[section] = {
+            transferPrice, acquisitionPrice, capitalGain, longTermDeduction,
+            taxableIncome, taxBase, transferTax, localIncomeTax, totalTax
+        };
+    }
 
-        // 장례비용 테이블 행 생성
-        generateTableRows('funeralTableBody', 5, [
-            { type: 'select', options: [
-                { value: '01', text: '01:장례비용 종류1' },
-                { value: '02', text: '02:장례비용 종류2' },
-                { value: '03', text: '03:장례비용 종류3' },
-                { value: '04', text: '04:장례비용 종류4' },
-                { value: '05', text: '05:장례비용 종류5' },
-                { value: '06', text: '06:장례비용 종류6' }
-            ] },
-            { type: 'input' },
-            { type: 'input' },
-            { type: 'input' },
-            { type: 'input' },
-            { type: 'input', className: 'funeral-amount', onInput: "formatAndCalculateDebtUtility(this, 'funeral')" },
-        ]);
-
-        // 숫자 포맷팅 함수
-        function formatNumber(num) {
-            return Math.floor(num).toLocaleString('ko-KR');
+    function calculateLongTermDeduction(capitalGain, holdingPeriod) {
+        let deductionRate = 0;
+        if (holdingPeriod >= 3 && holdingPeriod < 4) {
+            deductionRate = 0.06;
+        } else if (holdingPeriod >= 4 && holdingPeriod < 5) {
+            deductionRate = 0.08;
+        } else if (holdingPeriod >= 5) {
+            deductionRate = Math.min(0.3, 0.02 * holdingPeriod);
         }
+        return capitalGain * deductionRate;
+    }
 
-        // 숫자 파싱 함수
-        function parseNumber(numStr) {
-            return parseInt(numStr.replace(/[^\d]/g, ''), 10) || 0;
+    function calculateTransferTax(taxBase, isNonBusinessLongTerm) {
+        let additionalRate = isNonBusinessLongTerm ? 0.1 : 0;
+        if (taxBase <= 14000000) {
+            return taxBase * (0.06 + additionalRate);
+        } else if (taxBase <= 50000000) {
+            return taxBase * (0.15 + additionalRate) - 1260000;
+        } else if (taxBase <= 88000000) {
+            return taxBase * (0.24 + additionalRate) - 5760000;
+        } else if (taxBase <= 150000000) {
+            return taxBase * (0.35 + additionalRate) - 15440000;
+        } else if (taxBase <= 300000000) {
+            return taxBase * (0.38 + additionalRate) - 19940000;
+        } else if (taxBase <= 500000000) {
+            return taxBase * (0.40 + additionalRate) - 25940000;
+        } else if (taxBase <= 1000000000) {
+            return taxBase * (0.42 + additionalRate) - 35940000;
+        } else {
+            return taxBase * (0.45 + additionalRate) - 65940000;
         }
+    }
 
-        // 채무, 공과금, 장례비용 합계 계산 함수
-        function formatAndCalculateDebtUtility(input, type) {
-            if (input) {
-                let numValue = parseNumber(input.value);
-                input.value = formatNumber(numValue);
-            }
+    function updateResultTable() {
+        let tableHtml = `
+            <h2>계산 결과</h2>
+            <table>
+                <tr>
+                    <th>구분</th>
+                    <th>1) 6개월 이내 양도</th>
+                    <th>2) 시가 신고후 양도</th>
+                    <th>3) 기준시가 신고후 양도</th>
+                    <th>비고</th>
+                </tr>
+        `;
 
-            let total = 0;
-            document.querySelectorAll(`.${type}-amount`).forEach(input => {
-                total += parseNumber(input.value);
-            });
-            document.getElementById(`${type}Total`).textContent = formatNumber(total);
-        }
+        const rows = [
+            { key: 'transferPrice', label: '양도가액', note: '' },
+            { key: 'acquisitionPrice', label: '취득가액', note: '' },
+            { key: 'capitalGain', label: '양도차익', note: '양도가액 - 취득가액' },
+            { key: 'longTermDeduction', label: '장기보유특별공제', note: '' },
+            { key: 'taxableIncome', label: '양도소득금액', note: '양도차익 - 장기보유특별공제' },
+            { key: 'taxBase', label: '과세표준', note: '' },
+            { key: 'transferTax', label: '양도세', note: '' },
+            { key: 'localIncomeTax', label: '지방소득세', note: '양도세 * 10%' },
+            { key: 'totalTax', label: '세액합계', note: '양도세 + 지방소득세' }
+        ];
 
-        // 초기 이벤트 리스너 설정
-        document.addEventListener('DOMContentLoaded', function() {
-            // 초기 행의 이벤트 리스너 설정
-            document.querySelectorAll('#debtTableBody tr, #utilityTableBody tr, #funeralTableBody tr').forEach(row => {
-                const amountInput = row.querySelector('input[class$="-amount"]');
-                if (amountInput) {
-                    amountInput.addEventListener('input', function() {
-                        formatAndCalculateDebtUtility(this, this.className.split('-')[0]);
-                    });
-                }
-            });
+        rows.forEach(row => {
+            tableHtml += `
+                <tr>
+                    <td>${row.label}</td>
+                    <td>${results['1'] ? results['1'][row.key].toLocaleString() : '-'}</td>
+                    <td>${results['2'] ? results['2'][row.key].toLocaleString() : '-'}</td>
+                    <td>${results['3'] ? results['3'][row.key].toLocaleString() : '-'}</td>
+                    <td>${row.note}</td>
+                </tr>
+            `;
         });
 
-        // 금액 입력 필드에 오른쪽 정렬 적용
-        document.querySelectorAll('.input-field, .currency-input').forEach(input => {
-            input.style.textAlign = 'right';
-        });
+        tableHtml += '</table>';
+        document.getElementById('resultTableTrance').innerHTML = tableHtml;
+        document.getElementById('resultTableTrance').style.display = 'block';
+    }
 
-        // 인쇄 전에 모든 행을 검사하여 클래스 설정
-        function preparePrint() {
-            // 채무 테이블 행 검사
-            document.querySelectorAll('#debtTableBody tr').forEach(row => {
-                const select = row.querySelector('select');
-                if (select && select.value !== '') {
-                    row.classList.add('has-selection');
-                } else {
-                    row.classList.remove('has-selection');
-                }
-            });
-
-            // 공과금 테이블 행 검사
-            document.querySelectorAll('#utilityTableBody tr').forEach(row => {
-                const select = row.querySelector('select');
-                if (select && select.value !== '') {
-                    row.classList.add('has-selection');
-                } else {
-                    row.classList.remove('has-selection');
-                }
-            });
-
-            // 장례비용 테이블 행 검사
-            document.querySelectorAll('#funeralTableBody tr').forEach(row => {
-                const select = row.querySelector('select');
-                if (select && select.value !== '') {
-                    row.classList.add('has-selection');
-                } else {
-                    row.classList.remove('has-selection');
-                }
-            });
+    // 모든 연결은 상속세 절세보고서 프리미엄으로 이동
+    function goToPremiumPage() {
+            window.location.href = 'https://dangse.github.io/tax/inheritPremium.html';
         }
 
-        // 인쇄 함수 수정
-        function printStep(stepNum) {
-            preparePrint(); // 인쇄 전에 행 검사
-            document.body.setAttribute('data-print-step', stepNum);
-            window.print();
-            document.body.removeAttribute('data-print-step');
-        }
-
-        // 예시: 인쇄 버튼 클릭 시 printStep 호출
-        // 실제 사용 시 버튼에 onclick="printStep(1)" 등으로 연결
     </script>
-
 </body>
 </html>
