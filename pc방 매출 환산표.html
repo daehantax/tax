@@ -3,9 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PC방 매출 환산표</title>
+    <title>PC방 매출 환산표 (보안)</title>
     <style>
-        /* 기본 스타일 초기화 */
+        /* [1. 로그인 화면 스타일 추가] */
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* 최상단에 위치 */
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .login-box h2 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .login-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #2563eb;
+        }
+
+        /* [기존 스타일 유지] */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
         
         :root {
@@ -42,349 +104,270 @@
             padding-bottom: 10px;
         }
 
-        /* 메인 레이아웃 반응형 설정 */
-        .main-layout {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-
+        .main-layout { display: flex; flex-direction: row; flex-wrap: wrap; gap: 24px; }
         .section-left { flex: 1; min-width: 320px; }
         .section-right { flex: 2; min-width: 320px; }
+        @media (max-width: 1024px) { .section-left, .section-right { flex: 1 1 100%; } }
 
-        @media (max-width: 1024px) {
-            .section-left, .section-right { flex: 1 1 100%; }
-        }
-
-        /* 카드 섹션 스타일 */
-        .card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            padding-left: 10px;
-            border-left: 4px solid var(--secondary-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* 테이블 공통 스타일 */
+        .card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding-left: 10px; border-left: 4px solid var(--secondary-color); display: flex; align-items: center; justify-content: space-between; }
         .table-wrapper { width: 100%; overflow-x: auto; margin-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 400px; }
         th, td { border: 1px solid var(--border-color); padding: 8px; text-align: center; }
         th { background-color: #f8fafc; font-weight: 600; color: #475569; }
-
-        /* 입력 필드 스타일 */
-        input[type="text"], select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
+        input[type="text"], select { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; transition: all 0.2s; }
+        input[type="text"]:focus { outline: none; border-color: var(--secondary-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .editable-input { background-color: var(--input-bg); border-color: #fbbf24 !important; }
         .readonly-input { background-color: transparent; border: none !important; font-weight: 600; text-align: right; }
-
-        /* 특정 레이아웃 조정 */
         .flex-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .flex-row label { flex: 1; font-weight: 500; font-size: 0.9rem; }
         .flex-row .input-wrap { flex: 1; display: flex; align-items: center; gap: 5px; }
-
-        .calculation-area {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .important-note {
-            background-color: #fffbeb;
-            border: 1px solid #fef3c7;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #92400e;
-            margin-top: 10px;
-        }
-
-        /* 버튼 스타일 */
-        .button-area {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        button {
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
+        .calculation-area { background: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .important-note { background-color: #fffbeb; border: 1px solid #fef3c7; padding: 10px; border-radius: 6px; font-size: 0.85rem; color: #92400e; margin-top: 10px; }
+        .button-area { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        button { padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
         .btn-save { background-color: #10b981; color: white; }
         .btn-save:hover { background-color: #059669; }
         .btn-clear { background-color: #ef4444; color: white; }
         .btn-clear:hover { background-color: #dc2626; }
         .btn-plus { background-color: #3b82f6; color: white; width: 28px; height: 28px; padding: 0; line-height: 28px; border-radius: 4px; }
         .btn-minus { background-color: #94a3b8; color: white; width: 28px; height: 28px; padding: 0; line-height: 28px; border-radius: 4px; }
-
-        /* 결과 강조 텍스트 */
-        .total-highlight {
-            font-size: 1.4rem !important;
-            color: var(--primary-color) !important;
-            font-weight: 800 !important;
-        }
-
-        #convertedRevenueWarning {
-            color: white;
-            background: var(--accent-color);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        /* 모바일 대응 추가 */
-        @media (max-width: 640px) {
-            body { padding: 10px; }
-            .container { padding: 15px; }
-            .flex-row { flex-direction: column; align-items: flex-start; gap: 5px; }
-            .flex-row .input-wrap { width: 100%; }
-            .button-area { flex-direction: column; }
-            button { width: 100%; }
-            .service-sales-container { flex-direction: column; }
-            .calculation-area { width: 100% !important; margin-top: 10px !important; margin-left: 0 !important; }
-        }
-
-        /* 인쇄 스타일 */
-        @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; width: 100%; max-width: 100%; }
-            .button-area, .btn-plus, .btn-minus { display: none !important; }
-            .card { border: 1px solid #ccc; break-inside: avoid; }
-        }
+        .total-highlight { font-size: 1.4rem !important; color: var(--primary-color) !important; font-weight: 800 !important; }
+        #convertedRevenueWarning { color: white; background: var(--accent-color); padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 5px; }
+        @media (max-width: 640px) { body { padding: 10px; } .container { padding: 15px; } .flex-row { flex-direction: column; align-items: flex-start; gap: 5px; } .flex-row .input-wrap { width: 100%; } .button-area { flex-direction: column; } button { width: 100%; } .service-sales-container { flex-direction: column; } .calculation-area { width: 100% !important; margin-top: 10px !important; margin-left: 0 !important; } }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; width: 100%; max-width: 100%; } .button-area, .btn-plus, .btn-minus { display: none !important; } .card { border: 1px solid #ccc; break-inside: avoid; } #login-overlay { display: none; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>PC방 매출 환산표</h1>
-        
-        <div class="main-layout">
-            <!-- 섹션 1: 좌측 영역 -->
-            <div class="section-left">
-                <div class="card">
-                    <div class="card-title">1. 피시방 매출 환산법</div>
-                    
-                    <h3 style="font-size: 0.9rem; margin-bottom: 8px;">게임매입원가</h3>
-                    <div class="table-wrapper">
-                        <table class="game-cost-table">
-                            <thead>
-                                <tr><th>게임사</th><th>시간당 원가</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>(주)넥슨코리아</td><td>220원</td></tr>
-                                <tr><td>라이엇게임즈코리아</td><td>204원</td></tr>
-                                <tr><td>블리자드엔터테인먼트</td><td>218원</td></tr>
-                                <tr><td>(주)엔씨소프트</td><td>234원</td></tr>
-                                <tr><td>(주)카카오게임즈</td><td>198원</td></tr>
-                                <tr><td>그외</td><td>200원</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
 
-                    <div class="important-note">
-                        <strong>산출 식:</strong><br>
-                        매입 공급가액 ÷ 시간당 원가 = 매입 시간<br>
-                        매입 시간 합계 × 게임료 = 서비스 매출
-                    </div>
-                    <div class="important-note" style="background-color: #fff1f2; border-color: #ffe4e6; color: #be123c;">
-                        ※ 게임료는 실제보다 50~100원 낮게 설정<br>
-                        ※ 매입N배와 시간환산 중 큰 금액 신고
-                    </div>
-                </div>
+    <!-- [2. 비밀번호 입력 화면] -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>🔒 보안 접근</h2>
+            <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">관리자 비밀번호를 입력하세요.</p>
+            <input type="password" id="passwordInput" class="login-input" placeholder="비밀번호" onkeyup="if(event.key === 'Enter') checkPassword()">
+            <button class="login-btn" onclick="checkPassword()">확인</button>
+        </div>
+    </div>
 
-                <div class="card">
-                    <div class="card-title">상품매출액 산출 (공급대가)</div>
-                    <div class="calculation-area" style="background: white; border: 1px solid var(--border-color);">
-                        <div class="flex-row">
-                            <label>카드매출</label>
-                            <div class="input-wrap"><input type="text" id="cardSales" class="editable-input" oninput="formatNumber(this); calculateCashSales();"></div>
-                        </div>
-                        <div class="flex-row">
-                            <label>현금매출 배율</label>
-                            <div class="input-wrap"><input type="text" id="ratio" class="editable-input" oninput="formatNumber(this); calculateCashSales();"> <span>%</span></div>
-                        </div>
-                        <div class="flex-row">
-                            <label>현금영수증매출</label>
-                            <div class="input-wrap"><input type="text" id="cashReceiptSales" class="editable-input" oninput="formatNumber(this); calculateTotalSales();"></div>
-                        </div>
-                        <hr style="margin: 10px 0; border: 0; border-top: 1px dashed #cbd5e1;">
-                        <div class="flex-row">
-                            <label>현금매출</label>
-                            <div class="input-wrap"><input type="text" id="cashSales" class="readonly-input" readonly tabindex="-1"></div>
-                        </div>
-                        <div class="flex-row">
-                            <label>현금매출 (공급가액)</label>
-                            <div class="input-wrap"><input type="text" id="cashSalesSupplyPrice" class="readonly-input" readonly tabindex="-1"></div>
-                        </div>
-                        <div class="flex-row">
-                            <label>총 매출 (공급가액)</label>
-                            <div class="input-wrap"><input type="text" id="totalSales" class="readonly-input" readonly tabindex="-1"></div>
-                        </div>
-                        <div class="flex-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
-                            <label style="color: var(--secondary-color); font-weight: 700;">상품매출 (공급가액)</label>
-                            <div class="input-wrap"><input type="text" id="productSales" class="readonly-input" style="color: var(--secondary-color); font-size: 1.1rem;" readonly tabindex="-1"></div>
-                        </div>
-                        <div style="display:none;"><input type="text" id="marginRate" value="0"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 섹션 2: 우측 영역 -->
-            <div class="section-right">
-                <div class="card">
-                    <div class="card-title" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
-                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                            <span>2. 상호:</span>
-                            <input type="text" id="shopName" class="editable-input" style="width: 180px;" placeholder="상호 입력">
-                            <select id="periodSelect" style="width: 80px;">
-                                <option value="1기">1기</option>
-                                <option value="2기">2기</option>
-                            </select>
-                            <select id="savedShopSelect" style="width: 200px;">
-                                <option value="">저장된 상호 선택</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <h3 style="font-size: 1rem; margin-bottom: 10px; color: #475569;">서비스 매출 상세</h3>
-                    <div class="service-sales-container" style="display: flex; gap: 20px;">
-                        <div class="table-wrapper" style="flex: 2;">
-                            <table id="serviceSalesTable">
+    <!-- [3. 메인 콘텐츠 (초기에는 숨김 처리)] -->
+    <div id="main-content" style="display: none;">
+        <div class="container">
+            <h1>PC방 매출 환산표</h1>
+            
+            <div class="main-layout">
+                <!-- 섹션 1: 좌측 영역 -->
+                <div class="section-left">
+                    <div class="card">
+                        <div class="card-title">1. 피시방 매출 환산법</div>
+                        
+                        <h3 style="font-size: 0.9rem; margin-bottom: 8px;">게임매입원가</h3>
+                        <div class="table-wrapper">
+                            <table class="game-cost-table">
                                 <thead>
-                                    <tr>
-                                        <th>게임사</th>
-                                        <th style="width: 80px;">원가</th>
-                                        <th>공급가액</th>
-                                        <th style="width: 80px;">매입시간</th>
-                                    </tr>
+                                    <tr><th>게임사</th><th>시간당 원가</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>(주)넥슨코리아</td><td>220원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
-                                    <tr><td>라이엇게임즈코리아</td><td>204원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
-                                    <tr><td>블리자드엔터테인먼트</td><td>218원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
-                                    <tr><td>(주)엔씨소프트</td><td>234원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
-                                    <tr><td>(주)카카오게임즈</td><td>198원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
-                                    <tr><td>그외</td><td>200원</td><td style="padding:0;"><input type="text" class="readonly-input" style="text-align:center; background:#f1f5f9;" readonly tabindex="-1"></td><td>0</td></tr>
+                                    <tr><td>(주)넥슨코리아</td><td>220원</td></tr>
+                                    <tr><td>라이엇게임즈코리아</td><td>204원</td></tr>
+                                    <tr><td>블리자드엔터테인먼트</td><td>218원</td></tr>
+                                    <tr><td>(주)엔씨소프트</td><td>234원</td></tr>
+                                    <tr><td>(주)카카오게임즈</td><td>198원</td></tr>
+                                    <tr><td>그외</td><td>200원</td></tr>
                                 </tbody>
                             </table>
                         </div>
-                        
-                        <div class="calculation-area" style="flex: 1; margin: 0;">
-                            <div class="flex-row"><span>총 공급금액</span><input type="text" id="totalSupplyPrice" class="readonly-input" readonly></div>
-                            <div class="flex-row"><span>총 매입시간</span><input type="text" id="totalGamePurchaseTime" class="readonly-input" readonly></div>
-                            <div class="flex-row" style="margin: 10px 0;"><label style="font-weight: 700;">게임료</label><input type="text" id="gameFee" class="editable-input" style="width: 100px; text-align: right;" oninput="formatNumber(this); calculateServiceSales()"></div>
-                            <div class="flex-row"><span>시간환산</span><input type="text" id="timeBasedSales" class="readonly-input" readonly></div>
-                            <div class="flex-row"><span>매입 <input type="text" id="supplyMultiplier" style="width: 30px; padding:2px; text-align:center;" value="4" oninput="formatNumber(this); calculateServiceSales()">배</span><input type="text" id="supplyX4Sales" class="readonly-input" readonly></div>
-                            <hr style="margin: 10px 0;">
-                            <div class="flex-row"><label style="font-size: 1.1rem; color: var(--primary-color);">서비스 매출</label></div>
-                            <input type="text" id="serviceSales" class="readonly-input total-highlight" style="width: 100%; text-align: right;" readonly>
+
+                        <div class="important-note">
+                            <strong>산출 식:</strong><br>
+                            매입 공급가액 ÷ 시간당 원가 = 매입 시간<br>
+                            매입 시간 합계 × 게임료 = 서비스 매출
+                        </div>
+                        <div class="important-note" style="background-color: #fff1f2; border-color: #ffe4e6; color: #be123c;">
+                            ※ 게임료는 실제보다 50~100원 낮게 설정<br>
+                            ※ 매입N배와 시간환산 중 큰 금액 신고
                         </div>
                     </div>
 
-                    <!-- 하단 테이블들 -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-                        <div>
-                            <h3 style="font-size: 0.95rem; margin-bottom: 8px;">그 외 게임사 매입</h3>
-                            <div class="table-wrapper">
-                                <table class="game-purchase-table other-game-companies-table">
-                                    <thead><tr><th>게임사</th><th>공급가액</th></tr></thead>
-                                    <tbody>
-                                        <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="editable-input" style="border:none;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td></tr>
-                                        <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="editable-input" style="border:none;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td></tr>
-                                        <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0; position:relative;"><input type="text" class="editable-input" style="border:none;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"><div style="position:absolute; right: -70px; top:2px; display:flex; gap:2px;"><button onclick="addOtherGameCompanyRow()" class="btn-plus">+</button><button onclick="deleteOtherGameCompanyRow()" class="btn-minus">-</button></div></td></tr>
-                                    </tbody>
-                                </table>
+                    <div class="card">
+                        <div class="card-title">상품매출액 산출 (공급대가)</div>
+                        <div class="calculation-area" style="background: white; border: 1px solid var(--border-color);">
+                            <div class="flex-row">
+                                <label>카드매출</label>
+                                <div class="input-wrap"><input type="text" id="cardSales" class="editable-input" oninput="formatNumber(this); calculateCashSales();"></div>
                             </div>
-                        </div>
-                        <div>
-                            <h3 style="font-size: 0.95rem; margin-bottom: 8px;">상품매입 (유통사)</h3>
-                            <div class="table-wrapper">
-                                <table class="product-sales-table other-game-companies-table">
-                                    <thead><tr><th>유통사</th><th>공급가액</th></tr></thead>
-                                    <tbody>
-                                        <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="product-price-input editable-input" style="border:none;" oninput="formatNumber(this); calculateProductTotals()"></td></tr>
-                                        <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="product-price-input editable-input" style="border:none;" oninput="formatNumber(this); calculateProductTotals()"></td></tr>
-                                        <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0; position:relative;"><input type="text" class="product-price-input editable-input" style="border:none;" oninput="formatNumber(this); calculateProductTotals()"><div style="position:absolute; right: -70px; top:2px; display:flex; gap:2px;"><button onclick="addProductRow()" class="btn-plus">+</button><button onclick="deleteProductRow()" class="btn-minus">-</button></div></td></tr>
-                                    </tbody>
-                                </table>
+                            <div class="flex-row">
+                                <label>현금매출 배율</label>
+                                <div class="input-wrap"><input type="text" id="ratio" class="editable-input" oninput="formatNumber(this); calculateCashSales();"> <span>%</span></div>
                             </div>
+                            <div class="flex-row">
+                                <label>현금영수증매출</label>
+                                <div class="input-wrap"><input type="text" id="cashReceiptSales" class="editable-input" oninput="formatNumber(this); calculateTotalSales();"></div>
+                            </div>
+                            <hr style="margin: 10px 0; border: 0; border-top: 1px dashed #cbd5e1;">
+                            <div class="flex-row">
+                                <label>현금매출</label>
+                                <div class="input-wrap"><input type="text" id="cashSales" class="readonly-input" readonly tabindex="-1"></div>
+                            </div>
+                            <div class="flex-row">
+                                <label>현금매출 (공급가액)</label>
+                                <div class="input-wrap"><input type="text" id="cashSalesSupplyPrice" class="readonly-input" readonly tabindex="-1"></div>
+                            </div>
+                            <div class="flex-row">
+                                <label>총 매출 (공급가액)</label>
+                                <div class="input-wrap"><input type="text" id="totalSales" class="readonly-input" readonly tabindex="-1"></div>
+                            </div>
+                            <div class="flex-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                                <label style="color: var(--secondary-color); font-weight: 700;">상품매출 (공급가액)</label>
+                                <div class="input-wrap"><input type="text" id="productSales" class="readonly-input" style="color: var(--secondary-color); font-size: 1.1rem;" readonly tabindex="-1"></div>
+                            </div>
+                            <div style="display:none;"><input type="text" id="marginRate" value="0"></div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 최종 결과 영역 -->
-                    <div class="calculation-area" style="margin-top: 30px; border: 2px solid var(--secondary-color);">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- 섹션 2: 우측 영역 -->
+                <div class="section-right">
+                    <div class="card">
+                        <div class="card-title" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span>2. 상호:</span>
+                                <input type="text" id="shopName" class="editable-input" style="width: 180px;" placeholder="상호 입력">
+                                <select id="periodSelect" style="width: 80px;">
+                                    <option value="1기">1기</option>
+                                    <option value="2기">2기</option>
+                                </select>
+                                <select id="savedShopSelect" style="width: 200px;">
+                                    <option value="">저장된 상호 선택</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h3 style="font-size: 1rem; margin-bottom: 10px; color: #475569;">서비스 매출 상세</h3>
+                        <div class="service-sales-container" style="display: flex; gap: 20px;">
+                            <div class="table-wrapper" style="flex: 2;">
+                                <table id="serviceSalesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>게임사</th>
+                                            <th style="width: 80px;">원가</th>
+                                            <th>공급가액</th>
+                                            <th style="width: 80px;">매입시간</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>(주)넥슨코리아</td><td>220원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
+                                        <tr><td>라이엇게임즈코리아</td><td>204원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
+                                        <tr><td>블리자드엔터테인먼트</td><td>218원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
+                                        <tr><td>(주)엔씨소프트</td><td>234원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
+                                        <tr><td>(주)카카오게임즈</td><td>198원</td><td style="padding:0;"><input type="text" class="editable-input" style="border:none; border-radius:0;" oninput="formatNumber(this); calculateGamePurchaseTime(this); calculateTotals()"></td><td>0</td></tr>
+                                        <tr><td>그외</td><td>200원</td><td style="padding:0;"><input type="text" class="readonly-input" style="text-align:center; background:#f1f5f9;" readonly tabindex="-1"></td><td>0</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="calculation-area" style="flex: 1; margin: 0;">
+                                <div class="flex-row"><span>총 공급금액</span><input type="text" id="totalSupplyPrice" class="readonly-input" readonly></div>
+                                <div class="flex-row"><span>총 매입시간</span><input type="text" id="totalGamePurchaseTime" class="readonly-input" readonly></div>
+                                <div class="flex-row" style="margin: 10px 0;"><label style="font-weight: 700;">게임료</label><input type="text" id="gameFee" class="editable-input" style="width: 100px; text-align: right;" oninput="formatNumber(this); calculateServiceSales()"></div>
+                                <div class="flex-row"><span>시간환산</span><input type="text" id="timeBasedSales" class="readonly-input" readonly></div>
+                                <div class="flex-row"><span>매입 <input type="text" id="supplyMultiplier" style="width: 30px; padding:2px; text-align:center;" value="4" oninput="formatNumber(this); calculateServiceSales()">배</span><input type="text" id="supplyX4Sales" class="readonly-input" readonly></div>
+                                <hr style="margin: 10px 0;">
+                                <div class="flex-row"><label style="font-size: 1.1rem; color: var(--primary-color);">서비스 매출</label></div>
+                                <input type="text" id="serviceSales" class="readonly-input total-highlight" style="width: 100%; text-align: right;" readonly>
+                            </div>
+                        </div>
+
+                        <!-- 하단 테이블들 -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
                             <div>
-                                <div class="flex-row"><span>총 유통매입가액</span><input type="text" id="totalDistributionPrice" class="readonly-input" readonly></div>
-                                <div class="flex-row"><span>상품 마진율</span><div class="input-wrap"><input type="text" id="productMarginRate" class="readonly-input" readonly> %</div></div>
-                                <div class="flex-row"><span>상품매출</span><input type="text" id="finalProductSales" class="readonly-input" readonly></div>
+                                <h3 style="font-size: 0.95rem; margin-bottom: 8px;">그 외 게임사 매입</h3>
+                                <div class="table-wrapper">
+                                    <table class="game-purchase-table other-game-companies-table">
+                                        <thead><tr><th>게임사</th><th>공급가액</th></tr></thead>
+                                        <tbody>
+                                            <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="editable-input" style="border:none;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td></tr>
+                                            <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="editable-input" style="border:none;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"></td></tr>
+                                            <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0; position:relative;"><input type="text" class="editable-input" style="border:none;" oninput="formatNumber(this); calculateOtherGameCompanyTotals()"><div style="position:absolute; right: -70px; top:2px; display:flex; gap:2px;"><button onclick="addOtherGameCompanyRow()" class="btn-plus">+</button><button onclick="deleteOtherGameCompanyRow()" class="btn-minus">-</button></div></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div style="border-left: 1px solid #cbd5e1; padding-left: 20px;">
-                                <div class="flex-row"><span>총매출</span><input type="text" id="totalRevenue" class="readonly-input" readonly></div>
-                                <div class="flex-row"><span>신용카드 세액공제</span><input type="text" id="creditCardTaxDeduction" class="readonly-input" readonly></div>
-                                <div class="flex-row"><span>환산계수</span><input type="text" id="revenueDivision" class="readonly-input" style="text-align:right;" value="0.667" readonly></div>
+                            <div>
+                                <h3 style="font-size: 0.95rem; margin-bottom: 8px;">상품매입 (유통사)</h3>
+                                <div class="table-wrapper">
+                                    <table class="product-sales-table other-game-companies-table">
+                                        <thead><tr><th>유통사</th><th>공급가액</th></tr></thead>
+                                        <tbody>
+                                            <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="product-price-input editable-input" style="border:none;" oninput="formatNumber(this); calculateProductTotals()"></td></tr>
+                                            <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0;"><input type="text" class="product-price-input editable-input" style="border:none;" oninput="formatNumber(this); calculateProductTotals()"></td></tr>
+                                            <tr><td style="padding:0;"><input type="text" class="editable-input" style="border:none;"></td><td style="padding:0; position:relative;"><input type="text" class="product-price-input editable-input" style="border:none;" oninput="formatNumber(this); calculateProductTotals()"><div style="position:absolute; right: -70px; top:2px; display:flex; gap:2px;"><button onclick="addProductRow()" class="btn-plus">+</button><button onclick="deleteProductRow()" class="btn-minus">-</button></div></td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                        <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #cbd5e1; text-align: right;">
-                            <label style="font-size: 1.2rem; font-weight: 700; margin-right: 15px;">환산 총 매출액</label>
-                            <input type="text" id="convertedRevenue" class="readonly-input total-highlight" style="width: 250px; font-size: 1.8rem !important;" readonly>
-                            <div id="convertedRevenueWarning" style="display:none;">성실신고 대상 가능성 높음</div>
-                        </div>
-                    </div>
 
-                    <div class="button-area">
-                        <button onclick="saveDataSelected()" class="btn-save">데이터 저장하기</button>
-                        <button onclick="clearData()" class="btn-clear">초기화/삭제</button>
+                        <!-- 최종 결과 영역 -->
+                        <div class="calculation-area" style="margin-top: 30px; border: 2px solid var(--secondary-color);">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div>
+                                    <div class="flex-row"><span>총 유통매입가액</span><input type="text" id="totalDistributionPrice" class="readonly-input" readonly></div>
+                                    <div class="flex-row"><span>상품 마진율</span><div class="input-wrap"><input type="text" id="productMarginRate" class="readonly-input" readonly> %</div></div>
+                                    <div class="flex-row"><span>상품매출</span><input type="text" id="finalProductSales" class="readonly-input" readonly></div>
+                                </div>
+                                <div style="border-left: 1px solid #cbd5e1; padding-left: 20px;">
+                                    <div class="flex-row"><span>총매출</span><input type="text" id="totalRevenue" class="readonly-input" readonly></div>
+                                    <div class="flex-row"><span>신용카드 세액공제</span><input type="text" id="creditCardTaxDeduction" class="readonly-input" readonly></div>
+                                    <div class="flex-row"><span>환산계수</span><input type="text" id="revenueDivision" class="readonly-input" style="text-align:right;" value="0.667" readonly></div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #cbd5e1; text-align: right;">
+                                <label style="font-size: 1.2rem; font-weight: 700; margin-right: 15px;">환산 총 매출액</label>
+                                <input type="text" id="convertedRevenue" class="readonly-input total-highlight" style="width: 250px; font-size: 1.8rem !important;" readonly>
+                                <div id="convertedRevenueWarning" style="display:none;">성실신고 대상 가능성 높음</div>
+                            </div>
+                        </div>
+
+                        <div class="button-area">
+                            <button onclick="saveDataSelected()" class="btn-save">데이터 저장하기</button>
+                            <button onclick="clearData()" class="btn-clear">초기화/삭제</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 스크립트 부분은 기존 로직을 그대로 유지합니다 -->
+    <!-- [4. 비밀번호 확인 스크립트] -->
     <script>
-        /* [기존 JavaScript 로직 시작 - 수정 금지 구역] */
-        // ... (이후 생략, 기존 스크립트 코드 전체가 이 자리에 들어갑니다)
-        // 위 HTML 구조에 맞게 ID와 클래스가 유지되었으므로 기존 로직이 그대로 작동합니다.
-        /* [기존 JavaScript 로직 끝] */
+        function checkPassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const password = passwordInput.value;
+            
+            if (password === '06250625') {
+                // 비밀번호가 맞으면 로그인 창 숨기고 메인 컨텐츠 표시
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            } else {
+                alert('비밀번호가 틀렸습니다. 다시 시도해주세요.');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
     </script>
-    <!-- 여기에 기존 스크립트 내용을 그대로 복사해서 넣어주세요. (글자수 제한으로 인해 스크립트는 생략하지만, 제공해주신 코드를 그대로 사용하면 됩니다.) -->
+
+    <!-- [5. 기존 스크립트 위치] -->
+    <script>
+        /* 기존의 계산 로직 스크립트는 여기에 그대로 넣어주세요 */
+        // 예시 함수들 (실제 코드가 있다면 대체하세요)
+        function formatNumber(input) {
+            let value = input.value.replace(/[^0-9]/g, '');
+            input.value = new Intl.NumberFormat('ko-KR').format(value);
+        }
+        function calculateCashSales() { /* ... */ }
+        function calculateTotalSales() { /* ... */ }
+        // ... (나머지 로직 동일)
+    </script>
 </body>
 </html>
