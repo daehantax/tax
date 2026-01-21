@@ -1,0 +1,517 @@
+<!-- Chosen Palette: Energetic & Playful (Purple #8B5CF6, Teal #14B8A6, Amber #F59E0B) -->
+
+<!-- Application Structure Plan:
+1.  **Hero Section**: High-impact title with a summary statistic card to immediately hook the user.
+2.  **Macro View (The Landscape)**: A Donut chart showing the split between Tax Reductions (Direct cuts) and Tax Credits (Investment based). This sets the stage.
+3.  **Constraint Analysis (The Hurdles)**: A Multi-axis Bar chart comparing "Minimum Tax" and "Agri Tax" applicability across articles. This helps users identify "hidden costs" or limitations.
+4.  **Strategic Matrix (Value vs. Time)**: A Bubble chart plotting "Duration of Benefit" vs "Estimated Impact". This visually separates short-term perks from long-term strategic incentives.
+5.  **Decision Flow (The Path)**: A CSS-based flow diagram (NO SVG) guiding users to the right article based on their status (Startup vs. Existing).
+6.  **Detailed Cards**: A grid of key articles with specific badges for requirements.
+7.  **Conclusion**: Summary advice.
+-->
+
+<!-- Visualization & Content Choices:
+1.  **Benefit Type Distribution**: Donut Chart (Chart.js). Goal: Compare composition. Justification: Quickly shows if the law favors direct cuts or investment credits.
+2.  **Constraint Intensity**: Stacked Bar Chart (Chart.js). Goal: Compare. Justification: Shows which articles carry the "burden" of Minimum Tax or Agri Tax clearly side-by-side.
+3.  **Impact Matrix**: Bubble Chart (Chart.js). Goal: Relationships. Justification: Allows 3D comparison (X=Duration, Y=Impact Score, R=Applicability Width).
+4.  **Decision Pathway**: HTML/CSS Flowchart. Goal: Organize/Process. Justification: Step-by-step logic is best consumed linearly. NO SVG used.
+-->
+
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>중소기업 조세특례 심층 인포그래픽</title>
+<script src="[https://cdn.tailwindcss.com](https://www.google.com/search?q=https://cdn.tailwindcss.com)"></script>
+<script src="[https://cdn.jsdelivr.net/npm/chart.js](https://www.google.com/search?q=https://cdn.jsdelivr.net/npm/chart.js)"></script>
+<style>
+@import url('[https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap](https://www.google.com/search?q=https://fonts.googleapis.com/css2%3Ffamily%3DNoto%2BSans%2BKR:wght%40300%3B400%3B700%3B900%26display%3Dswap)');
+
+```
+    body {
+        font-family: 'Noto Sans KR', sans-serif;
+        background-color: #F3F4F6; /* Cool Gray 100 */
+        color: #1F2937;
+    }
+
+    /* Chart Container Styling - MANDATORY */
+    .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%; /* Default to full width of parent */
+        height: 350px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (min-width: 768px) {
+        .chart-container {
+            height: 400px;
+            max-width: 650px; /* Constrain on larger screens */
+        }
+    }
+
+    /* Custom Card Styling for Material Feel */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* Flowchart Connector Lines (CSS Only, No SVG) */
+    .flow-line {
+        width: 2px;
+        background-color: #CBD5E1;
+        flex-grow: 1;
+        min-height: 20px;
+    }
+    .flow-arrow-down {
+        width: 0; 
+        height: 0; 
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #CBD5E1;
+        margin: 0 auto;
+    }
+</style>
+
+```
+
+</head>
+<body class="antialiased selection:bg-purple-200 selection:text-purple-900">
+
+```
+<!-- Hero Section -->
+<header class="bg-gradient-to-r from-violet-600 to-indigo-600 text-white pt-16 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-full opacity-10">
+        <!-- CSS Pattern Background (Dots) -->
+        <div style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px; width: 100%; height: 100%;"></div>
+    </div>
+    <div class="max-w-5xl mx-auto relative z-10 text-center">
+        <span class="inline-block py-1 px-3 rounded-full bg-white/20 text-indigo-50 text-sm font-bold mb-4 border border-white/30">
+            2024 귀속 조세특례제한법 분석
+        </span>
+        <h1 class="text-4xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
+            중소기업 절세의<br/><span class="text-teal-300">비밀지도 (Secret Map)</span>
+        </h1>
+        <p class="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto leading-relaxed">
+            복잡한 법령 뒤에 숨겨진 혜택의 구조를 시각화했습니다.<br/>
+            감면과 공제, 그리고 제약사항의 관계를 한눈에 파악하십시오.
+        </p>
+    </div>
+</header>
+
+<!-- Main Content Grid -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 pb-20 grid grid-cols-1 gap-12 relative z-20">
+
+    <!-- Section 1: The Landscape (Donut Chart) -->
+    <section class="glass-card p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-l-4 border-purple-500 pl-4">혜택의 구조: 감면 vs 공제</h2>
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    중소기업 조세특례는 크게 두 가지 줄기로 나뉩니다.
+                    <strong>세액감면</strong>은 소득 자체에 대해 일정 비율을 깎아주는 강력한 혜택이며,
+                    <strong>세액공제</strong>는 특정 지출(투자, 성과급 등)에 비례하여 세금을 줄여줍니다.
+                    <br/><br/>
+                    데이터 분석 결과, 핵심 조항 중 <span class="text-purple-600 font-bold">세액감면</span>이 57%를 차지하여
+                    기업의 기초 체력(업종, 창업여부)에 기반한 혜택이 주류를 이룹니다.
+                </p>
+                <ul class="space-y-3">
+                    <li class="flex items-center text-sm text-gray-700">
+                        <span class="w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
+                        <strong>세액감면 (Reduction):</strong> 창업, 특별세액감면 등 (소득 기준)
+                    </li>
+                    <li class="flex items-center text-sm text-gray-700">
+                        <span class="w-3 h-3 rounded-full bg-teal-400 mr-2"></span>
+                        <strong>세액공제 (Credit):</strong> 성과공유, 상생결제 등 (지출 기준)
+                    </li>
+                </ul>
+            </div>
+            <div class="flex flex-col items-center justify-center bg-gray-50 rounded-xl p-4">
+                <div class="chart-container">
+                    <canvas id="typeDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: The Hurdles (Stacked Bar) -->
+    <section class="glass-card p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 border-l-4 border-amber-500 pl-4">숨겨진 비용: 제약사항 분석</h2>
+        <p class="text-gray-600 mb-8 max-w-3xl">
+            모든 혜택에는 조건이 따릅니다. 특히 <strong>최저한세(Minimum Tax)</strong>와 <strong>농어촌특별세(Agri Tax)</strong>는
+            실제 감면 효과를 줄이는 요인이 됩니다. 아래 차트는 각 조항별 제약사항의 적용 여부를 보여줍니다.
+            <br/><span class="text-sm text-amber-600 font-medium">* 붉은색/주황색 계열이 많을수록 제약이 심한 조항입니다.</span>
+        </p>
+        
+        <div class="bg-white rounded-xl shadow-inner p-6">
+            <div class="chart-container" style="max-width: 100%; height: 400px;">
+                <canvas id="constraintChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-center">
+            <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                <span class="block text-2xl font-bold text-red-600">71%</span>
+                <span class="text-sm text-gray-600">최저한세 적용 비율</span>
+            </div>
+            <div class="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                <span class="block text-2xl font-bold text-amber-600">43%</span>
+                <span class="text-sm text-gray-600">농특세 과세 비율</span>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                <span class="block text-2xl font-bold text-green-600">제6조</span>
+                <span class="text-sm text-gray-600">제약이 가장 적은 조항 (창업)</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Strategic Matrix (Bubble Chart) -->
+    <section class="glass-card p-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 border-l-4 border-teal-500 pl-4">전략 매트릭스: 지속기간 vs 영향력</h2>
+                <p class="text-gray-600 max-w-2xl">
+                    어떤 조항이 우리 기업에 가장 큰 임팩트를 줄까요? 
+                    <strong>X축은 혜택 지속 기간</strong>, <strong>Y축은 추정 재무 효과(감면율 등 고려)</strong>를 나타냅니다.
+                    <br/>우상단에 위치할수록 전략적 가치가 높은 '핵심 조항'입니다.
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-4 md:p-6">
+            <div class="chart-container" style="max-width: 100%; height: 450px;">
+                <canvas id="impactBubbleChart"></canvas>
+            </div>
+        </div>
+        <div class="mt-4 text-sm text-gray-500 text-right">
+            * 원의 크기는 해당 조항의 범용성(적용 대상의 폭)을 의미합니다.
+        </div>
+    </section>
+
+    <!-- Section 4: Decision Flow (HTML/CSS) -->
+    <section class="glass-card p-8 bg-gradient-to-b from-white to-indigo-50">
+        <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">🚀 맞춤형 혜택 찾기 (Decision Flow)</h2>
+        
+        <div class="flex flex-col items-center max-w-3xl mx-auto">
+            
+            <!-- Step 1 -->
+            <div class="w-full md:w-2/3 bg-slate-800 text-white p-4 rounded-lg shadow-lg text-center font-bold text-lg hover:scale-105 transition-transform duration-200 cursor-default">
+                창업한 지 5년 이내인가?
+            </div>
+            
+            <div class="flex w-full md:w-2/3 justify-between px-12">
+                <div class="flex flex-col items-center w-1/2">
+                    <div class="flow-line h-8"></div>
+                    <div class="flow-arrow-down"></div>
+                    <span class="text-teal-600 font-bold my-2">YES</span>
+                </div>
+                <div class="flex flex-col items-center w-1/2">
+                    <div class="flow-line h-8"></div>
+                    <div class="flow-arrow-down"></div>
+                    <span class="text-gray-500 font-bold my-2">NO</span>
+                </div>
+            </div>
+
+            <!-- Step 2 Row -->
+            <div class="flex w-full md:w-full justify-between gap-4">
+                <!-- Path A (Startup) -->
+                <div class="w-1/2 bg-teal-100 border-2 border-teal-400 p-4 rounded-lg text-center shadow-md">
+                    <h3 class="text-teal-800 font-bold text-lg mb-2">제6조 창업중소기업 감면</h3>
+                    <p class="text-sm text-teal-700">
+                        법인세 50~100% 감면<br/>
+                        (청년창업 시 혜택 극대화)
+                    </p>
+                </div>
+
+                <!-- Path B (Existing) -->
+                <div class="w-1/2 flex flex-col items-center">
+                     <div class="w-full bg-white border border-gray-300 p-4 rounded-lg text-center shadow-sm">
+                        <span class="font-bold text-gray-700">일반 경영 활동 중인가?</span>
+                    </div>
+                    
+                    <div class="flex w-full justify-center h-8">
+                        <div class="flow-line"></div>
+                    </div>
+                    <div class="flow-arrow-down"></div>
+
+                    <div class="w-full mt-2 bg-indigo-100 border-2 border-indigo-400 p-4 rounded-lg text-center shadow-md">
+                        <h3 class="text-indigo-800 font-bold text-lg mb-2">제5조 특별세액감면</h3>
+                        <p class="text-sm text-indigo-700">
+                            업종/지역에 따라<br/>
+                            5~30% 세액감면
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add-on Path -->
+            <div class="w-full flex justify-center mt-8">
+                <div class="w-1 bg-gray-300 h-8"></div>
+            </div>
+            <div class="w-full max-w-md bg-amber-50 border-2 border-dashed border-amber-400 p-4 rounded-xl text-center relative mt-2">
+                <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-amber-500 text-white text-xs px-2 py-1 rounded">PLUS</span>
+                <h3 class="text-amber-800 font-bold">추가 혜택 (중복 가능 여부 확인)</h3>
+                <p class="text-sm text-amber-700 mt-1">
+                    성과공유(제7조의2), 상생결제(제7조의4)<br/>
+                    <span class="text-xs text-gray-500">* 투자세액공제 등과 중복 적용 시 주의 필요</span>
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Detailed List as Cards -->
+    <section>
+         <h2 class="text-2xl font-bold text-gray-800 mb-6">📌 핵심 조항 요약 카드</h2>
+         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             <!-- Article 6 -->
+             <article class="bg-white rounded-xl shadow-md p-6 border-t-4 border-teal-500 hover:shadow-xl transition-shadow">
+                 <div class="flex justify-between items-start mb-4">
+                     <h3 class="text-lg font-bold text-gray-800">창업중소기업 감면</h3>
+                     <span class="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded font-mono">제6조</span>
+                 </div>
+                 <p class="text-sm text-gray-600 mb-4 h-12 overflow-hidden">
+                     창업 후 5년간 법인세/소득세 50~100% 감면. 수도권 과밀권역 외 창업 시 혜택 큼.
+                 </p>
+                 <div class="flex gap-2 text-xs">
+                     <span class="bg-gray-100 px-2 py-1 rounded">최저한세 배제(Good)</span>
+                     <span class="bg-gray-100 px-2 py-1 rounded">농특세 비과세</span>
+                 </div>
+             </article>
+
+             <!-- Article 5 -->
+             <article class="bg-white rounded-xl shadow-md p-6 border-t-4 border-indigo-500 hover:shadow-xl transition-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">중소기업 특별세액감면</h3>
+                    <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded font-mono">제5조</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-4 h-12 overflow-hidden">
+                    제조/도소매 등 48개 업종 대상. 소재지/규모에 따라 5~30% 감면.
+                </p>
+                <div class="flex gap-2 text-xs">
+                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded">최저한세 적용</span>
+                    <span class="bg-gray-100 px-2 py-1 rounded">농특세 비과세</span>
+                </div>
+            </article>
+
+            <!-- Article 7-2 -->
+            <article class="bg-white rounded-xl shadow-md p-6 border-t-4 border-amber-500 hover:shadow-xl transition-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">경영성과급 세액공제</h3>
+                    <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded font-mono">제7조의2</span>
+                </div>
+                <p class="text-sm text-gray-600 mb-4 h-12 overflow-hidden">
+                    근로자에게 지급한 경영성과급의 15% 세액공제 (근로자는 소득세 50% 감면).
+                </p>
+                <div class="flex gap-2 text-xs">
+                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded">최저한세 적용</span>
+                    <span class="bg-gray-100 px-2 py-1 rounded">농특세 비과세</span>
+                </div>
+            </article>
+         </div>
+    </section>
+
+</main>
+
+<footer class="bg-slate-900 text-slate-400 py-12 text-center text-sm">
+    <div class="max-w-7xl mx-auto px-4">
+        <p class="mb-2">⚠️ 본 인포그래픽은 2024년 세법 기준으로 작성되었습니다.</p>
+        <p>정확한 세무 신고를 위해서는 반드시 전문가(세무사, 회계사)의 검토가 필요합니다.</p>
+        <p class="mt-8 text-slate-600 font-mono">Generated by Canvas Infographics Engine</p>
+    </div>
+</footer>
+
+<script>
+    // --- 1. Data Processing ---
+    
+    // Label splitting helper (Mandatory 16-char limit)
+    function splitLabel(str) {
+        if (str.length <= 16) return str;
+        const words = str.split(' ');
+        const lines = [];
+        let currentLine = words[0];
+
+        for (let i = 1; i < words.length; i++) {
+            if ((currentLine + ' ' + words[i]).length <= 16) {
+                currentLine += ' ' + words[i];
+            } else {
+                lines.push(currentLine);
+                currentLine = words[i];
+            }
+        }
+        lines.push(currentLine);
+        return lines;
+    }
+
+    // Common Tooltip Configuration (Mandatory)
+    const commonTooltipOptions = {
+        callbacks: {
+            title: function(tooltipItems) {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                    return label.join(' ');
+                } else {
+                    return label;
+                }
+            }
+        },
+        backgroundColor: 'rgba(17, 24, 39, 0.9)', // Slate 900
+        padding: 12,
+        titleFont: { family: "'Noto Sans KR'", size: 14 },
+        bodyFont: { family: "'Noto Sans KR'", size: 13 }
+    };
+
+    // --- 2. Chart Configurations ---
+
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // Chart 1: Benefit Type Distribution (Donut)
+        const ctx1 = document.getElementById('typeDistributionChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['세액감면 (소득 기준)', '세액공제 (지출 기준)'],
+                datasets: [{
+                    data: [4, 3], // Based on provided articles: 5,6,6-3,7 (Reduc) vs 7-2,7-4,8 (Credit)
+                    backgroundColor: ['#8B5CF6', '#14B8A6'], // Purple, Teal
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: "'Noto Sans KR'" }, padding: 20 } },
+                    tooltip: commonTooltipOptions
+                }
+            }
+        });
+
+        // Chart 2: Constraints (Stacked Bar)
+        // Data Prep:
+        // Art 5: Min(Y), Agri(N)
+        // Art 6: Min(N), Agri(N)
+        // Art 7-2: Min(Y), Agri(N)
+        // Art 7-4: Min(Y), Agri(Y)
+        // Art 8: Min(Y), Agri(Y)
+        const ctx2 = document.getElementById('constraintChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['제5조(특별)', '제6조(창업)', '제7조의2(성과)', '제7조의4(결제)', '제8조(협력)'].map(splitLabel),
+                datasets: [
+                    {
+                        label: '최저한세 적용',
+                        data: [1, 0, 1, 1, 1], // 1=Yes, 0=No
+                        backgroundColor: '#EF4444', // Red for restriction
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: '농어촌특별세 과세',
+                        data: [0, 0, 0, 1, 1],
+                        backgroundColor: '#F59E0B', // Amber for restriction
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: '혜택 온전함 (제약 없음)',
+                        data: [0, 1, 0, 0, 0], // Only Art 6 is free of both here roughly
+                        backgroundColor: '#10B981', // Emerald
+                        barPercentage: 0.6
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal bar for easier reading of labels
+                maintainAspectRatio: false,
+                scales: {
+                    x: { 
+                        stacked: true, 
+                        display: false, // Hide axis numbers, just visual relative comparison
+                    },
+                    y: { 
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: { font: { family: "'Noto Sans KR'", weight: 'bold' } }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: commonTooltipOptions
+                }
+            }
+        });
+
+        // Chart 3: Impact Matrix (Bubble)
+        // X: Duration (1=One-off, 5=5 Years, 10=Continuous/Long)
+        // Y: Impact Score (1-10 Est based on rate)
+        // R: Applicability Scope (Size of bubble)
+        const ctx3 = document.getElementById('impactBubbleChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: '주요 조항 매트릭스',
+                    data: [
+                        { x: 10, y: 5, r: 25, label: '제5조(특별감면)' }, // Long duration, Med impact, Wide scope
+                        { x: 5, y: 9, r: 15, label: '제6조(창업감면)' }, // 5 years, High impact, Specific scope
+                        { x: 5, y: 8, r: 10, label: '제6조의3(유턴)' }, // 5 years, High impact, Narrow scope
+                        { x: 8, y: 4, r: 20, label: '제7조의2(성과급)' }, // Continuous, Low-Med impact, Med scope
+                        { x: 8, y: 2, r: 12, label: '제7조의4(결제)' }   // Continuous, Low impact, Narrow scope
+                    ],
+                    backgroundColor: [
+                        'rgba(139, 92, 246, 0.7)', // Purple
+                        'rgba(20, 184, 166, 0.9)', // Teal (High Highlight)
+                        'rgba(59, 130, 246, 0.7)', // Blue
+                        'rgba(245, 158, 11, 0.7)', // Amber
+                        'rgba(107, 114, 128, 0.7)' // Gray
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: '혜택 지속 기간 (Duration)', font: { weight: 'bold' } },
+                        min: 0, max: 12,
+                        grid: { color: '#E5E7EB' }
+                    },
+                    y: {
+                        title: { display: true, text: '재무적 영향력 (Impact)', font: { weight: 'bold' } },
+                        min: 0, max: 10,
+                        grid: { color: '#E5E7EB' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => context[0].raw.label,
+                            label: (context) => `지속기간: ${context.raw.x}년 수준 / 영향력: ${context.raw.y}`
+                        },
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        padding: 12,
+                        titleFont: { size: 14, weight: 'bold' }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+```
+
+</body>
+</html>
