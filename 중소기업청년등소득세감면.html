@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>중소기업 취업자 소득세 감면: 세무 전문가 전략 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 300px; 
+            max-height: 400px; 
+        } 
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .nav-item.active { background-color: #e0f2fe; color: #0369a1; border-right: 4px solid #0284c7; }
+        .card-hover:hover { transform: translateY(-2px); transition: all 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    </style>
+    <!-- Chosen Palette: Professional Trust (Blue/Slate) with Gold Accents for Value -->
+    <!-- Application Structure Plan: A dashboard layout with a sidebar for navigation (Overview, Logic, Strategy, Marketing). This structure mimics a professional SaaS tool a tax accountant might use, making the complex legal info feel manageable and actionable. -->
+    <!-- Visualization & Content Choices: Used Chart.js for quantitative limits (Caps) and Reduction Rates to visualize the "benefit size". Created a custom DOM-based calculator for the "Strategy" section to directly answer the user's question about high-income earners. NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="flex h-screen overflow-hidden text-slate-800">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col z-10">
+        <div class="p-6 border-b border-gray-100">
+            <h1 class="text-xl font-bold text-slate-800 tracking-tight">Tax Strategy <span class="text-blue-600">Pro</span></h1>
+            <p class="text-xs text-gray-500 mt-1">조특법 30조 경정청구 마스터</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul>
+                <li><button onclick="showSection('overview')" id="nav-overview" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-50 text-sm font-medium transition-colors active">핵심 요약 (Overview)</button></li>
+                <li><button onclick="showSection('logic')" id="nav-logic" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-50 text-sm font-medium transition-colors">법령 분석 (Article 30)</button></li>
+                <li><button onclick="showSection('strategy')" id="nav-strategy" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-50 text-sm font-medium transition-colors">청구 전략 (Strategy)</button></li>
+                <li><button onclick="showSection('marketing')" id="nav-marketing" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-50 text-sm font-medium transition-colors">마케팅 플레이북 (Marketing)</button></li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-gray-100 bg-gray-50">
+            <div class="text-xs text-gray-500">
+                <p>Status: <span class="text-green-600 font-bold">Online</span></p>
+                <p class="mt-1">Version 2.4.0</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 w-full bg-white z-20 border-b border-gray-200 px-4 py-3 flex justify-between items-center">
+        <span class="font-bold text-lg">Tax Strategy Pro</span>
+        <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-gray-600 focus:outline-none">
+            ☰
+        </button>
+    </div>
+    <div id="mobile-menu" class="hidden fixed top-12 left-0 w-full bg-white border-b border-gray-200 z-10 shadow-lg md:hidden">
+        <button onclick="showSection('overview'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 border-b">핵심 요약</button>
+        <button onclick="showSection('logic'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 border-b">법령 분석</button>
+        <button onclick="showSection('strategy'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 border-b">청구 전략</button>
+        <button onclick="showSection('marketing'); toggleMobileMenu()" class="block w-full text-left px-4 py-3">마케팅 플레이북</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 pt-16 md:pt-8 scroll-smooth">
+        
+        <!-- SECTION: OVERVIEW -->
+        <section id="overview" class="space-y-6 animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">중소기업 취업자 소득세 감면 (조특법 30조)</h2>
+                <p class="text-gray-600">이 섹션은 제도의 핵심적인 가치와 규모를 보여줍니다. 세무사 관점에서 고객에게 전달해야 할 가장 강력한 메시지인 '환급 가능성'과 '최대 혜택'을 직관적으로 이해할 수 있도록 설계되었습니다.</p>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 card-hover">
+                    <div class="text-sm text-gray-500 mb-1">최대 감면 기간</div>
+                    <div class="text-3xl font-bold text-gray-800">5년</div>
+                    <div class="text-xs text-blue-500 mt-2 font-medium">청년 (15~34세)</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500 card-hover">
+                    <div class="text-sm text-gray-500 mb-1">최대 감면율</div>
+                    <div class="text-3xl font-bold text-gray-800">90%</div>
+                    <div class="text-xs text-indigo-500 mt-2 font-medium">소득세의 90%</div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500 card-hover">
+                    <div class="text-sm text-gray-500 mb-1">연간 최대 한도</div>
+                    <div class="text-3xl font-bold text-gray-800">200만원</div>
+                    <div class="text-xs text-amber-600 mt-2 font-medium">2023년 개정 기준</div>
+                </div>
+            </div>
+
+            <!-- Summary Text Block -->
+            <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                <h3 class="font-bold text-indigo-900 mb-3 text-lg">💡 핵심 요약 (Executive Summary)</h3>
+                <ul class="list-disc list-inside space-y-2 text-indigo-800 text-sm leading-relaxed">
+                    <li><strong class="font-semibold">대상:</strong> 중소기업에 취업한 청년(15~34세), 고령자(60세+), 장애인, 경력단절여성.</li>
+                    <li><strong class="font-semibold">혜택:</strong> 취업일로부터 3년(청년 5년)간 근로소득세의 70%(청년 90%) 감면.</li>
+                    <li><strong class="font-semibold">기회:</strong> 과거 5년치 미신청분에 대해 <strong>경정청구</strong>를 통해 일괄 환급 가능.</li>
+                    <li><strong class="font-semibold">세무사 포인트:</strong> 근로자는 복잡한 세법을 모르고, 회사는 귀찮아합니다. 이 틈새가 바로 전문가의 영역입니다.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SECTION: LOGIC (Detailed Analysis) -->
+        <section id="logic" class="space-y-6 hidden animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">법령 상세 분석 및 한도 변화</h2>
+                <p class="text-gray-600">연도별로 감면 한도와 요건이 개정되었습니다. 정확한 경정청구를 위해서는 귀속년도별 한도를 파악하는 것이 필수적입니다. 아래 차트는 연도별 한도 변화를 시각화합니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart: Limit Evolution -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-4">연도별 감면 한도 변화 (단위: 만원)</h3>
+                    <div class="chart-container">
+                        <canvas id="limitChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-4 text-center">* 2018년 개정 이후 한도가 150만원에서 2023년 200만원으로 상향</p>
+                </div>
+
+                <!-- Eligibility Table -->
+                <div class="bg-white p-6 rounded-xl shadow-sm overflow-hidden">
+                    <h3 class="font-bold text-gray-700 mb-4">대상자별 혜택 비교</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3">구분</th>
+                                    <th class="px-4 py-3">감면 기간</th>
+                                    <th class="px-4 py-3">감면율</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white border-b hover:bg-blue-50 transition-colors">
+                                    <td class="px-4 py-4 font-medium text-gray-900">청년 (15~34세)</td>
+                                    <td class="px-4 py-4 text-blue-600 font-bold">5년</td>
+                                    <td class="px-4 py-4 text-blue-600 font-bold">90%</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-4 py-4 font-medium text-gray-900">고령자 (60세 이상)</td>
+                                    <td class="px-4 py-4">3년</td>
+                                    <td class="px-4 py-4">70%</td>
+                                </tr>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-4 py-4 font-medium text-gray-900">장애인</td>
+                                    <td class="px-4 py-4">3년</td>
+                                    <td class="px-4 py-4">70%</td>
+                                </tr>
+                                <tr class="bg-white hover:bg-gray-50">
+                                    <td class="px-4 py-4 font-medium text-gray-900">경력단절여성</td>
+                                    <td class="px-4 py-4">3년</td>
+                                    <td class="px-4 py-4">70%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 bg-amber-50 p-3 rounded text-xs text-amber-800 border border-amber-100">
+                        <strong>주의:</strong> 임원, 최대주주의 배우자 및 직계존비속, 일용근로자는 제외됩니다.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: STRATEGY (Interactive Tools) -->
+        <section id="strategy" class="space-y-6 hidden animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">경정청구 전략 시뮬레이터</h2>
+                <p class="text-gray-600">질문하신 2번(고소득 전략)과 1번(신청 절차)에 대한 구체적인 해답입니다. 고객의 상황을 시뮬레이션하고 최적의 솔루션을 제시하세요.</p>
+            </div>
+
+            <!-- Question 1: Mandatory Application? -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                <h3 class="font-bold text-lg text-gray-800 mb-3">Q1. 회사 신청이 필수인가요? (개인 직접 청구 가능 여부)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-gray-200 text-gray-600 px-2 py-1 rounded text-xs font-bold">원칙</span>
+                            <p class="text-sm text-gray-700">근로자 요청 → 회사(원천징수의무자)가 관할 세무서에 명세서 제출.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-bold">현실적 문제</span>
+                            <p class="text-sm text-gray-700">퇴사했거나, 회사가 폐업했거나, 관계가 껄끄러워 요청하기 힘듦.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-green-100 text-green-600 px-2 py-1 rounded text-xs font-bold">전략적 해법</span>
+                            <p class="text-sm font-bold text-gray-800">개인 직접 경정청구 가능</p>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-100 text-sm">
+                        <p class="mb-2 font-bold text-green-800">✅ 세무사 대응 논리:</p>
+                        <p class="text-green-700 leading-relaxed">
+                            "원래는 회사를 통해야 하지만, 퇴사 등의 사유로 불가능한 경우 <strong>납세자 본인이 직접 주소지 관할 세무서에 경정청구</strong>를 할 수 있습니다. 저희가 이 복잡한 서류 작업을 대행해 드립니다." (조세특례제한법 기본통칙 등 근거 활용)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 2: High Income Strategy -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Calculator Inputs -->
+                <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-gray-800 mb-4">Q2. 고소득자 타겟팅 시뮬레이터</h3>
+                    <p class="text-xs text-gray-500 mb-4">결정세액(납부할 세금)이 많을수록 환급액이 커집니다. 슬라이더를 움직여 확인하세요.</p>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">연간 결정세액 (예상)</label>
+                        <input type="range" id="taxInput" min="0" max="5000000" step="100000" value="500000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>0원</span>
+                            <span id="taxDisplay" class="font-bold text-blue-600 text-lg">500,000 원</span>
+                            <span>500만원+</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">대상 유형</label>
+                        <select id="typeSelect" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                            <option value="youth">청년 (90% 감면)</option>
+                            <option value="others">그 외 (70% 감면)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Calculator Results -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm flex flex-col justify-center items-center text-center bg-gradient-to-br from-white to-blue-50">
+                    <div class="w-full max-w-md">
+                        <h4 class="text-gray-500 font-medium text-sm uppercase tracking-wide mb-2">예상 환급액 (연간)</h4>
+                        <div id="refundDisplay" class="text-5xl font-extrabold text-blue-600 mb-4 transition-all duration-300">450,000 원</div>
+                        
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                            <div id="refundBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 22%"></div>
+                        </div>
+                        <p id="capMessage" class="text-sm text-red-500 font-bold h-6 opacity-0 transition-opacity">한도(200만원) 도달! 더 내도 환급액은 동일합니다.</p>
+                    </div>
+
+                    <div class="mt-8 bg-white p-4 rounded-lg border border-blue-100 shadow-sm text-left w-full">
+                        <h5 class="font-bold text-gray-800 text-sm mb-2">📊 전략적 인사이트</h5>
+                        <p id="insightText" class="text-sm text-gray-600">
+                            결정세액이 적으면 환급액도 적습니다. <br>
+                            <strong>마케팅 타겟:</strong> 연봉 3,500만원 이상(결정세액 발생 구간)인 중소기업 재직자에게 집중해야 '수수료 수익'과 '고객 만족도'가 동시에 발생합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: MARKETING (Action Plan) -->
+        <section id="marketing" class="space-y-6 hidden animate-fade-in">
+             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">세무사 마케팅 가이드 (Q3 해법)</h2>
+                <p class="text-gray-600">단순한 정보 전달이 아닌, 고객의 행동을 유도하는 구체적인 마케팅 설정 방법입니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Strategy Card 1 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-t-4 border-indigo-500 card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="font-bold text-lg text-gray-800">1. 타겟 세분화 (Sniper Approach)</h3>
+                        <span class="text-2xl">🎯</span>
+                    </div>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <span class="text-indigo-500 mr-2">✓</span>
+                            <span><strong>IT/SW 개발자:</strong> 중소기업 재직 비율이 높고, 연봉이 높아 결정세액이 큼 → 환급액 극대화.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-500 mr-2">✓</span>
+                            <span><strong>제조업 현장직 (생산기술):</strong> 잔업/특근으로 소득은 높으나 세무 지식이 부족한 층.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-500 mr-2">✓</span>
+                            <span><strong>5년 차 미만 퇴사자:</strong> 이직 과정에서 신청을 놓친 경우가 가장 많음.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Strategy Card 2 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-t-4 border-pink-500 card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="font-bold text-lg text-gray-800">2. 메시지 전략 (Hook Message)</h3>
+                        <span class="text-2xl">📢</span>
+                    </div>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <span class="text-pink-500 mr-2">✓</span>
+                            <span><strong>"13월의 월급" 대신 "잃어버린 5년치 월급":</strong> 손실 회피 심리 자극.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-pink-500 mr-2">✓</span>
+                            <span><strong>"회사에 말할 필요 없습니다":</strong> 경정청구는 개인의 권리임을 강조하여 심리적 장벽 제거.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-pink-500 mr-2">✓</span>
+                            <span><strong>"착수금 0원, 100% 성공보수":</strong> 리스크 제로 강조.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Strategy Card 3 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-t-4 border-amber-500 card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="font-bold text-lg text-gray-800">3. 채널 전략 (Where to Market)</h3>
+                        <span class="text-2xl">🚀</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">전통적인 블로그 외에 다음 채널을 공략하세요.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">직장인 커뮤니티 (블라인드)</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">인스타 (환급 인증샷)</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">개발자 포럼</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">지식iN (1:1 상담)</span>
+                    </div>
+                </div>
+
+                <!-- Strategy Card 4 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-t-4 border-green-500 card-hover">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="font-bold text-lg text-gray-800">4. 상담 및 클로징 (Closing)</h3>
+                        <span class="text-2xl">🤝</span>
+                    </div>
+                    <div class="text-sm text-gray-600 space-y-2">
+                        <p class="bg-green-50 p-2 rounded">
+                            <strong>Step 1:</strong> 홈택스 원천징수영수증(최근 5년) 사진 요청.
+                        </p>
+                        <p class="bg-green-50 p-2 rounded">
+                            <strong>Step 2:</strong> 엑셀/계산기로 즉석에서 "예상 환급액" 제시 (가장 중요).
+                        </p>
+                        <p class="bg-green-50 p-2 rounded">
+                            <strong>Step 3:</strong> "서류만 보내주시면 나머지는 저희가 처리합니다" (간편함 강조).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. Navigation Logic ---
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = ['overview', 'logic', 'strategy', 'marketing'];
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                const btn = document.getElementById('nav-' + id);
+                if (el) el.classList.add('hidden');
+                if (btn) btn.classList.remove('active', 'bg-blue-50', 'text-blue-700', 'border-r-4', 'border-blue-600');
+            });
+
+            // Show selected section
+            const target = document.getElementById(sectionId);
+            const targetBtn = document.getElementById('nav-' + sectionId);
+            if (target) target.classList.remove('hidden');
+            if (targetBtn) targetBtn.classList.add('active');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // --- 2. Chart.js Initialization (Logic Section) ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('limitChart');
+            if(ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                        datasets: [{
+                            label: '연간 감면 한도 (만원)',
+                            data: [150, 150, 150, 150, 150, 200],
+                            backgroundColor: [
+                                '#94a3b8', '#94a3b8', '#94a3b8', '#94a3b8', '#94a3b8', '#3b82f6'
+                            ],
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + ' 만원';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 250,
+                                grid: { color: '#f3f4f6' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // --- 3. Interactive Calculator (Strategy Section) ---
+        const taxInput = document.getElementById('taxInput');
+        const taxDisplay = document.getElementById('taxDisplay');
+        const refundDisplay = document.getElementById('refundDisplay');
+        const refundBar = document.getElementById('refundBar');
+        const capMessage = document.getElementById('capMessage');
+        const typeSelect = document.getElementById('typeSelect');
+        const insightText = document.getElementById('insightText');
+
+        function updateCalculator() {
+            const tax = parseInt(taxInput.value);
+            const type = typeSelect.value;
+            
+            // Logic
+            const rate = (type === 'youth') ? 0.9 : 0.7;
+            const cap = 2000000; // 2023 standard
+            
+            let calculatedRefund = tax * rate;
+            let isCapped = false;
+
+            if (calculatedRefund > cap) {
+                calculatedRefund = cap;
+                isCapped = true;
+            }
+
+            // UI Updates
+            taxDisplay.innerText = tax.toLocaleString() + ' 원';
+            refundDisplay.innerText = Math.round(calculatedRefund).toLocaleString() + ' 원';
+            
+            // Bar width (relative to cap + buffer)
+            const maxBarValue = 2500000;
+            const widthPercentage = Math.min((calculatedRefund / maxBarValue) * 100, 100);
+            refundBar.style.width = widthPercentage + '%';
+            
+            // Cap Warning
+            capMessage.style.opacity = isCapped ? '1' : '0';
+
+            // Insight Text Update
+            if (tax < 500000) {
+                insightText.innerHTML = `⚠️ <strong>비효율 구간:</strong> 결정세액이 너무 적어(${tax.toLocaleString()}원) 환급 메리트가 낮습니다. 마케팅 타겟에서 후순위로 두세요.`;
+                refundBar.classList.remove('bg-blue-600', 'bg-green-500');
+                refundBar.classList.add('bg-gray-400');
+            } else if (isCapped) {
+                insightText.innerHTML = `💎 <strong>최적 타겟 구간:</strong> 한도(${cap.toLocaleString()}원)를 꽉 채워 환급받습니다. <strong>가장 만족도가 높은 핵심 고객</strong>입니다.`;
+                refundBar.classList.remove('bg-gray-400', 'bg-blue-600');
+                refundBar.classList.add('bg-green-500');
+            } else {
+                insightText.innerHTML = `✅ <strong>유효 타겟:</strong> 세금의 ${rate*100}%를 돌려받습니다. 연봉이 오를수록 혜택도 커집니다.`;
+                refundBar.classList.remove('bg-gray-400', 'bg-green-500');
+                refundBar.classList.add('bg-blue-600');
+            }
+        }
+
+        if (taxInput && typeSelect) {
+            taxInput.addEventListener('input', updateCalculator);
+            typeSelect.addEventListener('change', updateCalculator);
+            // Initial call
+            updateCalculator();
+        }
+
+    </script>
+</body>
+</html>
