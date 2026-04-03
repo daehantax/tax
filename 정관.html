@@ -161,17 +161,29 @@ textarea{resize:vertical;min-height:70px;}
     <div class="card-title">회사 기본정보</div>
     <div class="form-grid">
       <div class="form-field"><label class="lbl">회사명 <span class="req">*</span></label>
-        <input type="text" id="i-company" placeholder="예) 주식회사 천경종합건설"></div>
+        <input type="text" id="i-company" placeholder="예) 주식회사 ○○○"></div>
       <div class="form-field"><label class="lbl">대표이사 성명 <span class="req">*</span></label>
         <input type="text" id="i-ceo" placeholder="예) 홍길동"></div>
       <div class="form-field"><label class="lbl">본점 소재지 <span class="req">*</span></label>
         <input type="text" id="i-addr" placeholder="예) 경기도 화성시 ○○동 ○○번지"></div>
       <div class="form-field"><label class="lbl">자본금</label>
-        <input type="text" id="i-capital" placeholder="예) 710,000,000원"></div>
+        <input type="text" id="i-capital" placeholder="예) 710,000,000" oninput="fmtCommaWon(this)" style="text-align:right;"></div>
       <div class="form-field"><label class="lbl">발행주식 총수</label>
         <input type="text" id="i-shares" placeholder="예) 71,000주"></div>
       <div class="form-field"><label class="lbl">1주의 금액</label>
         <input type="text" id="i-parval" placeholder="예) 10,000원"></div>
+      <div class="form-field full" style="margin-top:4px;">
+        <label class="lbl">공고방법 (공고 게재 언론사)</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="i-notice-sel" onchange="handleNoticeSelect()" style="width:auto;min-width:200px;">
+            <option value="same">기존과 동일 (대구광역시 매일신문)</option>
+            <option value="custom">다른 언론사로 변경</option>
+          </select>
+          <input type="text" id="i-notice-custom" placeholder="예) 서울특별시에서 발행하는 일간 조선일보"
+            style="flex:1;display:none;" oninput="syncNotice()">
+        </div>
+        <span class="hint" id="i-notice-hint">기존 공고방법 그대로 적용됩니다 — 대구광역시에서 발행하는 일간 매일신문</span>
+      </div>
     </div>
   </div>
 
@@ -239,7 +251,7 @@ textarea{resize:vertical;min-height:70px;}
     <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="num-card">
         <label>임원 1인당 연간 보수 한도</label>
-        <input type="number" id="i-salarylimit" value="500000000" step="10000000">
+        <input type="text" id="i-salarylimit" value="500,000,000" placeholder="예) 500,000,000" oninput="fmtComma(this)" style="text-align:right;">
         <span class="unit">원</span>
         <span class="badge-def">주총 결의</span>
       </div>
@@ -660,6 +672,13 @@ textarea{resize:vertical;min-height:70px;}
 </div>
 
 <script>
+/* ── 공통 유틸: 전역 set ── */
+function set(id, val) {
+  if(!val) return;
+  const el = document.getElementById(id);
+  if(el) el.textContent = val;
+}
+
 /* ── 페이지 전환 ── */
 function showPage(id, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -667,6 +686,45 @@ function showPage(id, el) {
   document.getElementById('page-' + id).classList.add('active');
   if(el) el.classList.add('active');
   window.scrollTo(0,0);
+}
+
+/* ── 전역 공통 헬퍼 ── */
+function set(id, val) {
+  if(!val) return;
+  const el = document.getElementById(id);
+  if(el) el.textContent = val;
+}
+
+/* ── 천단위 컴마 포맷 ── */
+function fmtComma(el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  if(raw === '') { el.value = ''; return; }
+  el.value = Number(raw).toLocaleString('ko-KR');
+}
+function fmtCommaWon(el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  if(raw === '') { el.value = ''; return; }
+  el.value = Number(raw).toLocaleString('ko-KR');
+}
+
+/* ── 공고방법 선택 처리 ── */
+function handleNoticeSelect() {
+  const sel = document.getElementById('i-notice-sel');
+  const custom = document.getElementById('i-notice-custom');
+  const hint = document.getElementById('i-notice-hint');
+  if(sel.value === 'same') {
+    custom.style.display = 'none';
+    hint.textContent = '기존 공고방법 그대로 적용됩니다 — 대구광역시에서 발행하는 일간 매일신문';
+    set('d2-notice', '대구광역시에서 발행하는 일간 매일신문');
+  } else {
+    custom.style.display = '';
+    hint.textContent = '새 언론사 이름을 정확히 입력하세요 (정관에 그대로 기재됩니다)';
+    custom.focus();
+  }
+}
+function syncNotice() {
+  const val = document.getElementById('i-notice-custom').value.trim();
+  set('d2-notice', val);
 }
 
 /* ── 임원 직위 입력 행 생성 ── */
@@ -742,16 +800,10 @@ function applyAll() {
     place:       g('i-place'),
     attend:      g('i-attend'),
     approvedate: g('i-approvedate'),
-    salary:      Number(g('i-salarylimit') || 500000000).toLocaleString('ko-KR') + '원',
+    salary:      (g('i-salarylimit') || '500,000,000').replace(/[^0-9]/g,'') ? Number((g('i-salarylimit')||'500000000').replace(/[^0-9]/g,'')).toLocaleString('ko-KR') + '원' : '500,000,000원',
     ceomult:     g('i-ceomult') || '3',
     othermult:   g('i-othermult') || '1.5',
     bereavement: g('i-bereavement') || '36',
-  };
-
-  const set = (id, val) => {
-    if(!val) return;
-    const el = document.getElementById(id);
-    if(el) el.textContent = val;
   };
 
   // 회사명
@@ -789,6 +841,14 @@ function applyAll() {
   // 대표이사
   set('d1-ceo', v.ceo); set('d6-ceo', v.ceo);
 
+  // 공고방법
+  const noticeSel = document.getElementById('i-notice-sel');
+  const noticeCustom = document.getElementById('i-notice-custom');
+  const noticeText = noticeSel && noticeSel.value === 'same'
+    ? '대구광역시에서 발행하는 일간 매일신문'
+    : (noticeCustom ? noticeCustom.value.trim() : '');
+  set('d2-notice', noticeText);
+
   // 보수·퇴직금·유족
   set('d1-salary', v.salary); set('d3-limit', v.salary);
   set('d1-ceomult', v.ceomult); set('d1-othermult', v.othermult);
@@ -807,6 +867,8 @@ function applyAll() {
 document.addEventListener('DOMContentLoaded', () => {
   updateOfficerRows();
   refreshSignTables();
+  // 공고방법 초기값: 기존 동일 → 정관에 미리 채워두기
+  set('d2-notice', '대구광역시에서 발행하는 일간 매일신문');
 });
 </script>
 </body>
