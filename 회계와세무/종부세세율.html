@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>종부세 계산기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .results {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>종부세 계산기</h2>
+        <label>과세표준금액: <input type="number" id="propertyValue"></label><br>
+        <label><input type="radio" name="houseCount" id="lessThanThree" checked> 2주택 이하</label><br>
+        <label><input type="radio" name="houseCount" id="moreThanThree"> 3주택 이상</label><br>
+        <button onclick="calculateTax()">세금 계산하기</button>
+
+        <div class="results">
+            <strong>계산 결과:</strong>
+            <p id="taxDetails"></p>
+            <p id="totalTax"></p>
+        </div>
+    </div>
+
+    <script>
+        function calculateTax() {
+            const propertyValue = parseFloat(document.getElementById("propertyValue").value);
+            const isLessThanThree = document.getElementById("lessThanThree").checked;
+            let tax = 0;
+            let details = "";
+
+            if (isLessThanThree) {
+                // 표1 적용
+                if (propertyValue <= 300000000) {
+                    tax = propertyValue * 0.005;
+                    details = "3억 * 0.005";
+                } else if (propertyValue <= 600000000) {
+                    tax = 1500000 + (propertyValue - 300000000) * 0.0007;
+                    details = "150만원 + (3억원을 초과하는 금액의 1천분의 7)";
+                } else if (propertyValue <= 1200000000) {
+                    tax = 3600000 + (propertyValue - 600000000) * 0.001;
+                    details = "360만원 + (6억원을 초과하는 금액의 1천분의 10)";
+                } else if (propertyValue <= 2500000000) {
+                    tax = 9600000 + (propertyValue - 1200000000) * 0.0013;
+                    details = "960만원 + (12억원을 초과하는 금액의 1천분의 13)";
+                } else if (propertyValue <= 5000000000) {
+                    tax = 26500000 + (propertyValue - 2500000000) * 0.0015;
+                    details = "2650만원 + (25억원을 초과하는 금액의 1천분의 15)";
+                } else if (propertyValue <= 9400000000) {
+                    tax = 64000000 + (propertyValue - 5000000000) * 0.002;
+                    details = "6400만원 + (50억원을 초과하는 금액의 1천분의 20)";
+                } else {
+                    tax = 152000000 + (propertyValue - 9400000000) * 0.0027;
+                    details = "15200만원 + (94억원을 초과하는 금액의 1천분의 27)";
+                }
+            } else {
+                // 표2 적용
+                if (propertyValue <= 300000000) {
+                    tax = propertyValue * 0.005;
+                    details = "3억 * 0.005";
+                } else if (propertyValue <= 600000000) {
+                    tax = 1500000 + (propertyValue - 300000000) * 0.0007;
+                    details = "150만원 + (3억원을 초과하는 금액의 1천분의 7)";
+                } else if (propertyValue <= 1200000000) {
+                    tax = 3600000 + (propertyValue - 600000000) * 0.001;
+                    details = "360만원 + (6억원을 초과하는 금액의 1천분의 10)";
+                } else if (propertyValue <= 2500000000) {
+                    tax = 9600000 + (propertyValue - 1200000000) * 0.002;
+                    details = "960만원 + (12억원을 초과하는 금액의 1천분의 20)";
+                } else if (propertyValue <= 5000000000) {
+                    tax = 35600000 + (propertyValue - 2500000000) * 0.003;
+                    details = "3560만원 + (25억원을 초과하는 금액의 1천분의 30)";
+                } else if (propertyValue <= 9400000000) {
+                    tax = 110600000 + (propertyValue - 5000000000) * 0.004;
+                    details = "1억1천60만원 + (50억원을 초과하는 금액의 1천분의 40)";
+                } else {
+                    tax = 286600000 + (propertyValue - 9400000000) * 0.005;
+                    details = "2억8천660만원 + (94억원을 초과하는 금액의 1천분의 50)";
+                }
+            }
+
+            // 결과 표시
+            document.getElementById("taxDetails").textContent = details;
+            document.getElementById("totalTax").textContent = `세금: ${tax.toLocaleString()}원`;
+        }
+    </script>
+
+
+
+<p>2주택 이하 : 표1 적용</p>
+<p>3주택 이상 : 표2 적용</p>
+
+<h3>표1</h3>
+<table border="1">
+    <thead>
+        <tr>
+            <th>과세표준</th>
+            <th>기본 세율</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>3억원 이하</td><td>1천분의 5</td></tr>
+        <tr><td>3억원 초과 6억원 이하</td><td>150만원+(3억원을 초과하는 금액의 1천분의 7)</td></tr>
+        <tr><td>6억원 초과 12억원 이하</td><td>360만원+(6억원을 초과하는 금액의 1천분의 10)</td></tr>
+        <tr><td>12억원 초과 25억원 이하</td><td>960만원+(12억원을 초과하는 금액의 1천분의 13)</td></tr>
+        <tr><td>25억원 초과 50억원 이하</td><td>2천650만원+(25억원을 초과하는 금액의 1천분의 15)</td></tr>
+        <tr><td>50억원 초과 94억원 이하</td><td>6천400만원+(50억원을 초과하는 금액의 1천분의 20)</td></tr>
+        <tr><td>94억원 초과</td><td>1억5천200만원+(94억원을 초과하는 금액의 1천분의 27)</td></tr>
+    </tbody>
+</table>
+
+<h3>표2</h3>
+<table border="1">
+    <thead>
+        <tr>
+            <th>과세표준</th>
+            <th>중과세율</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>3억원 이하</td><td>1천분의 5</td></tr>
+        <tr><td>3억원 초과 6억원 이하</td><td>150만원+(3억원을 초과하는 금액의 1천분의 7)</td></tr>
+        <tr><td>6억원 초과 12억원 이하</td><td>360만원+(6억원을 초과하는 금액의 1천분의 10)</td></tr>
+        <tr><td>12억원 초과 25억원 이하</td><td>960만원+(12억원을 초과하는 금액의 1천분의 20)</td></tr>
+        <tr><td>25억원 초과 50억원 이하</td><td>3천560만원+(25억원을 초과하는 금액의 1천분의 30)</td></tr>
+        <tr><td>50억원 초과 94억원 이하</td><td>1억1천60만원+(50억원을 초과하는 금액의 1천분의 40)</td></tr>
+        <tr><td>94억원 초과</td><td>2억8천660만원+(94억원을 초과하는 금액의 1천분의50)</td></tr>
+    </tbody>
+</table>
+
+
+
+이제 이 HTML 코드를 웹 페이지에 삽입하면 표가 웹 페이지에 제대로 표시됩니다.
+
+
+
+
+
+
+
+</body>
+
+</html>

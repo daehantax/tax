@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>재산 소득환산액 계산기</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .calculator { max-width: 400px; margin: auto; }
+    label, input, select, button { display: block; width: 100%; margin-bottom: 15px; padding: 10px; }
+    button { cursor: pointer; }
+    .result { margin-top: 20px; }
+</style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>재산 소득환산액 계산기</h1>
+        <label for="generalProperty">일반재산</label>
+        <input type="number" id="generalProperty" placeholder="일반재산을 입력하세요">
+        
+        <label for="financialProperty">금융재산</label>
+        <input type="number" id="financialProperty" placeholder="금융재산을 입력하세요">
+
+        <label for="debt">부채</label>
+        <input type="number" id="debt" placeholder="부채를 입력하세요">
+        
+        <label for="luxuryCar">고급자동차 및 회원권 가액</label>
+        <input type="number" id="luxuryCar" placeholder="고급자동차 및 회원권 가액을 입력하세요">
+        
+        <label for="region">지역</label>
+        <select id="region">
+            <option value="135000000">대도시 및 특례시</option>
+            <option value="85000000">중소도시</option>
+            <option value="72500000">농어촌</option>
+        </select>
+
+        <button onclick="calculate()">계산하기</button>
+        
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        function calculate() {
+            const generalProperty = parseFloat(document.getElementById('generalProperty').value);
+            const financialProperty = parseFloat(document.getElementById('financialProperty').value);
+            const debt = parseFloat(document.getElementById('debt').value);
+            const luxuryCar = parseFloat(document.getElementById('luxuryCar').value);
+            const basicProperty = parseFloat(document.getElementById('region').value);
+            
+            const monthlyIncome = (
+                ((generalProperty - basicProperty) + (financialProperty - 20000000) - debt) * 0.04 / 12
+            ) + luxuryCar;
+            
+            document.getElementById('result').innerHTML = `월 소득환산액은 ${monthlyIncome.toFixed(2)}원 입니다.`;
+        }
+    </script>
+</body>
+</html>

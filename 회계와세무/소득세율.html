@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소득세 계산기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .calculator {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label, input {
+            display: block;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<h1>소득세 계산기</h1>
+
+<div class="calculator">
+    <label for="income">과세표준 금액을 입력하세요 (단위: 원)</label>
+    <input type="number" id="income" placeholder="예: 50000000">
+    <button onclick="calculateTax()">계산하기</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    function calculateTax() {
+        const income = parseFloat(document.getElementById("income").value);
+        let tax = 0;
+        let deduction = 0;
+        let taxRate = 0;
+        let taxDescription = '';
+
+        if (income <= 12000000) {
+            taxRate = 6;
+            tax = income * 0.06;
+            deduction = 0;
+            taxDescription = "1,200만 원 이하 세율 6%";
+        } else if (income <= 46000000) {
+            taxRate = 15;
+            tax = income * 0.15 - 1080000;
+            deduction = 1080000;
+            taxDescription = "1,200만 원 초과 ~ 4,600만 원 이하 세율 15%, 누진공제 108만 원";
+        } else if (income <= 88000000) {
+            taxRate = 24;
+            tax = income * 0.24 - 5220000;
+            deduction = 5220000;
+            taxDescription = "4,600만 원 초과 ~ 8,800만 원 이하 세율 24%, 누진공제 522만 원";
+        } else if (income <= 150000000) {
+            taxRate = 35;
+            tax = income * 0.35 - 14900000;
+            deduction = 14900000;
+            taxDescription = "8,800만 원 초과 ~ 1억 5천만 원 이하 세율 35%, 누진공제 1,490만 원";
+        } else if (income <= 300000000) {
+            taxRate = 38;
+            tax = income * 0.38 - 19400000;
+            deduction = 19400000;
+            taxDescription = "1억 5천만 원 초과 ~ 3억 원 이하 세율 38%, 누진공제 1,940만 원";
+        } else if (income <= 500000000) {
+            taxRate = 40;
+            tax = income * 0.40 - 25400000;
+            deduction = 25400000;
+            taxDescription = "3억 원 초과 ~ 5억 원 이하 세율 40%, 누진공제 2,540만 원";
+        } else {
+            taxRate = 42;
+            tax = income * 0.42 - 35400000;
+            deduction = 35400000;
+            taxDescription = "5억 원 초과 세율 42%, 누진공제 3,540만 원";
+        }
+
+        const localIncomeTax = tax * 0.1; // 소득세의 10%가 지방소득세
+
+        document.getElementById("result").innerHTML = `
+            <p><strong>과세표준: </strong>${income.toLocaleString()} 원</p>
+            <p><strong>소득세율: </strong>${taxRate}%</p>
+            <p><strong>누진공제: </strong>${deduction.toLocaleString()} 원</p>
+            <p><strong>소득세: </strong>${tax.toLocaleString()} 원</p>
+            <p><strong>지방소득세 (소득세의 10%): </strong>${localIncomeTax.toLocaleString()} 원</p>
+            <p><strong>계산 과정: </strong>${taxDescription}</p>
+        `;
+    }
+</script>
+
+</body>
+</html>
