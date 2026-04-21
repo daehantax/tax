@@ -300,21 +300,109 @@ def build_127_structure() -> list[dict]:
     return out
 
 
-# ── 5. 메인 ──────────────────────────────────────────────────────────────────
+# ── 5. 개정이력 (조특법.xlsx 의 '개정이력' 시트) ─────────────────────────────
+
+def build_revision_history() -> list[dict]:
+    """엑셀 '개정이력' 시트 → 개정이력 리스트.
+
+    예상 헤더: 조문 | 공제명 | 개정일 | 시행일 | 변경유형 | 변경내용
+    시트가 없으면 빈 리스트 반환 (에러 안 남).
+    """
+    wb = load_wb(XLSX_MAIN)
+    if wb is None or "개정이력" not in wb.sheetnames:
+        return []
+    ws = wb["개정이력"]
+    out = []
+    for r in range(2, ws.max_row + 1):
+        article = cell(ws, r, 1)
+        title   = cell(ws, r, 2)
+        if not article and not title:
+            continue
+        amend_date = cell(ws, r, 3)
+        effect_date = cell(ws, r, 4)
+        # 날짜 셀이 datetime 객체일 수 있으므로 원본 value 도 조회
+        raw3 = ws.cell(r, 3).value
+        raw4 = ws.cell(r, 4).value
+        if hasattr(raw3, "strftime"): amend_date = raw3.strftime("%Y-%m-%d")
+        if hasattr(raw4, "strftime"): effect_date = raw4.strftime("%Y-%m-%d")
+        out.append({
+            "article":     article,
+            "article_key": normalize_article_key(article),
+            "title":       title,
+            "amend_date":  amend_date,
+            "effect_date": effect_date,
+            "change_type": cell(ws, r, 5),     # 신설/확대/축소/개정/폐지
+            "content":     cell(ws, r, 6),
+        })
+    return out
+
+
+# ── 6. 연도 목록 (data/archive/ 스캔) ────────────────────────────────────────
+
+def build_year_list() -> list[dict]:
+    """data/archive/ 아래의 연도 폴더를 스캔해 드롭다운 데이터 생성.
+
+    반환: [{label, path, desc}, ...]
+      - 첫 항목은 항상 '현행'
+      - 최신 연도가 먼저 오도록 내림차순 정렬
+    """
+    years = [{
+        "label":   "현행",
+        "path":    "",        # '' 이면 data/ 루트
+        "desc":    "최신 시행 기준",
+        "is_current": True,
+    }]
+    archive_dir = DATA / "archive"
+    if archive_dir.exists() and archive_dir.is_dir():
+        subdirs = sorted(
+            [d for d in archive_dir.iterdir() if d.is_dir() and not d.name.startswith(".")],
+            key=lambda d: d.name, reverse=True,
+        )
+        for d in subdirs:
+            desc = ""
+            readme = d / "_README.md"
+            if readme.exists():
+                # 첫 줄만 설명으로 사용
+                try:
+                    first_line = readme.read_text(encoding="utf-8").splitlines()[0]
+                    desc = first_line.lstrip("# ").strip()
+                except Exception:
+                    pass
+            years.append({
+                "label":      f"{d.name}년",
+                "path":       f"archive/{d.name}",
+                "desc":       desc,
+                "is_current": False,
+            })
+    return years
+
+
+# ── 7. 메인 ──────────────────────────────────────────────────────────────────
 
 def main():
     deductions = build_deductions()
     detail     = build_article_detail()
     matrix     = build_127_matrix()
     structure  = build_127_structure()
+    revisions  = build_revision_history()
+    year_list  = build_year_list()
 
     # 공제목록 → 매칭되는 127조 페어 id 리스트 주입 (사전계산)
     key_to_pairs: dict = {}
     for i, p in enumerate(matrix):
         key_to_pairs.setdefault(p["a_key"], []).append(i)
         key_to_pairs.setdefault(p["b_key"], []).append(i)
+    # article_key 별 최신 개정이력 사전계산
+    key_to_last_revision: dict = {}
+    for rev in revisions:
+        k = rev.get("article_key")
+        if not k: continue
+        prev = key_to_last_revision.get(k)
+        if not prev or (rev.get("amend_date","") > prev.get("amend_date","")):
+            key_to_last_revision[k] = rev
     for d in deductions:
-        d["conflict_pairs"] = key_to_pairs.get(d["article_key"], [])
+        d["conflict_pairs"]  = key_to_pairs.get(d["article_key"], [])
+        d["last_revision"]   = key_to_last_revision.get(d["article_key"])
 
     # 메타
     kst = timezone(timedelta(hours=9))
@@ -331,6 +419,8 @@ def main():
             "article_detail": len(detail),
             "127_matrix_pairs": len(matrix),
             "127_structure_paragraphs": len(structure),
+            "revisions": len(revisions),
+            "archived_years": max(len(year_list) - 1, 0),  # '현행' 제외
         },
     }
 
@@ -339,6 +429,8 @@ def main():
         "조특법_공제목록.json":        deductions,
         "조특법_조문상세.json":         detail,
         "조특법_중복배제매트릭스.json": {"structure": structure, "pairs": matrix},
+        "조특법_개정이력.json":         revisions,
+        "조특법_연도목록.json":         year_list,
         "조특법_메타.json":             meta,
     }
     for name, data in outputs.items():
@@ -355,6 +447,8 @@ def main():
     print(f"  조문 상세: {meta['counts']['article_detail']}개")
     print(f"  중복배제 페어: {meta['counts']['127_matrix_pairs']}개")
     print(f"  127조 항 구조: {meta['counts']['127_structure_paragraphs']}개")
+    print(f"  개정이력: {meta['counts']['revisions']}개")
+    print(f"  아카이브 연도: {meta['counts']['archived_years']}개")
 
 
 if __name__ == "__main__":

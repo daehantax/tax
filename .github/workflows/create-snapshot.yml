@@ -1,0 +1,64 @@
+name: 연도 스냅샷 생성 (수동 실행)
+
+# Actions 탭에서 "Run workflow" 로 연도 입력하면 해당 연도 아카이브 생성
+# 생성 후 자동으로 연도목록.json 도 갱신
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "스냅샷 연도 (예: 2025)"
+        required: true
+        type: string
+      note:
+        description: "_README.md 에 적을 메모 (선택)"
+        required: false
+        type: string
+        default: ""
+      force:
+        description: "기존 아카이브 덮어쓰기"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 레포 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 3.12 세팅
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 의존성 설치
+        run: pip install openpyxl==3.1.5
+
+      - name: 현행 JSON 최신화 (엑셀 → JSON)
+        run: python scripts/convert_xlsx_to_json.py
+
+      - name: 스냅샷 생성
+        env:
+          FORCE_FLAG: ${{ inputs.force && '--force' || '' }}
+        run: |
+          python scripts/create_snapshot.py "${{ inputs.year }}" \
+            --note "${{ inputs.note }}" $FORCE_FLAG
+
+      - name: 연도목록.json 갱신 (archive 스캔 반영)
+        run: python scripts/convert_xlsx_to_json.py
+
+      - name: 커밋·푸시
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if [ -n "$(git status --porcelain data/)" ]; then
+            git commit -m "chore(archive): ${{ inputs.year }}년 스냅샷 생성"
+            git push
+          else
+            echo "변경사항 없음."
+          fi
