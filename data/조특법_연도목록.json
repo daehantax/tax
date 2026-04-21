@@ -1,0 +1,14 @@
+[
+  {
+    "label": "현행",
+    "path": "",
+    "desc": "최신 시행 기준",
+    "is_current": true
+  },
+  {
+    "label": "2025년",
+    "path": "archive/2025",
+    "desc": "2025년 세법 기준 스냅샷",
+    "is_current": false
+  }
+]

@@ -60,6 +60,13 @@
         .pill-blue  { background: #eff6ff; color: #2563eb; border-color: #dbeafe; }
         .pill-slate { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
 
+        /* 연도 드롭다운 */
+        .year-select { padding: 10px 14px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 13px; font-weight: 800; color: #334155; background: #fff; cursor: pointer; }
+        .year-select:focus { outline: 2px solid #6366f1; }
+        /* 과거 자료 조회 중 경고 배너 */
+        .archive-banner { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 12px; padding: 10px 16px; margin-bottom: 16px; font-size: 13px; font-weight: 800; color: #92400e; display: none; align-items: center; gap: 8px; }
+        .archive-banner.open { display: flex; }
+
         /* 인쇄 설정 */
         @media print {
             @page { size: A4; margin: 15mm; }
@@ -97,13 +104,23 @@
             <h1 class="text-2xl font-black text-slate-900">대한세무법인 <span class="text-indigo-600">Tax Solution</span></h1>
             <p class="text-slate-500 text-sm font-medium">최저한세 및 중복배제 정밀 시뮬레이션</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 items-center flex-wrap">
+            <label class="text-[10px] font-black text-slate-400 uppercase mr-1">조회기준</label>
+            <select id="year-select" class="year-select" onchange="onYearChange(this.value)">
+                <option value="">로딩 중…</option>
+            </select>
             <button onclick="window.print()" class="px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 text-sm flex items-center gap-2">
                 리포트 출력 (PDF)
             </button>
             <button onclick="resetTags()" class="px-4 py-2.5 bg-white border border-slate-200 text-slate-500 font-bold rounded-xl hover:bg-slate-50 text-sm">초기화</button>
         </div>
     </header>
+
+    <!-- 과거 자료 조회 경고 -->
+    <div id="archive-banner" class="archive-banner">
+        <span>⚠️</span>
+        <span id="archive-banner-text">과거 연도 자료를 조회 중입니다. 현행 법령과 다를 수 있습니다.</span>
+    </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- 왼쪽: 사이드바 (데이터 로딩과 상관없이 항상 유지됨) -->
@@ -190,11 +207,8 @@
     const CONSULT_URL = "https://script.google.com/macros/s/AKfycbxosuJSvfkc-RwP1V8gYTTwTDrugOINAsJ-P43auIP2d8yFnkhdEC7yxx_Xh5YHFpevqg/exec";
 
     // 로컬 JSON 경로 (GitHub Actions 가 엑셀 변경 시 자동 생성)
-    const DATA_BASE = "../data/";
-    const DATA_LIST   = DATA_BASE + "조특법_공제목록.json";
-    const DATA_DETAIL = DATA_BASE + "조특법_조문상세.json";
-    const DATA_MATRIX = DATA_BASE + "조특법_중복배제매트릭스.json";
-    const DATA_META   = DATA_BASE + "조특법_메타.json";
+    // 현행(기본): data/*.json / 과거: data/archive/<YEAR>/*.json
+    const DATA_ROOT = "../data/";
 
     // === 상태 ======================================================
     let taxDB = [];            // 공제목록
@@ -202,6 +216,8 @@
     let matrix127 = [];        // 중복배제 페어
     let structure127 = [];     // 제127조 항별 설명
     let groupMap = {};         // G2..G5 라벨
+    let yearList = [];         // 드롭다운 후보 [{label, path, is_current}, ...]
+    let currentYearPath = "";  // 현재 조회 중인 아카이브 경로 ('' = 현행)
     let selectedTags = new Set();
 
     // === HTML 이스케이프 ===========================================
@@ -223,13 +239,67 @@
     }
 
     // === 데이터 로딩 ================================================
-    async function loadData() {
+
+    // 연도 경로(path) 를 받아 해당 JSON base URL 반환
+    function basePath(path) {
+        // path 가 '' 이면 현행(data/), 아니면 data/archive/YYYY/
+        return DATA_ROOT + (path ? (path.replace(/\/$/, "") + "/") : "");
+    }
+
+    // 최초 로드: 연도 목록 먼저 가져온 뒤 URL param(?year=) 반영
+    async function bootstrap() {
+        // 연도 목록은 항상 '현행' 위치에서 읽음 (archive/.. 안에는 없음)
+        try {
+            const r = await fetch(DATA_ROOT + "조특법_연도목록.json");
+            yearList = r.ok ? await r.json() : [{label:"현행", path:"", is_current:true}];
+        } catch (e) {
+            yearList = [{label:"현행", path:"", is_current:true}];
+        }
+        // URL 파라미터 ?year=2025 있으면 해당 경로로 시작
+        const params = new URLSearchParams(location.search);
+        const wantedYear = params.get("year");
+        let initPath = "";
+        if (wantedYear) {
+            const hit = yearList.find(y => y.label.replace("년","") === wantedYear || y.label === wantedYear);
+            if (hit) initPath = hit.path;
+        }
+        renderYearSelect(initPath);
+        await loadData(initPath);
+    }
+
+    function renderYearSelect(initPath) {
+        const sel = document.getElementById("year-select");
+        sel.innerHTML = yearList.map(y =>
+            `<option value="${esc(y.path)}" ${y.path === initPath ? "selected" : ""}>${esc(y.label)}</option>`
+        ).join("");
+    }
+
+    async function onYearChange(path) {
+        // URL 동기화 (새로고침·공유 가능하도록)
+        const params = new URLSearchParams(location.search);
+        if (path) {
+            const picked = yearList.find(y => y.path === path);
+            params.set("year", picked ? picked.label.replace("년","") : "");
+        } else {
+            params.delete("year");
+        }
+        const newUrl = location.pathname + (params.toString() ? "?" + params : "") + location.hash;
+        history.replaceState(null, "", newUrl);
+        await loadData(path);
+    }
+
+    async function loadData(path) {
+        currentYearPath = path || "";
+        const base = basePath(currentYearPath);
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('loading').innerText = "LOADING...";
+        document.getElementById('main-content').classList.add('hidden');
         try {
             const [list, detail, matrix, meta] = await Promise.all([
-                fetch(DATA_LIST).then(r => r.json()),
-                fetch(DATA_DETAIL).then(r => r.json()),
-                fetch(DATA_MATRIX).then(r => r.json()),
-                fetch(DATA_META).then(r => r.json()).catch(()=>({})),
+                fetch(base + "조특법_공제목록.json").then(r => r.json()),
+                fetch(base + "조특법_조문상세.json").then(r => r.json()),
+                fetch(base + "조특법_중복배제매트릭스.json").then(r => r.json()),
+                fetch(base + "조특법_메타.json").then(r => r.json()).catch(()=>({})),
             ]);
             taxDB = list;
             articleDetail = detail || {};
@@ -239,11 +309,29 @@
                 G2: '제127조 제2항', G3: '제127조 제3항',
                 G4: '제127조 제4항', G5: '제127조 제5항'
             };
+            updateArchiveBanner();
             renderTags();
+            // 연도 바뀌면 기존 선택 태그 초기화
+            selectedTags.clear();
+            updateUI();
         } catch (e) {
             console.error(e);
-            document.getElementById('loading').innerText = "데이터 로딩 실패 — 로컬 서버에서 실행하셨는지 확인해 주세요.";
+            document.getElementById('loading').innerText = `데이터 로딩 실패 (${base}) — 해당 연도 아카이브가 없거나 로컬 서버에서 실행하셨는지 확인해 주세요.`;
         }
+    }
+
+    function updateArchiveBanner() {
+        const banner = document.getElementById('archive-banner');
+        if (!currentYearPath) {
+            banner.classList.remove('open');
+            return;
+        }
+        const picked = yearList.find(y => y.path === currentYearPath);
+        const label = picked ? picked.label : currentYearPath;
+        const desc = picked && picked.desc ? ` — ${picked.desc}` : '';
+        document.getElementById('archive-banner-text').textContent =
+            `⚠️ ${label} 세법 기준 자료를 조회 중입니다${desc}. 현행 법령과 다를 수 있습니다.`;
+        banner.classList.add('open');
     }
 
     // === 좌측 태그 사이드바 ========================================
@@ -455,6 +543,21 @@
             </dl>
         </div>`);
 
+        // 최근 개정이력
+        const rev = item.last_revision;
+        if (rev) {
+            sections.push(`
+            <div class="modal-section">
+                <h3>📝 최근 개정</h3>
+                <dl class="kv">
+                    ${rev.amend_date  ? `<dt>개정일</dt><dd>${esc(rev.amend_date)}</dd>` : ''}
+                    ${rev.effect_date ? `<dt>시행일</dt><dd>${esc(rev.effect_date)}</dd>` : ''}
+                    ${rev.change_type ? `<dt>유형</dt><dd><span class="pill pill-blue">${esc(rev.change_type)}</span></dd>` : ''}
+                    ${rev.content     ? `<dt>내용</dt><dd>${esc(rev.content)}</dd>` : ''}
+                </dl>
+            </div>`);
+        }
+
         body.innerHTML = sections.join('');
         document.getElementById('detail-modal').classList.add('open');
         document.body.style.overflow = 'hidden';
@@ -491,7 +594,7 @@
         updateUI();
     }
 
-    loadData();
+    bootstrap();
 </script>
 </body>
 </html>

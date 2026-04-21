@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-21T11:13:25+09:00",
+  "generated_at": "2026-04-21T11:04:10+09:00",
   "group_map": {
     "G2": "제127조 제2항 (세액공제 간 동일 투자자산·과세연도 택1)",
     "G3": "제127조 제3항 (세액감면 vs 세액공제 중복배제)",
@@ -12,6 +12,6 @@
     "127_matrix_pairs": 50,
     "127_structure_paragraphs": 11,
     "revisions": 0,
-    "archived_years": 1
+    "archived_years": 0
   }
 }
