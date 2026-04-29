@@ -10,7 +10,7 @@
         :root {
             --primary-color: #1a365d;
             --secondary-color: #2b6cb0;
-            --accent-color: #e53e3e; /* 강조색 */
+            --accent-color: #e53e3e;
             --bg-color: #f7fafc;
         }
 
@@ -41,7 +41,6 @@
 
         header h1 { margin: 0; font-size: 2.2em; }
 
-        /* 네비게이션 */
         nav {
             background: #2d3748;
             padding: 10px 0;
@@ -61,7 +60,6 @@
         }
         nav a:hover { color: #63b3ed; }
 
-        /* 애니메이션 영역 */
         #visitor-count {
             text-align: center;
             padding: 20px;
@@ -78,14 +76,13 @@
             margin: 0 5px;
         }
 
-        /* 섹션 공통 */
         .product-section {
             background: #ffffff;
             margin: 30px 0;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            display: none; /* 기본적으로 숨김 */
+            display: none;
         }
         .product-section.active { display: block; }
         .product-section h2 {
@@ -103,7 +100,6 @@
         }
         .product-list a { color: #2b6cb0; text-decoration: none; font-weight: bold; }
 
-        /* 재산도우미 서브메뉴 */
         .sub-tab-nav { margin-bottom: 20px; }
         .sub-tab-btn {
             padding: 8px 20px;
@@ -117,7 +113,6 @@
         .property-sub-content { display: none; }
         .property-sub-content.active { display: block; }
 
-        /* 푸터 */
         footer {
             background: #2d3748;
             color: #ffffff;
@@ -152,13 +147,12 @@
                 <li><a href="javascript:void(0)" onclick="showSection('property')">양도상속증여</a></li>
                 <li><a href="javascript:void(0)" onclick="showSection('consulting')">컨설팅</a></li>
                 <li><a href="javascript:void(0)" onclick="showSection('daehan')">대한세무법인</a></li>
-                <li><a href="javascript:void(0)" onclick="showSection('daehan')">내부결재문서</a></li>
+                <li><a href="javascript:void(0)" onclick="showSection('internal')">내부결재문서</a></li>
             </ul>
         </div>
     </nav>
 
     <main class="container">
-        <!-- 방문자 애니메이션 -->
         <div id="visitor-count">
             오늘 ! 여기에 오신 분: <span id="random-num" class="highlight-num">0</span> 명
         </div>
@@ -182,7 +176,6 @@
             <h2>경영도우미 - 고용 및 정책지원금</h2>
             <ul class="product-list">
                 <li><a href="경영/고용및정책지원금.html">고용및정책지원금</a></li>
-                
             </ul>
         </section>
 
@@ -190,7 +183,7 @@
         <section id="hr" class="product-section">
             <h2>인사노무도우미 (준비중)</h2>
             <ul class="product-list">
-                <li><a href="#">취업규칙 표준 근로계약서 양식 </a></li>
+                <li><a href="#">취업규칙 표준 근로계약서 양식</a></li>
                 <li><a href="#">최저임금 및 퇴직금 계산기</a></li>
                 <li><a href="#">4대보험 요율표</a></li>
                 <li><a href="#">주휴수당 자동 계산기</a></li>
@@ -201,11 +194,10 @@
         <section id="property" class="product-section">
             <h2>재산도우미</h2>
             <div class="sub-tab-nav">
-                <button class="sub-tab-btn active" onclick="showProperty('tax-calc')">양도 · 증여</button>
-                <button class="sub-tab-btn" onclick="showProperty('inherit-calc')">상속</button>
+                <button class="sub-tab-btn active" onclick="showProperty(event, 'tax-calc')">양도 · 증여</button>
+                <button class="sub-tab-btn" onclick="showProperty(event, 'inherit-calc')">상속</button>
             </div>
 
-            <!-- 양도/증여 관련 -->
             <div id="tax-calc" class="property-sub-content active">
                 <ul class="product-list">
                     <li><a href="양도상속증여/양도·증여/양도세율.html">양도세율계산기</a></li>
@@ -215,7 +207,6 @@
                 </ul>
             </div>
 
-            <!-- 상속 관련 -->
             <div id="inherit-calc" class="property-sub-content">
                 <ul class="product-list">
                     <li><a href="양도상속증여/상속/cal_Inherit_simple.html">단순한 상속세 계산기</a></li>
@@ -256,13 +247,13 @@
                 <li><a href="대한세무법인/pc방 조정료, 사업소득자 수수료 계산기.html">pc방 조정료 수수료 계산기</a></li>
             </ul>
         </section>
-         <!-- 7. 내부결재문서  -->
-        <section id="consulting" class="product-section">
+
+        <!-- 7. 내부결재문서 (비밀번호 보호) — id를 'internal'로 수정 -->
+        <section id="internal" class="product-section">
             <h2>내부결재문서</h2>
             <ul class="product-list">
                 <li><a href="종합소득세표지.html">종합소득세 표지</a></li>
                 <li><a href="지출결의서.html">지출결의서</a></li>
-                
             </ul>
         </section>
 
@@ -284,7 +275,8 @@
     <script>
         // 1. 섹션 전환 및 비밀번호 체크
         function showSection(sectionId) {
-            if (sectionId === 'daehan') {
+            // 비밀번호 보호가 필요한 섹션
+            if (sectionId === 'daehan' || sectionId === 'internal') {
                 const pw = prompt("비밀번호를 입력하세요.");
                 if (pw !== '06250625') {
                     alert("비밀번호가 일치하지 않습니다.");
@@ -301,11 +293,11 @@
             window.scrollTo(0, 0);
         }
 
-        // 2. 재산도우미 내부 탭 전환
-        function showProperty(subId) {
+        // 2. 재산도우미 내부 탭 전환 — event 파라미터 명시적으로 받도록 수정
+        function showProperty(event, subId) {
             const contents = document.querySelectorAll('.property-sub-content');
             contents.forEach(c => c.classList.remove('active'));
-            
+
             const buttons = document.querySelectorAll('.sub-tab-btn');
             buttons.forEach(b => b.classList.remove('active'));
 
@@ -318,7 +310,7 @@
             const target = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
             let current = 0;
             const display = document.getElementById('random-num');
-            
+
             const timer = setInterval(() => {
                 if (current < target) {
                     current++;
