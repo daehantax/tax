@@ -1,0 +1,1009 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지출결의서</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --border: #d0d5dd;
+    --border-dark: #6b7280;
+    --text: #111827;
+    --text-muted: #6b7280;
+    --accent: #1e3a5f;
+    --accent-light: #e8edf5;
+    --red: #dc2626;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .app-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .app-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .app-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .editor-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+
+  .field label .req {
+    color: var(--red);
+    margin-left: 2px;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+
+  .field input:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  /* 항목 테이블 */
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .items-table th {
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 10px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 12px;
+  }
+
+  .items-table th:first-child { border-radius: 6px 0 0 0; }
+  .items-table th:last-child { border-radius: 0 6px 0 0; }
+
+  .items-table td {
+    border: 1px solid var(--border);
+    padding: 4px 6px;
+  }
+
+  .items-table td input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    padding: 3px 4px;
+    background: transparent;
+  }
+
+  .items-table tr:nth-child(even) { background: #f9fafb; }
+  .items-table tr:hover { background: var(--accent-light); }
+
+  .total-row td {
+    background: #f0f2f5 !important;
+    font-weight: 700;
+    text-align: right;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--accent);
+  }
+
+  .btn-add-row {
+    border: 1.5px dashed var(--border-dark);
+    background: transparent;
+    color: var(--text-muted);
+    padding: 7px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .btn-add-row:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* 영수증 업로드 */
+  .receipt-drop {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f9fafb;
+    position: relative;
+  }
+
+  .receipt-drop:hover, .receipt-drop.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .receipt-drop input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .receipt-drop .drop-icon { font-size: 32px; margin-bottom: 8px; }
+  .receipt-drop p { font-size: 13px; color: var(--text-muted); }
+  .receipt-drop strong { color: var(--accent); }
+
+  .receipt-previews {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .receipt-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    background: #f9fafb;
+    aspect-ratio: 3/4;
+  }
+
+  .receipt-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .receipt-item .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(220,38,38,0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  /* 하단 버튼 */
+  .action-bar {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .btn-preview {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-preview:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-pdf {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(30,58,95,0.3);
+  }
+
+  .btn-pdf:hover {
+    background: #162d4a;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(30,58,95,0.4);
+  }
+
+  .btn-pdf:active { transform: translateY(0); }
+
+  /* 미리보기 모달 */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: white;
+    border-radius: 12px;
+    max-width: 860px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+  }
+
+  .modal-header h2 { font-size: 15px; font-weight: 700; color: var(--accent); }
+
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px 8px;
+  }
+
+  .modal-body { padding: 24px; }
+
+  /* ───────────── PDF 출력용 문서 스타일 ───────────── */
+  #pdf-content {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    color: #000;
+  }
+
+  /* 수정된 .pdf-page 스타일 */
+.pdf-page {
+  width: 210mm;
+  height: 297mm; /* min-height 대신 고정 높이 사용 권장 */
+  padding: 15mm 20mm; /* 상단 여백을 조금 더 줄여서 여유 공간 확보 */
+  background: white;
+  box-sizing: border-box;
+  position: relative;
+  page-break-after: trun; /* always 대신 구형 브라우저 대응용으로 설정 */
+  overflow: hidden; /* 내용이 넘쳐서 다음 페이지를 건드리지 않게 함 */
+}
+
+/* 마지막 페이지 뒤에는 강제 줄바꿈이 없도록 설정 */
+.pdf-page:last-child { 
+  page-break-after: avoid !important; 
+}
+
+  .pdf-page:last-child { page-break-after: auto; }
+
+  .doc-title-wrap {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .doc-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    border-bottom: 3px double #000;
+    padding-bottom: 6px;
+    display: inline-block;
+  }
+
+  .amount-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    gap: 20px;
+  }
+
+  .amount-left {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .amount-left span { font-size: 14px; font-weight: 400; }
+
+  /* 결재란 */
+  .approval-box {
+    border: 1.5px solid #000;
+    min-width: 240px;
+  }
+
+  .approval-box .ap-title {
+    background: #e8edf5;
+    text-align: center;
+    padding: 4px;
+    font-weight: 700;
+    font-size: 12px;
+    border-bottom: 1px solid #000;
+    letter-spacing: 4px;
+  }
+
+  .approval-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-collapse: collapse;
+  }
+
+  .ap-cell {
+    border-right: 1px solid #000;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .ap-cell:last-child { border-right: none; }
+
+  .ap-cell .ap-role {
+    background: #f5f7fa;
+    padding: 3px;
+    border-bottom: 1px solid #000;
+    font-weight: 600;
+  }
+
+  .ap-cell .ap-sign { height: 40px; }
+
+  /* 메타 테이블 */
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+
+  .meta-table th, .meta-table td {
+    border: 1px solid #555;
+    padding: 5px 8px;
+  }
+
+  .meta-table th {
+    background: #f0f2f5;
+    font-weight: 600;
+    white-space: nowrap;
+    width: 90px;
+  }
+
+  /* 항목 테이블 (PDF) */
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 12px;
+  }
+
+  .detail-table th {
+    background: #1e3a5f;
+    color: white;
+    padding: 6px 8px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .detail-table td {
+    border: 1px solid #999;
+    padding: 6px 8px;
+    text-align: center;
+  }
+
+  .detail-table tr:nth-child(even) td { background: #f9fafb; }
+
+  .detail-table .amt { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .detail-table tfoot td {
+    background: #e8edf5;
+    font-weight: 700;
+    font-size: 13px;
+    border: 1.5px solid #555;
+  }
+
+  .sign-line {
+    text-align: right;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  /* 영수증 페이지 */
+  .receipt-page-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 6px;
+  }
+
+  .receipts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .receipts-grid.single { grid-template-columns: 1fr; }
+  .receipts-grid.single .receipt-pdf-img { max-width: 340px; margin: 0 auto; }
+
+  .receipt-pdf-img {
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9f9f9;
+    max-height: 360px;
+  }
+
+  .receipt-pdf-img img {
+    width: 100%;
+    height: 100%;
+    max-height: 360px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* 로딩 */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .loading-overlay.show { display: flex; }
+
+  .loading-spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .loading-overlay p { color: white; font-size: 15px; font-weight: 500; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media print {
+    body { padding: 0; background: white; }
+    .editor-wrap, .modal-overlay { display: none !important; }
+    #pdf-content { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>지출결의서 작성</h1>
+  <p>항목을 입력하고 영수증을 첨부한 후 PDF로 저장하세요</p>
+</div>
+
+<div class="editor-wrap">
+
+  <!-- 기본 정보 -->
+  <div class="card">
+    <div class="card-title">기본 정보</div>
+    <!--<div class="form-row three">
+      <div class="field">
+        <label>담당자 <span class="req">*</span></label>
+        <input type="text" id="f-manager">
+      </div>
+      <div class="field">
+        <label>팀장</label>
+        <input type="text" id="f-chief">
+      </div>
+      <div class="field">
+        <label>세무사 / 결재자</label>
+        <input type="text" id="f-tax">
+      </div>
+    </div> -->
+    <div class="form-row">
+      <div class="field">
+        <label>지출일 <span class="req">*</span></label>
+        <input type="date" id="f-issue-date">
+      </div>
+      <div class="field">
+        <label>계정 과목</label>
+        <input type="text" id="f-account" placeholder="복리후생비">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="field">
+        <label>기타 사항</label>
+        <input type="text" id="f-process" placeholder="예) 공연 관람 등 복지 지원">
+      </div>
+    </div>
+  </div>
+
+  <!-- 지출 항목 -->
+  <div class="card">
+    <div class="card-title">지출 항목</div>
+    <table class="items-table" id="items-table">
+      <thead>
+        <tr>
+          <th style="width:120px">지출일</th>
+          <th>적 요</th>
+          <th style="width:120px">금 액 (원)</th>
+          <th style="width:100px">비 고</th>
+          <th style="width:36px"></th>
+        </tr>
+      </thead>
+      <tbody id="items-body">
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="2" style="text-align:left; padding-left:12px;">합 계</td>
+          <td id="total-amount" colspan="3">0 원</td>
+        </tr>
+      </tfoot>
+    </table>
+    <button class="btn-add-row" onclick="addRow()">+ 항목 추가</button>
+  </div>
+
+  <!-- 영수자 -->
+  <div class="card">
+    <div class="card-title">영수자 정보</div>
+    <div class="form-row">
+      <div class="field">
+        <label>영수자 (이름) <span class="req">*</span></label>
+        <input type="text" id="f-receiver" placeholder="영수자 성명">
+      </div>
+      <div class="field">
+        <label>청구 날짜</label>
+        <input type="date" id="f-sign-date">
+      </div>
+    </div>
+  </div>
+
+  <!-- 영수증 첨부 -->
+  <div class="card">
+    <div class="card-title">영수증 첨부</div>
+    <div class="receipt-drop" id="drop-zone">
+      <input type="file" id="receipt-input" accept="image/*" multiple>
+      <div class="drop-icon">🧾</div>
+      <p><strong>클릭하거나 파일을 드래그</strong>하여 영수증 이미지를 첨부하세요</p>
+      <p style="margin-top:4px; font-size:11px;">JPG, PNG, WEBP 지원 · 여러 장 동시 첨부 가능</p>
+    </div>
+    <div class="receipt-previews" id="receipt-previews"></div>
+  </div>
+
+  <!-- 버튼 -->
+  <div class="action-bar">
+    <button class="btn-preview" onclick="openPreview()">👁 미리보기</button>
+    <button class="btn-pdf" onclick="generatePDF()">📥 PDF 저장</button>
+  </div>
+
+</div>
+
+<!-- 미리보기 모달 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>지출결의서 미리보기</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- 로딩 -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <p>PDF 생성 중...</p>
+</div>
+
+<!-- 숨겨진 PDF 콘텐츠 -->
+<div id="pdf-content" style="display:none;"></div>
+
+<script>
+  // ─── 초기화 ───
+  let receipts = []; // {dataUrl, name}
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('f-issue-date').value = today;
+    document.getElementById('f-sign-date').value = today;
+    addRow();
+    addRow();
+    addRow();
+  });
+
+  // ─── 항목 행 ───
+  let rowCount = 0;
+
+  function addRow() {
+    rowCount++;
+    const tbody = document.getElementById('items-body');
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + rowCount;
+    tr.innerHTML = `
+      <td><input type="date" class="row-date"></td>
+      <td><input type="text" class="row-desc" placeholder="항목 내용"></td>
+      <td><input type="number" class="row-amt" placeholder="0" oninput="updateTotal()" style="text-align:right"></td>
+      <td><input type="text" class="row-note" placeholder="비고"></td>
+      <td><button onclick="removeRow(${rowCount})" style="border:none;background:none;cursor:pointer;color:#dc2626;font-size:15px;">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  function removeRow(id) {
+    const el = document.getElementById('row-' + id);
+    if (el) el.remove();
+    updateTotal();
+  }
+
+  function updateTotal() {
+    const amts = document.querySelectorAll('.row-amt');
+    let sum = 0;
+    amts.forEach(a => { sum += parseFloat(a.value) || 0; });
+    document.getElementById('total-amount').textContent = sum.toLocaleString() + ' 원';
+  }
+
+  function getItems() {
+    const rows = document.querySelectorAll('#items-body tr');
+    return Array.from(rows).map(r => ({
+      date: r.querySelector('.row-date')?.value || '',
+      desc: r.querySelector('.row-desc')?.value || '',
+      amt: parseFloat(r.querySelector('.row-amt')?.value) || 0,
+      note: r.querySelector('.row-note')?.value || '',
+    })).filter(r => r.desc || r.amt);
+  }
+
+  function getTotal() {
+    return getItems().reduce((s, r) => s + r.amt, 0);
+  }
+
+  // ─── 영수증 ───
+  const dropZone = document.getElementById('drop-zone');
+  const receiptInput = document.getElementById('receipt-input');
+
+  receiptInput.addEventListener('change', e => handleFiles(e.target.files));
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  function handleFiles(files) {
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        receipts.push({ dataUrl: e.target.result, name: file.name });
+        renderPreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPreviews() {
+    const wrap = document.getElementById('receipt-previews');
+    wrap.innerHTML = '';
+    receipts.forEach((r, i) => {
+      const div = document.createElement('div');
+      div.className = 'receipt-item';
+      div.innerHTML = `
+        <img src="${r.dataUrl}" alt="${r.name}">
+        <button class="remove-btn" onclick="removeReceipt(${i})">✕</button>
+      `;
+      wrap.appendChild(div);
+    });
+  }
+
+  function removeReceipt(i) {
+    receipts.splice(i, 1);
+    renderPreviews();
+  }
+
+  // ─── 문서 HTML 생성 ───
+  function buildDocHTML(forPDF = false) {
+    const manager = ''; // 입력창이 없으므로 빈 값 고정
+    const chief = '';
+    const tax = '';
+    const issueDate = document.getElementById('f-issue-date').value || '';
+    const account = document.getElementById('f-account').value || '';
+    const process = document.getElementById('f-process').value || '';
+    const receiver = document.getElementById('f-receiver').value || '';
+    const signDate = document.getElementById('f-sign-date').value || '';
+    const items = getItems();
+    const total = getTotal();
+
+    const fmtDate = d => d ? d.replace(/-/g, '.') : '';
+    const fmtAmt = n => n ? n.toLocaleString() : '0';
+
+    function toKoreanAmt(num) {
+      if (!num) return '영원';
+      const units = ['', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
+      const tens = ['', '십', '백', '천'];
+      const bigs = ['', '만', '억', '조'];
+      let result = '';
+      let n = Math.floor(num);
+      let bigIdx = 0;
+      while (n > 0) {
+        let chunk = n % 10000;
+        if (chunk !== 0) {
+          let chunkStr = '';
+          let tmp = chunk;
+          for (let t = 0; tmp > 0; t++, tmp = Math.floor(tmp / 10)) {
+            const d2 = tmp % 10;
+            if (d2 !== 0) {
+              chunkStr = (d2 === 1 && t > 0 ? '' : units[d2]) + tens[t] + chunkStr;
+            }
+          }
+          result = chunkStr + bigs[bigIdx] + result;
+        }
+        n = Math.floor(n / 10000);
+        bigIdx++;
+      }
+      return result + '원';
+    }
+
+    const itemRows = items.map(r => `
+      <tr>
+        <td>${fmtDate(r.date)}</td>
+        <td style="text-align:left; padding-left:10px;">${r.desc}</td>
+        <td class="amt">${fmtAmt(r.amt)}</td>
+        <td>${r.note}</td>
+      </tr>
+    `).join('');
+
+    const page1 = `
+      <div class="pdf-page">
+        <div class="doc-title-wrap">
+          <div class="doc-title">지 출 결 의 서</div>
+        </div>
+
+        <div class="amount-header">
+          <div class="amount-left">
+            일금 &nbsp;&nbsp; <span>${toKoreanAmt(total)}</span> &nbsp;&nbsp; ₩ ${fmtAmt(total)}
+          </div>
+          <div class="approval-box">
+            <div class="ap-title">결 재</div>
+            <div class="approval-grid">
+              <div class="ap-cell">
+                <div class="ap-role">담당</div>
+                <div class="ap-sign"></div>
+              </div>
+              <div class="ap-cell">
+                <div class="ap-role">팀장</div>
+                <div class="ap-sign"></div>
+              </div>
+              <div class="ap-cell">
+                <div class="ap-role">세무사</div>
+                <div class="ap-sign"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <table class="meta-table">
+          <tr>
+            <th>지출 년월일</th>
+            <td>${fmtDate(issueDate)}</td>
+            <th>계정 과목</th>
+            <td>${account}</td>
+          </tr>
+          <tr>
+            <th>처리 사항</th>
+            <td colspan="3">${process}</td>
+          </tr>
+        </table>
+
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th style="width:110px">지출일</th>
+              <th>적 요</th>
+              <th style="width:120px">금 액 (원)</th>
+              <th style="width:80px">비 고</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemRows || '<tr><td colspan="4" style="text-align:center; color:#999;">항목 없음</td></tr>'}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2" style="text-align:right; font-weight:700;">합 계</td>
+              <td class="amt" style="font-weight:700; font-size:13px;">${fmtAmt(total)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="sign-line">
+          위 금액을 영수(청구)합니다.<br>
+          ${fmtDate(signDate)}<br>
+          영수자 &nbsp;&nbsp;&nbsp; ${receiver} &nbsp;&nbsp;&nbsp; (인)
+        </div>
+      </div>
+    `;
+
+    let page2 = '';
+    if (receipts.length > 0) {
+      const cols = receipts.length === 1 ? 'single' : '';
+      const imgItems = receipts.map(r => `
+        <div class="receipt-pdf-img">
+          <img src="${r.dataUrl}" alt="영수증">
+        </div>
+      `).join('');
+
+      page2 = `
+        <div class="pdf-page">
+          <div class="receipt-page-title">영 수 증 첨 부</div>
+          <div class="receipts-grid ${cols}">
+            ${imgItems}
+          </div>
+        </div>
+      `;
+    }
+
+    return `<div id="pdf-content" style="font-family:'Noto Sans KR',sans-serif;">${page1}${page2}</div>`;
+  }
+
+  // ─── 미리보기 ───
+  function openPreview() {
+    document.getElementById('modal-body').innerHTML = buildDocHTML(false);
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  // ─── PDF 생성 ───
+  async function generatePDF() {
+    const loading = document.getElementById('loading');
+    loading.classList.add('show');
+
+    await new Promise(r => setTimeout(r, 100));
+
+    const html = buildDocHTML(true);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    document.body.appendChild(container);
+
+    const element = container.querySelector('#pdf-content');
+
+    const opt = {
+  margin: [0, 0, 0, 0], // 모든 여백을 0으로 고정
+  filename: '지출결의서.pdf',
+  image: { type: 'jpeg', quality: 0.95 },
+  html2canvas: {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    scrollY: 0, // 인쇄 시 스크롤 위치 때문에 생기는 공백 방지 (중요!)
+  },
+  jsPDF: {
+    unit: 'mm',
+    format: 'a4',
+    orientation: 'portrait'
+  }
+};
+
+    try {
+      await html2pdf().set(opt).from(element).save();
+    } catch(e) {
+      alert('PDF 생성 중 오류가 발생했습니다.');
+      console.error(e);
+    } finally {
+      document.body.removeChild(container);
+      loading.classList.remove('show');
+    }
+  }
+</script>
+</body>
+</html>
