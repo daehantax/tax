@@ -444,7 +444,7 @@
             .rate-ref-table { min-width: 0 !important; width: 100%; }
             .approval-area { padding: 2px 8px; flex-shrink: 0; margin-top: 4px !important; }
             .approval-title { font-size: 10px !important; margin-bottom: 2px !important; }
-            .approval-table .ap-body { height: 1cm !important; min-height: 1cm !important; }
+            .approval-table .ap-body { height: 1.2cm !important; min-height: 1.2cm !important; }
             .bottom-tables-area { margin-top: 2mm !important; }
             .table-wrap { margin-top: 2mm !important; }
             .pay-label, .pay-val { font-size: 10px !important; }
@@ -1852,6 +1852,7 @@ function calcAll() {
         // 1원 단위까지 표시 (절사 없음)
         const finalRaw = n('tax'+yr) - n('pre'+yr) - n('ded'+yr) + n('add'+yr);
         const final = Math.round(finalRaw);
+        document.getElementById('final'+yr).value = final.toLocaleString();
 
         // 신고소득율 = 소득금액 / 수입금액 * 100
         const rev = n('rev'+yr);
