@@ -137,8 +137,66 @@ textarea{resize:vertical;min-height:70px;}
 .opt-item:hover{background:#eff6ff;}
 .opt-item input[type=checkbox]{cursor:pointer;accent-color:var(--primary);}
 .opt-item.disabled{opacity:.4;pointer-events:none;}
+/* 단위 접미사 표시 입력 */
+.input-with-suffix{position:relative;display:flex;align-items:center;}
+.input-with-suffix input{flex:1;padding-right:34px;text-align:right;}
+.input-with-suffix .input-suffix{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  color:var(--mid);font-size:12px;pointer-events:none;font-weight:600;}
+
+/* 날짜 입력 + 달력 버튼 */
+.date-input-wrap{position:relative;display:flex;align-items:center;gap:6px;}
+.date-input-wrap input[type=text]{flex:1;}
+.date-input-wrap input.hidden-date{position:absolute;left:0;top:100%;width:1px;height:1px;
+  opacity:0;pointer-events:none;border:none;padding:0;background:transparent;}
+.date-btn{padding:7px 11px;background:#fff;border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;font-size:14px;line-height:1;color:var(--mid);transition:all .15s;flex-shrink:0;}
+.date-btn:hover{background:#eff6ff;border-color:#93c5fd;color:var(--primary);}
+
+/* 저장/불러오기 */
+.save-card{background:#fff;border:1px solid var(--border2);border-radius:10px;padding:18px 20px;margin-bottom:16px;}
+.save-card-title{font-size:14px;font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border2);display:flex;align-items:center;gap:8px;}
+.save-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+.save-controls input[type=text]{flex:1;min-width:200px;}
+.save-list{border:1px solid var(--border2);border-radius:6px;overflow:hidden;}
+.save-list-empty{padding:14px 16px;text-align:center;color:var(--light);font-size:12px;background:#fafafa;}
+.save-row{display:grid;grid-template-columns:1fr 130px 80px 80px 36px;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border2);font-size:13px;background:#fff;transition:background .1s;}
+.save-row:last-child{border-bottom:none;}
+.save-row:hover{background:#f9fafb;}
+.save-row .sv-name{font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.save-row .sv-date{font-size:11px;color:var(--light);}
+.save-row .sv-btn{padding:4px 10px;font-size:12px;border-radius:4px;border:1px solid var(--border);background:#fff;cursor:pointer;transition:all .1s;}
+.save-row .sv-btn-load{color:var(--primary);border-color:#93c5fd;}
+.save-row .sv-btn-load:hover{background:#eff6ff;border-color:var(--primary);}
+.save-row .sv-btn-rename{color:#6b7280;}
+.save-row .sv-btn-rename:hover{background:#f3f4f6;}
+.save-row .sv-btn-del{padding:4px 8px;font-size:14px;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:4px;line-height:1;}
+.save-row .sv-btn-del:hover{background:#fee2e2;}
+.save-list-header{display:grid;grid-template-columns:1fr 130px 80px 80px 36px;gap:8px;padding:8px 12px;background:#f3f4f6;font-size:11px;font-weight:600;color:var(--mid);border-bottom:1px solid var(--border2);}
+
+/* 일괄 출력 */
+.bulk-card{background:#fff;border:1px solid var(--border2);border-radius:10px;padding:18px 20px;margin-bottom:16px;}
+.bulk-doc-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;}
+.bulk-doc-item{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--border2);border-radius:6px;cursor:pointer;background:#fafafa;font-size:13px;transition:all .15s;}
+.bulk-doc-item:hover{background:#eff6ff;border-color:#93c5fd;}
+.bulk-doc-item.checked{background:#eff6ff;border-color:var(--primary);}
+.bulk-doc-item input[type=checkbox]{cursor:pointer;accent-color:var(--primary);width:16px;height:16px;}
+.bulk-doc-item .bd-label{flex:1;font-weight:500;}
+.bulk-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border2);}
+.bulk-preview{margin-top:18px;background:#f4f5f7;border:1px solid var(--border2);border-radius:8px;padding:14px;max-height:600px;overflow-y:auto;}
+.bulk-preview-empty{text-align:center;color:var(--light);font-size:12px;padding:30px 0;}
+.bulk-preview .doc-wrap{margin-bottom:14px;}
+.bulk-preview .doc-wrap:last-child{margin-bottom:0;}
+.bulk-preview .doc-body{max-height:none;padding:30px 40px;}
+.bulk-preview .doc-toolbar{background:#e5e7eb;}
+.page-break-marker{text-align:center;font-size:11px;color:#9ca3af;padding:8px 0;border-top:1px dashed #d1d5db;border-bottom:1px dashed #d1d5db;margin:10px 0;background:#fff;}
+
 /* 인쇄 */
 @media print{
+  /* body 배경(회색)이 마지막 페이지 빈 공간에 드러나는 현상 방지 */
+  html, body { background: #fff !important; background-color: #fff !important; }
+  .main { background: #fff !important; }
+  /* 인쇄에서 숨겨야 할 화면 전용 안내(주의사항 등) */
+  .print-hide{display:none!important;}
   .sidebar,.topbar,.btn-group,.doc-toolbar{display:none!important;}
   /* 크롬/엣지 인쇄 헤더·푸터 제거 */
   header, footer { display: none !important; }
@@ -147,12 +205,36 @@ textarea{resize:vertical;min-height:70px;}
   .doc-wrap{border:none;border-radius:0;}
   .doc-body{max-height:none;padding:20px 40px;}
   .editable{border-bottom:none;}
-    @page{size:A4;margin:18mm 16mm;}
-  @page{margin-top:10mm;margin-bottom:10mm;}
+  /* 정관·법률 서식 권장 여백: 상·하 25mm / 좌·우 20mm */
+  @page{size:A4;margin:25mm 20mm;}
   * { -webkit-print-color-adjust: exact; }
   /* 브라우저 기본 인쇄 헤더/푸터 제거 */
   html { margin: 0; }
   @page { margin-header: 0; margin-footer: 0; }
+  /* 일괄 출력 - 컨트롤 UI 및 빈 상태 안내 숨김 */
+  .bulk-card, .bulk-toolbar, .bulk-doc-list, .bulk-doc-item,
+  .page-break-marker, .info-banner, .bulk-preview-empty,
+  .save-card, .save-list, .save-list-header, .save-list-empty, .save-row{
+    display:none!important;
+  }
+  /* bulk-preview 래퍼는 시각적으로 완전히 투명 */
+  #bulk-preview, .bulk-preview{
+    background:transparent!important;
+    background-color:transparent!important;
+    background-image:none!important;
+    border:none!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    padding:0!important;
+    margin:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  .bulk-preview .doc-wrap{page-break-after:always;border:none;border-radius:0;margin:0;box-shadow:none;}
+  .bulk-preview .doc-wrap:last-child{page-break-after:auto;}
+  .bulk-preview .doc-body{padding:20px 40px;}
+  /* 활성 페이지가 아닌 모든 페이지는 인쇄에서 제거 */
+  .page:not(.active){display:none!important;}
 }
 @media(max-width:768px){
   .sidebar{display:none;}
@@ -179,6 +261,10 @@ textarea{resize:vertical;min-height:70px;}
     <div class="nav-item" onclick="showPage('doc5',this)">유족보상금지급규정</div>
     <div class="nav-item" onclick="showPage('doc6',this)">이사회결의서</div>
   </div>
+  <div class="nav-group">
+    <div class="nav-label">출력</div>
+    <div class="nav-item" onclick="showPage('bulk',this)">일괄 출력</div>
+  </div>
 </nav>
 
 <main class="main">
@@ -194,6 +280,18 @@ textarea{resize:vertical;min-height:70px;}
   </div>
   <div class="info-banner">입력 후 <strong>모든 문서에 적용</strong> 버튼을 눌러주세요. 각 문서에서 파란 밑줄 항목을 클릭하면 추가 수정할 수 있습니다.</div>
 
+  <!-- 저장/불러오기 -->
+  <div class="save-card">
+    <div class="save-card-title">💾 작성 데이터 저장 및 불러오기 <span style="font-size:11px;color:#9ca3af;font-weight:400;">— 브라우저에 안전하게 보관됩니다</span></div>
+    <div class="save-controls">
+      <input type="text" id="save-name" placeholder="저장 이름 (비워두면 회사명 + 날짜로 자동 지정)">
+      <button class="btn btn-primary" onclick="saveCurrentData()">💾 저장</button>
+      <button class="btn" onclick="confirmClearAll()">🗑 전체 삭제</button>
+    </div>
+    <div id="save-list" class="save-list"></div>
+    <div class="hint" style="margin-top:8px;">※ 데이터는 이 브라우저의 로컬 저장소에 저장됩니다. 다른 PC/브라우저에서는 보이지 않습니다. 브라우저 데이터 삭제 시 함께 사라질 수 있습니다.</div>
+  </div>
+
   <div class="card">
     <div class="card-title">회사 기본정보</div>
     <div class="form-grid">
@@ -204,11 +302,20 @@ textarea{resize:vertical;min-height:70px;}
       <div class="form-field"><label class="lbl">본점 소재지 <span class="req">*</span></label>
         <input type="text" id="i-addr" placeholder="예) 서울특별시 서초구 OO동"></div>
       <div class="form-field"><label class="lbl">발행(된)주식 총수</label>
-        <input type="text" id="i-shares" placeholder="예) 10,000주" oninput="calcCapital()"></div>
+        <div class="input-with-suffix">
+          <input type="text" id="i-shares" placeholder="10,000" inputmode="numeric" oninput="fmtNumberInput(this);calcCapital()">
+          <span class="input-suffix">주</span>
+        </div></div>
       <div class="form-field"><label class="lbl">발행 가능 주식 총수 (정관 제6조)</label>
-        <input type="text" id="i-maxshares" placeholder="예) 100,000주"></div>
+        <div class="input-with-suffix">
+          <input type="text" id="i-maxshares" placeholder="100,000" inputmode="numeric" oninput="fmtNumberInput(this)">
+          <span class="input-suffix">주</span>
+        </div></div>
       <div class="form-field"><label class="lbl">1주의 금액</label>
-        <input type="text" id="i-parval" placeholder="예) 10,000원" oninput="calcCapital()"></div>
+        <div class="input-with-suffix">
+          <input type="text" id="i-parval" placeholder="10,000" inputmode="numeric" oninput="fmtNumberInput(this);calcCapital()">
+          <span class="input-suffix">원</span>
+        </div></div>
       <div class="form-field full" style="margin-top:2px;">
         <div id="capital-badge" style="display:none;padding:8px 14px;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;"></div>
       </div>
@@ -351,7 +458,12 @@ textarea{resize:vertical;min-height:70px;}
     <div class="card-title">주주총회 정보</div>
     <div class="form-grid3">
       <div class="form-field"><label class="lbl">회의 일자 <span class="req">*</span></label>
-        <input type="text" id="i-date" placeholder="예) 2025년 3월 15일"></div>
+        <div class="date-input-wrap">
+          <input type="text" id="i-date" placeholder="예) 2026년 03월 15일">
+          <input type="date" id="i-date-picker" class="hidden-date" data-target="i-date" onchange="syncDateText(this)">
+          <button type="button" class="date-btn" onclick="openDatePicker('i-date-picker','i-date')" title="달력에서 선택">📅</button>
+        </div>
+      </div>
       <div class="form-field"><label class="lbl">회의 시각</label>
         <input type="text" id="i-time" placeholder="예) 오전 10시 00분"></div>
       <div class="form-field"><label class="lbl">회의 장소</label>
@@ -359,9 +471,14 @@ textarea{resize:vertical;min-height:70px;}
     </div>
     <div class="form-grid" style="margin-top:12px;">
       <div class="form-field"><label class="lbl">출석 주주 현황</label>
-        <input type="text" id="i-attend" placeholder="예) 2명 / 71,000주 / 100%"></div>
+        <input type="text" id="i-attend" placeholder="예) 2명 / 100,000주 / 100%"></div>
       <div class="form-field"><label class="lbl">규정 승인일 (주총 결의일)</label>
-        <input type="text" id="i-approvedate" placeholder="예) 2025년 3월 15일"></div>
+        <div class="date-input-wrap">
+          <input type="text" id="i-approvedate" placeholder="예) 2026년 03월 15일">
+          <input type="date" id="i-approvedate-picker" class="hidden-date" data-target="i-approvedate" onchange="syncDateText(this)">
+          <button type="button" class="date-btn" onclick="openDatePicker('i-approvedate-picker','i-approvedate')" title="달력에서 선택">📅</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -376,13 +493,13 @@ textarea{resize:vertical;min-height:70px;}
       </div>
       <div class="num-card">
         <label>대표이사 퇴직금 배수</label>
-        <input type="number" id="i-ceomult" value="3" min="1" max="5" step="0.5">
+        <input type="number" id="i-ceomult" value="2" min="1" max="5" step="0.5">
         <span class="unit">배수</span>
         <span class="badge-def">주총 한도</span>
       </div>
       <div class="num-card">
         <label>그 외 임원 퇴직금 배수</label>
-        <input type="number" id="i-othermult" value="1.5" min="1" max="3" step="0.5">
+        <input type="number" id="i-othermult" value="1" min="1" max="3" step="0.5">
         <span class="unit">배수</span>
         <span class="badge-def">주총 한도</span>
       </div>
@@ -406,7 +523,7 @@ textarea{resize:vertical;min-height:70px;}
 <div id="page-doc1" class="page">
   <div class="topbar">
     <div><h1>임시 주주총회 의사록</h1><div class="topbar-sub">파란 밑줄 항목을 클릭하여 직접 수정하세요</div></div>
-    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint()">인쇄 / PDF</button></div>
+    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint('doc1')">인쇄 / PDF</button></div>
   </div>
   <div class="doc-wrap">
     <div class="doc-toolbar"><span>임시 주주총회 의사록</span></div>
@@ -414,10 +531,10 @@ textarea{resize:vertical;min-height:70px;}
       <div class="doc-title">임 시 주 주 총 회 의 사 록</div>
       <table class="doc-info-table">
         <tr><td>회 사 명</td><td><span class="editable" contenteditable id="d1-company" data-ph="회사명을 입력하세요"></span></td></tr>
-        <tr><td>회의 일시</td><td><span class="editable" contenteditable id="d1-date" data-ph="예) 2025년 3월 15일"></span> &nbsp; <span class="editable" contenteditable id="d1-time" data-ph="예) 오전 10시 00분"></span></td></tr>
-        <tr><td>회의 장소</td><td><span class="editable" contenteditable id="d1-place" data-ph="예) 경기도 화성시 ○○ 본점 회의실"></span></td></tr>
-        <tr><td>발행주식총수</td><td><span class="editable" contenteditable id="d1-shares" data-ph="예) 71,000주 (보통주 전액)"></span></td></tr>
-        <tr><td>출 석 주 주</td><td><span class="editable" contenteditable id="d1-attend" data-ph="예) 2명 (71,000주 / 100%)"></span></td></tr>
+        <tr><td>회의 일시</td><td><span class="editable" contenteditable id="d1-date" data-ph="예) 2026년 3월 15일"></span> &nbsp; <span class="editable" contenteditable id="d1-time" data-ph="예) 오전 10시 00분"></span></td></tr>
+        <tr><td>회의 장소</td><td><span class="editable" contenteditable id="d1-place" data-ph="예) 서울특별시 서초구 ○○ 본점 회의실"></span></td></tr>
+        <tr><td>발행주식총수</td><td><span class="editable" contenteditable id="d1-shares" data-ph="예) 100,000주 (보통주 전액)"></span></td></tr>
+        <tr><td>출 석 주 주</td><td><span class="editable" contenteditable id="d1-attend" data-ph="예) 2명 (100,000주 / 100%)"></span></td></tr>
         <tr><td>의 &nbsp;&nbsp;&nbsp; 장</td><td>대표이사 <span class="editable" contenteditable id="d1-ceo" data-ph="대표이사 성명"></span> (출석 주주 전원 동의로 선출)</td></tr>
       </table>
 
@@ -464,7 +581,7 @@ textarea{resize:vertical;min-height:70px;}
       <div class="agenda-head">제3호 안건 &nbsp; <u>임원퇴직금지급규정 제정의 건</u></div>
       <p style="margin-left:18px;">의장은 임원 퇴직금 지급 기준을 법인세법 시행령 제44조에 따라 명확히 정하여 손금 인정 요건을 충족하고자 임원퇴직금지급규정을 제정하고자 함을 설명하였다.</p><br>
       <p style="margin-left:18px;">산정기준: 퇴직 전 3년간 연평균 환산액 × 1/10 × 근속연수 × 지급배수</p>
-      <p style="margin-left:18px;">대표이사 <strong><span class="editable" contenteditable id="d1-ceomult" data-ph="3"></span>배수</strong> / 그 외 임원 <strong><span class="editable" contenteditable id="d1-othermult" data-ph="1.5"></span>배수</strong> (이사회 최종 결의)</p>
+      <p style="margin-left:18px;">대표이사 <strong><span class="editable" contenteditable id="d1-ceomult" data-ph="2"></span>배수</strong> / 그 외 임원 <strong><span class="editable" contenteditable id="d1-othermult" data-ph="1"></span>배수</strong> (이사회 최종 결의)</p>
       <table class="doc-table vote-table" style="margin-top:10px;">
         <tr><th>표결</th><th>찬 성</th><th>반 대</th><th>기 권</th></tr>
         <tr><td class="c">주식수</td>
@@ -489,7 +606,7 @@ textarea{resize:vertical;min-height:70px;}
       <br><br>
       <p>의장은 위 4개 안건이 모두 원안대로 가결되었음을 선언하고 폐회하였다.</p><br>
       <p>위 결의를 명확히 하기 위하여 이 의사록을 작성하고 의장 및 출석한 이사가 기명날인한다.</p><br>
-      <p style="text-align:right;"><span class="editable" contenteditable id="d1-sign-date" data-ph="예) 2025년 3월 15일"></span></p><br>
+      <p style="text-align:right;"><span class="editable" contenteditable id="d1-sign-date" data-ph="예) 2026년 3월 15일"></span></p><br>
       <p style="text-align:center;font-size:15px;font-weight:700;"><span id="d1-company2"></span></p><br>
       <div id="d1-sign-wrap"></div>
       <div class="note-box">
@@ -504,7 +621,7 @@ textarea{resize:vertical;min-height:70px;}
 <div id="page-doc2" class="page">
   <div class="topbar">
     <div><h1>개정 정관</h1><div class="topbar-sub">파란 밑줄 항목을 클릭하여 직접 수정하세요</div></div>
-    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint()">인쇄 / PDF</button></div>
+    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint('doc2')">인쇄 / PDF</button></div>
   </div>
   <div class="doc-wrap">
     <div class="doc-toolbar"><span>정관</span></div>
@@ -518,7 +635,7 @@ textarea{resize:vertical;min-height:70px;}
 <div id="page-doc3" class="page">
   <div class="topbar">
     <div><h1>임원보수지급규정</h1><div class="topbar-sub">파란 밑줄 항목을 클릭하여 직접 수정하세요</div></div>
-    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint()">인쇄 / PDF</button></div>
+    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint('doc3')">인쇄 / PDF</button></div>
   </div>
   <div class="doc-wrap">
     <div class="doc-toolbar"><span>임원보수지급규정</span></div>
@@ -547,7 +664,7 @@ textarea{resize:vertical;min-height:70px;}
       <div class="art-title">제8조 (개정 및 시행)</div>
       <div class="art-body">① 이 규정의 제정 및 개정은 주주총회 결의에 의한다.<br>② 이 규정은 주주총회 승인일부터 시행한다.</div>
       <br><br>
-      <p style="text-align:center;">주주총회 승인일: <span class="editable" contenteditable id="d3-date" data-ph="예) 2025년 3월 15일"></span></p><br>
+      <p style="text-align:center;">주주총회 승인일: <span class="editable" contenteditable id="d3-date" data-ph="예) 2026년 3월 15일"></span></p><br>
       <p style="text-align:center;font-weight:700;font-size:15px;"><span id="d3-company2"></span></p><br>
       
     </div>
@@ -558,7 +675,7 @@ textarea{resize:vertical;min-height:70px;}
 <div id="page-doc4" class="page">
   <div class="topbar">
     <div><h1>임원퇴직금지급규정</h1><div class="topbar-sub">파란 밑줄 항목을 클릭하여 직접 수정하세요</div></div>
-    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint()">인쇄 / PDF</button></div>
+    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint('doc4')">인쇄 / PDF</button></div>
   </div>
   <div class="doc-wrap">
     <div class="doc-toolbar"><span>임원퇴직금지급규정</span></div>
@@ -580,11 +697,11 @@ textarea{resize:vertical;min-height:70px;}
       <div class="art-body">② 직위별 지급배수 및 실제 지급액 결정은 아래 표와 같다.</div>
       <table class="doc-table">
         <tr><th>직위</th><th>지급배수(한도)</th><th>실제 지급액</th><th>비고</th></tr>
-        <tr><td class="c">대표이사(회장·사장)</td><td class="c"><span class="editable" contenteditable id="d4-ceomult" data-ph="3"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
-        <tr><td class="c">전무이사</td><td class="c"><span class="editable" contenteditable id="d4-othermult1" data-ph="1.5"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
-        <tr><td class="c">상무이사</td><td class="c"><span class="editable" contenteditable id="d4-othermult2" data-ph="1.5"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
-        <tr><td class="c">이사(등기)</td><td class="c"><span class="editable" contenteditable id="d4-othermult3" data-ph="1.5"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
-        <tr><td class="c">감사</td><td class="c"><span class="editable" contenteditable id="d4-othermult4" data-ph="1.5"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
+        <tr><td class="c">대표이사(회장·사장)</td><td class="c"><span class="editable" contenteditable id="d4-ceomult" data-ph="2"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
+        <tr><td class="c">전무이사</td><td class="c"><span class="editable" contenteditable id="d4-othermult1" data-ph="1"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
+        <tr><td class="c">상무이사</td><td class="c"><span class="editable" contenteditable id="d4-othermult2" data-ph="1"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
+        <tr><td class="c">이사(등기)</td><td class="c"><span class="editable" contenteditable id="d4-othermult3" data-ph="1"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
+        <tr><td class="c">감사</td><td class="c"><span class="editable" contenteditable id="d4-othermult4" data-ph="1"></span>배수</td><td class="c">이사회 결의로 확정</td><td class="l">한도 이내 감액 가능</td></tr>
       </table>
       <div class="art-body">③ 이사회는 회사의 재무상황, 퇴임 경위 등을 고려하여 한도 범위 내에서 실제 지급액을 별도로 결의한다.<br>④ 이사회가 처음부터 한도보다 적은 금액으로 결의한 경우 실제 결의된 금액에 대해서만 원천징수한다.<br><span style="color:#dc2626;">⑤ 한도액을 결의한 후 임원이 일부를 포기하는 방식은 포기금액에도 과세되므로 채택하지 아니한다.</span></div>
       <div class="art-title">제5조 (법인세법상 손금 한도)</div>
@@ -605,7 +722,7 @@ textarea{resize:vertical;min-height:70px;}
       <div class="art-title">제13조 (개정 및 시행)</div>
       <div class="art-body">① 이 규정의 제정 및 개정은 주주총회 결의에 의한다.<br>② 이 규정은 주주총회 승인일부터 시행하며, 시행 전 재임기간도 이 규정의 적용을 받는다.</div>
       <br><br>
-      <p style="text-align:center;">주주총회 승인일: <span class="editable" contenteditable id="d4-date" data-ph="예) 2025년 3월 15일"></span></p><br>
+      <p style="text-align:center;">주주총회 승인일: <span class="editable" contenteditable id="d4-date" data-ph="예) 2026년 3월 15일"></span></p><br>
       <p style="text-align:center;font-weight:700;font-size:15px;"><span id="d4-company2"></span></p><br>
       
     </div>
@@ -616,7 +733,7 @@ textarea{resize:vertical;min-height:70px;}
 <div id="page-doc5" class="page">
   <div class="topbar">
     <div><h1>유족보상금지급규정</h1><div class="topbar-sub">파란 밑줄 항목을 클릭하여 직접 수정하세요</div></div>
-    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint()">인쇄 / PDF</button></div>
+    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint('doc5')">인쇄 / PDF</button></div>
   </div>
   <div class="doc-wrap">
     <div class="doc-toolbar"><span>임원 유족보상금지급규정</span></div>
@@ -643,7 +760,7 @@ textarea{resize:vertical;min-height:70px;}
       <div class="art-title">제11조 (개정 및 시행)</div>
       <div class="art-body">① 이 규정의 제정 및 개정은 주주총회 결의에 의한다.<br>② 이 규정은 주주총회 승인일부터 시행한다.</div>
       <br><br>
-      <p style="text-align:center;">주주총회 승인일: <span class="editable" contenteditable id="d5-date" data-ph="예) 2025년 3월 15일"></span></p><br>
+      <p style="text-align:center;">주주총회 승인일: <span class="editable" contenteditable id="d5-date" data-ph="예) 2026년 3월 15일"></span></p><br>
       <p style="text-align:center;font-weight:700;font-size:15px;"><span id="d5-company2"></span></p><br>
       
     </div>
@@ -654,7 +771,7 @@ textarea{resize:vertical;min-height:70px;}
 <div id="page-doc6" class="page">
   <div class="topbar">
     <div><h1>이사회결의서</h1><div class="topbar-sub">퇴직금 실제 지급 시 사용 / 파란 밑줄 항목 직접 수정</div></div>
-    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint()">인쇄 / PDF</button></div>
+    <div class="btn-group"><button class="btn btn-sm" onclick="doPrint('doc6')">인쇄 / PDF</button></div>
   </div>
   <div class="doc-wrap">
     <div class="doc-toolbar"><span>이사회결의서 — 임원 퇴직금 지급의 건</span></div>
@@ -663,7 +780,7 @@ textarea{resize:vertical;min-height:70px;}
       <p style="text-align:right;font-size:12px;color:#6b7280;">(임원 퇴직금 지급 결의)</p><br>
       <table class="doc-info-table">
         <tr><td>회 사 명</td><td><span class="editable" contenteditable id="d6-company" data-ph="회사명"></span></td></tr>
-        <tr><td>회의 일시</td><td><span class="editable" contenteditable id="d6-date" data-ph="예) 2025년 3월 15일"></span> &nbsp; <span class="editable" contenteditable id="d6-time" data-ph="예) 오전 10시 00분"></span></td></tr>
+        <tr><td>회의 일시</td><td><span class="editable" contenteditable id="d6-date" data-ph="예) 2026년 3월 15일"></span> &nbsp; <span class="editable" contenteditable id="d6-time" data-ph="예) 오전 10시 00분"></span></td></tr>
         <tr><td>회의 장소</td><td><span class="editable" contenteditable id="d6-place" data-ph="예) 본점 회의실"></span></td></tr>
         <tr><td>출석 이사</td><td><span class="editable" contenteditable id="d6-attend" data-ph="예) 2명 (재적이사 2명 / 과반수 충족)"></span></td></tr>
         <tr><td>의 &nbsp;&nbsp;&nbsp; 장</td><td>대표이사 <span class="editable" contenteditable id="d6-ceo" data-ph="대표이사 성명"></span></td></tr>
@@ -676,11 +793,11 @@ textarea{resize:vertical;min-height:70px;}
         <tr><th style="width:180px;">구 분</th><th>내 용</th><th style="width:120px;">비 고</th></tr>
         <tr><td>퇴임자 직위·성명</td><td><span class="editable" contenteditable data-ph="예) 대표이사 홍길동"></span></td><td class="c">등기임원</td></tr>
         <tr><td>취 임 일</td><td><span class="editable" contenteditable data-ph="예) 2019년 7월 31일"></span></td><td></td></tr>
-        <tr><td>퇴 임 일</td><td><span class="editable" contenteditable data-ph="예) 2025년 3월 15일"></span></td><td></td></tr>
+        <tr><td>퇴 임 일</td><td><span class="editable" contenteditable data-ph="예) 2026년 3월 15일"></span></td><td></td></tr>
         <tr><td>근 속 기 간</td><td><span class="editable" contenteditable data-ph="예) 5년 7개월"></span></td><td class="c">역년 계산</td></tr>
-        <tr><td>최근 3년 연평균 환산액</td><td>금 <span class="editable" contenteditable data-ph="금액"></span> 원</td><td class="c">3년 총보수 ÷ 3</td></tr>
-        <tr><td>규정상 한도액</td><td>금 <span class="editable" contenteditable data-ph="금액"></span> 원</td><td class="c">세무사 확인</td></tr>
-        <tr><td><strong>실 제 지 급 액</strong></td><td><strong>금 <span class="editable" contenteditable data-ph="금액"></span> 원</strong></td><td class="c">이사회 결의</td></tr>
+        <tr><td>최근 3년 연평균 환산액</td><td>금 <span class="editable editable-num" contenteditable data-ph="금액"></span> 원</td><td class="c">3년 총보수 ÷ 3</td></tr>
+        <tr><td>규정상 한도액</td><td>금 <span class="editable editable-num" contenteditable data-ph="금액"></span> 원</td><td class="c">세무사 확인</td></tr>
+        <tr><td><strong>실 제 지 급 액</strong></td><td><strong>금 <span class="editable editable-num" contenteditable data-ph="금액"></span> 원</strong></td><td class="c">이사회 결의</td></tr>
         <tr><td>감액 사유</td><td><span class="editable" contenteditable data-ph="없음 / 또는 사유 기재"></span></td><td></td></tr>
         <tr><td>지 급 방 법</td><td><span class="editable" contenteditable data-ph="일시금 / IRP 이체"></span></td><td class="c">해당 선택</td></tr>
         <tr><td>지급 예정일</td><td><span class="editable" contenteditable data-ph="퇴임일로부터 14일 이내"></span></td><td></td></tr>
@@ -689,9 +806,9 @@ textarea{resize:vertical;min-height:70px;}
       <p><strong>【 퇴직소득세 원천징수 계획 】</strong></p>
       <p style="margin-left:16px;">산출 퇴직소득세 (지방세 포함): 금 <span class="editable" contenteditable data-ph="금액"></span> 원 (세무사 계산서 첨부)<br>
       실수령액: 금 <span class="editable" contenteditable data-ph="금액"></span> 원</p><br>
-      <p style="color:#dc2626;"><strong>【 주의사항 】</strong><br>
+      <p class="print-hide" style="color:#dc2626;"><strong>【 주의사항 】</strong><br>
       ▶ 이사회가 처음부터 적은 금액으로 결의 → 결의액만 원천징수 (적법)<br>
-      ▶ 한도액 결의 후 임원이 사후 포기 → 포기액에도 과세 (서이46013-10121) (위험)</p><br>
+      ▶ 한도액 결의 후 임원이 사후 포기 → 포기액에도 과세 (서이46013-10121) (위험)</p><br class="print-hide">
       <table class="doc-table vote-table">
         <tr><th>표결</th><th>찬 성</th><th>반 대</th><th>기 권</th></tr>
         <tr><td class="c">이사 수</td>
@@ -702,7 +819,7 @@ textarea{resize:vertical;min-height:70px;}
       <div class="result-box">결 의 : 원안대로 가결되다.</div>
       <br>
       <p>위 결의를 명확히 하기 위하여 이 결의서를 작성하고 출석한 이사 전원이 기명날인한다.</p>
-      <p style="text-align:right;margin-top:8px;"><span class="editable" contenteditable id="d6-sign-date" data-ph="예) 2025년 3월 15일"></span></p><br>
+      <p style="text-align:right;margin-top:8px;"><span class="editable" contenteditable id="d6-sign-date" data-ph="예) 2026년 3월 15일"></span></p><br>
       <p style="text-align:center;font-weight:700;font-size:15px;"><span id="d6-company2"></span></p><br>
       <div id="d6-sign-wrap"></div>
       <div class="note-box">
@@ -713,17 +830,71 @@ textarea{resize:vertical;min-height:70px;}
   </div>
 </div>
 
+<!-- ══ 일괄 출력 ══ -->
+<div id="page-bulk" class="page">
+  <div class="topbar">
+    <div><h1>일괄 출력</h1><div class="topbar-sub">출력할 문서를 선택한 뒤 미리보기 확인 후 인쇄하세요</div></div>
+  </div>
+
+  <div class="bulk-card">
+    <div class="card-title">출력 대상 문서 선택</div>
+    <div class="hint" style="margin-bottom:10px;">기본적으로 모든 문서가 선택되어 있습니다. 필요 시 체크박스로 제외할 수 있습니다.</div>
+    <div class="bulk-doc-list">
+      <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc1" checked onchange="toggleBulkItem(this)"><span class="bd-label">① 주주총회 의사록</span></label>
+      <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc2" checked onchange="toggleBulkItem(this)"><span class="bd-label">② 개정 정관</span></label>
+      <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc3" checked onchange="toggleBulkItem(this)"><span class="bd-label">③ 임원보수지급규정</span></label>
+      <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc4" checked onchange="toggleBulkItem(this)"><span class="bd-label">④ 임원퇴직금지급규정</span></label>
+      <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc5" checked onchange="toggleBulkItem(this)"><span class="bd-label">⑤ 유족보상금지급규정</span></label>
+      <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc6" checked onchange="toggleBulkItem(this)"><span class="bd-label">⑥ 이사회결의서</span></label>
+    </div>
+    <div class="bulk-toolbar">
+      <button class="btn btn-sm" onclick="bulkSelectAll(true)">전체 선택</button>
+      <button class="btn btn-sm" onclick="bulkSelectAll(false)">전체 해제</button>
+      <button class="btn btn-sm" onclick="buildBulkPreview()">🔍 미리보기 새로고침</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-primary" onclick="bulkPrint()">🖨 선택 문서 인쇄</button>
+    </div>
+  </div>
+
+  <div id="bulk-preview" class="bulk-preview">
+    <div class="bulk-preview-empty">위 '미리보기 새로고침' 버튼을 누르거나 이 페이지에 진입하면 미리보기가 표시됩니다.</div>
+  </div>
+</div>
+
 </main>
 </div>
 
 <script>
-/* ── 인쇄 (헤더·푸터·URL 제거) ── */
-function doPrint() {
-  // 기존 title 저장 후 빈 문자열로 바꾸면 일부 브라우저 헤더 제거
+/* ── 인쇄 (헤더·푸터·URL 제거 + PDF 파일명 제안) ── */
+const DOC_NAMES = {
+  doc1: '주주총회 의사록',
+  doc2: '개정 정관',
+  doc3: '임원보수지급규정',
+  doc4: '임원퇴직금지급규정',
+  doc5: '유족보상금지급규정',
+  doc6: '이사회결의서'
+};
+
+/* 인쇄 직전 document.title을 변경하면 PDF로 저장 시 파일명 후보가 됨.
+   afterprint 이벤트로 안정적으로 원복한다. */
+function _printWithTitle(filename){
   const origTitle = document.title;
-  document.title = '';
+  document.title = filename;
+  const restore = () => {
+    document.title = origTitle;
+    window.removeEventListener('afterprint', restore);
+  };
+  window.addEventListener('afterprint', restore);
+  // 일부 환경(모바일 등) 안전망: 60초 후 강제 복원
+  setTimeout(() => { if(document.title === filename) document.title = origTitle; }, 60000);
   window.print();
-  setTimeout(() => { document.title = origTitle; }, 500);
+}
+
+function doPrint(docId) {
+  const company = (document.getElementById('i-company')?.value || '').trim();
+  const docName = DOC_NAMES[docId] || '문서';
+  const fname = (company ? company + '_' : '') + docName;
+  _printWithTitle(fname);
 }
 
 /* ── 공통 유틸: 전역 set ── */
@@ -752,6 +923,85 @@ function fmtCommaWon(el) {
   const raw = el.value.replace(/[^0-9]/g, '');
   if(raw === '') { el.value = ''; return; }
   el.value = Number(raw).toLocaleString('ko-KR');
+}
+/* 숫자만 입력 + 천단위 컴마 (단위는 입력란 외부에 분리 표시) */
+function fmtNumberInput(el){
+  const raw = el.value.replace(/[^0-9]/g, '');
+  el.value = raw ? Number(raw).toLocaleString('ko-KR') : '';
+}
+
+/* contenteditable 금액 span 자동 컴마 (커서 위치 보존) */
+function fmtCommaEditable(el){
+  const sel = window.getSelection();
+  // 커서 앞쪽의 '숫자 글자 수' 기록
+  let digitsBeforeCursor = 0;
+  if(sel && sel.rangeCount > 0 && el.contains(sel.anchorNode)){
+    try{
+      const range = sel.getRangeAt(0);
+      const preRange = range.cloneRange();
+      preRange.selectNodeContents(el);
+      preRange.setEnd(range.endContainer, range.endOffset);
+      digitsBeforeCursor = preRange.toString().replace(/[^0-9]/g, '').length;
+    }catch(e){ /* ignore */ }
+  }
+  const raw = el.textContent.replace(/[^0-9]/g, '');
+  const formatted = raw ? Number(raw).toLocaleString('ko-KR') : '';
+  if(el.textContent === formatted) return;
+  el.textContent = formatted;
+  // 커서 복원: formatted 에서 digitsBeforeCursor 번째 숫자 다음 위치로
+  if(formatted && el.firstChild){
+    let pos = 0, digits = 0;
+    while(pos < formatted.length && digits < digitsBeforeCursor){
+      if(/[0-9]/.test(formatted[pos])) digits++;
+      pos++;
+    }
+    try{
+      const r = document.createRange();
+      r.setStart(el.firstChild, Math.min(pos, formatted.length));
+      r.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }catch(e){ /* ignore */ }
+  }
+}
+
+/* 전역 위임 핸들러: editable-num 클래스가 있는 contenteditable 자동 컴마 */
+document.addEventListener('input', e => {
+  const t = e.target;
+  if(t && t.classList && t.classList.contains('editable-num')){
+    fmtCommaEditable(t);
+  }
+});
+
+/* ── 날짜 선택 (달력) → 한국식 텍스트 자동 변환 ── */
+function openDatePicker(pickerId, textId){
+  const picker = document.getElementById(pickerId);
+  const text   = document.getElementById(textId);
+  if(!picker) return;
+  // 기존 텍스트가 한국식이면 picker의 기본값으로 변환해 두기
+  if(text && text.value){
+    const m = text.value.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+    if(m){
+      const yyyy = m[1];
+      const mm   = String(parseInt(m[2],10)).padStart(2,'0');
+      const dd   = String(parseInt(m[3],10)).padStart(2,'0');
+      picker.value = `${yyyy}-${mm}-${dd}`;
+    }
+  }
+  if(typeof picker.showPicker === 'function'){
+    try { picker.showPicker(); return; } catch(e) { /* fallthrough */ }
+  }
+  picker.focus();
+  picker.click();
+}
+function syncDateText(dateEl){
+  const targetId = dateEl.getAttribute('data-target');
+  const text = document.getElementById(targetId);
+  if(!text) return;
+  const v = dateEl.value; // YYYY-MM-DD
+  if(!v) return;
+  const [y,m,d] = v.split('-');
+  text.value = `${y}년 ${m}월 ${d}일`;
 }
 
 /* ── 공고방법 선택 처리 ── */
@@ -926,18 +1176,27 @@ function refreshSignTables() {
 /* ── 모든 문서에 적용 ── */
 function applyAll() {
   const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  // 입력란이 숫자만 받기 때문에 문서 출력 시 단위(주/원)를 자동 부착
+  const withUnit = (val, unit) => {
+    if(!val) return '';
+    return /[주원개월년일]\s*$/.test(val) ? val : val + unit;
+  };
 
   // 공고방법 문구 생성
   const noticeText = getNoticeText();
+
+  const sharesV   = g('i-shares');
+  const maxsharesV = g('i-maxshares');
+  const parvalV   = g('i-parval');
 
   const v = {
     company:     g('i-company'),
     ceo:         g('i-ceo'),
     addr:        g('i-addr'),
-    shares:      g('i-shares'),
-    maxshares:   g('i-maxshares'),
-    parval:      g('i-parval'),
-    issued:      g('i-shares'),
+    shares:      withUnit(sharesV, '주'),
+    maxshares:   withUnit(maxsharesV, '주'),
+    parval:      withUnit(parvalV, '원'),
+    issued:      withUnit(sharesV, '주'),
     notice:      noticeText,
     purpose:     g('i-purpose'),
     date:        g('i-approvedate'),
@@ -1176,7 +1435,8 @@ function initOptUI(tp) {
     wrap.innerHTML = '';
     OPT_LIST.filter(o => o.cat === cat).forEach(o => {
       const visible = !o.showFor || o.showFor.includes(tp);
-      const checked = o.def.includes(tp);
+      // 소규모 기본형(sm) 선택 시 화면에 표시되는 항목은 모두 체크
+      const checked = tp === 'sm' ? visible : o.def.includes(tp);
       const item = document.createElement('label');
       item.className = 'opt-item' + (visible ? '' : ' disabled');
       item.innerHTML = `<input type="checkbox" id="opt-${o.k}" ${checked?'checked':''} ${visible?'':'disabled'}>
@@ -1389,16 +1649,380 @@ function buildJeongGwan(vals) {
   const dt = vals.date || '';
   html += `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;">
   <div style="text-align:center;margin-bottom:12px;">부 &nbsp;&nbsp; 칙</div>
-  <div class="art-body">이 정관은 <span class="editable" contenteditable id="d2-date" data-ph="예) 2025년 3월 15일">${dt}</span> 주주총회 결의일부터 시행한다.</div>
+  <div class="art-body">이 정관은 <span class="editable" contenteditable id="d2-date" data-ph="예) 2026년 3월 15일">${dt}</span> 주주총회 결의일부터 시행한다.</div>
 </div>
 <br><br>
 <p style="text-align:center;">위 정관은 본 회사의 정관임이 틀림 없음.</p>
-<p style="text-align:center;margin-top:8px;"><span class="editable" contenteditable id="d2-date2" data-ph="예) 2025년 3월 15일">${dt}</span></p><br>
+<p style="text-align:center;margin-top:8px;"><span class="editable" contenteditable id="d2-date2" data-ph="예) 2026년 3월 15일">${dt}</span></p><br>
 <p style="text-align:center;font-size:15px;font-weight:700;"><span id="d2-company3">${vals.company||''}</span></p><br>
 <div id="d2-sign-wrap"></div>`;
 
   return html;
 }
+
+/* ════════════════════════════════════════
+   저장 / 불러오기 / 삭제 (localStorage)
+   ════════════════════════════════════════ */
+const STORAGE_KEY = 'jeonggwan_saves_v1';
+
+function escAttr(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escHtml(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function loadSaveList(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  }catch(e){
+    console.warn('저장 데이터 로드 실패:', e);
+    return [];
+  }
+}
+function persistSaveList(list){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }catch(e){
+    alert('저장 실패: 로컬 저장 용량이 부족하거나 브라우저가 저장을 차단했을 수 있습니다.\n' + e.message);
+    throw e;
+  }
+}
+
+/* 현재 화면 상태 → JSON 직렬화 */
+function gatherSaveData(){
+  const data = {
+    inputs:{}, options:{}, jgType:'sm',
+    chgRows:[], chgBulk:true,
+    editables:{}, d2bodyHTML:''
+  };
+
+  // 기본정보 입력의 모든 input/select/textarea
+  document.querySelectorAll('#page-input input, #page-input select, #page-input textarea').forEach(el => {
+    if(!el.id) return;
+    if(el.id === 'save-name') return;     // 저장 이름은 별도
+    if(el.id.startsWith('opt-')) return;  // 옵션은 따로
+    if(el.id === 'chg-bulk') return;      // 따로
+    if(el.type === 'checkbox') data.inputs[el.id] = el.checked;
+    else data.inputs[el.id] = el.value;
+  });
+
+  // 임원 입력란 (officer-rows 안의 동적 input들)
+  document.querySelectorAll('#officer-rows input').forEach(el => {
+    if(el.id) data.inputs[el.id] = el.value;
+  });
+
+  // 정관 유형
+  const tp = document.querySelector('input[name="jg-type"]:checked');
+  data.jgType = tp ? tp.value : 'sm';
+
+  // 옵션 체크박스 (OPT_LIST 기준)
+  OPT_LIST.forEach(o => {
+    const el = document.getElementById('opt-' + o.k);
+    if(el) data.options['opt-' + o.k] = el.checked;
+  });
+
+  // 변경표 행
+  const chgBody = document.getElementById('chg-body');
+  if(chgBody){
+    chgBody.querySelectorAll('tr').forEach(tr => {
+      const inputs = tr.querySelectorAll('input[type=text]');
+      const sel = tr.querySelector('select');
+      data.chgRows.push({
+        before: inputs[0]?.value || '',
+        after:  inputs[1]?.value || '',
+        type:   sel?.value || '신설',
+        desc:   inputs[2]?.value || '',
+        auto:   tr.getAttribute('data-auto') === '1'
+      });
+    });
+  }
+  data.chgBulk = !!document.getElementById('chg-bulk')?.checked;
+
+  // 문서별 contenteditable 편집값
+  document.querySelectorAll('.editable[contenteditable]').forEach(el => {
+    if(el.id) data.editables[el.id] = el.innerHTML;
+  });
+
+  // 동적 생성되는 정관(d2) 본문 HTML 통째로 보존 (사용자 편집 반영)
+  const d2 = document.getElementById('d2-body');
+  if(d2) data.d2bodyHTML = d2.innerHTML;
+
+  return data;
+}
+
+/* JSON → 화면 복원 */
+function applyLoadedData(data){
+  if(!data) return;
+
+  // 1) 기본 입력값 복원
+  Object.entries(data.inputs || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(el.type === 'checkbox') el.checked = !!val;
+    else el.value = val == null ? '' : val;
+  });
+
+  // 2) 임원 행 갱신 (이사/감사 수가 변경되었을 수 있음)
+  updateOfficerRows();
+  // updateOfficerRows() 이후 임원 직위명(off-*)을 복원 (기본값 덮어쓰기)
+  Object.entries(data.inputs || {}).forEach(([id, val]) => {
+    if(/^off-/.test(id)){
+      const el = document.getElementById(id);
+      if(el) el.value = val == null ? '' : val;
+    }
+  });
+  // 숫자 입력 정규화 (구버전 저장본의 '10,000주' 같은 값에서 단위 제거 + 컴마 재포맷)
+  ['i-shares','i-maxshares','i-parval','i-salarylimit'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && typeof fmtNumberInput === 'function') fmtNumberInput(el);
+  });
+
+  // 3) 정관 유형 복원 (selectType 호출 시 옵션 UI도 초기화됨)
+  if(data.jgType) selectType(data.jgType);
+
+  // 4) 옵션 체크박스 복원 (selectType 후 덮어쓰기)
+  Object.entries(data.options || {}).forEach(([id, checked]) => {
+    const el = document.getElementById(id);
+    if(el) el.checked = !!checked;
+  });
+
+  // 5) 변경표 복원
+  const chgBody = document.getElementById('chg-body');
+  if(chgBody){
+    chgBody.innerHTML = '';
+    (data.chgRows || []).forEach(r => {
+      const tr = document.createElement('tr');
+      if(r.auto) tr.setAttribute('data-auto','1');
+      const typeOpts = CHG_TYPES.map(t =>
+        `<option value="${t}"${t===r.type?' selected':''}>${escHtml(t)}</option>`).join('');
+      tr.innerHTML = `
+        <td><input type="text" value="${escAttr(r.before)}"></td>
+        <td><input type="text" value="${escAttr(r.after)}"></td>
+        <td><select>${typeOpts}</select></td>
+        <td><input type="text" value="${escAttr(r.desc)}"></td>
+        <td><button class="del-btn" onclick="removeChgRow(this)" title="삭제">✕</button></td>`;
+      chgBody.appendChild(tr);
+    });
+  }
+  const bulkEl = document.getElementById('chg-bulk');
+  if(bulkEl) bulkEl.checked = data.chgBulk !== false;
+
+  // 6) 공고방법 표시 상태 동기화
+  handleNoticeSelect();
+
+  // 7) 모든 문서에 반영
+  applyAll();
+
+  // 8) 정관(d2-body) 사용자 편집 내용 복원
+  if(data.d2bodyHTML){
+    const d2 = document.getElementById('d2-body');
+    if(d2) d2.innerHTML = data.d2bodyHTML;
+  }
+
+  // 9) 다른 문서 contenteditable 편집값 복원 (applyAll의 기본 채움값을 덮어씀)
+  Object.entries(data.editables || {}).forEach(([id, html]) => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = html;
+  });
+
+  // 서명란 등 재갱신
+  refreshSignTables();
+}
+
+function formatDateTime(d){
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function saveCurrentData(){
+  const list = loadSaveList();
+  const nameInput = document.getElementById('save-name');
+  const companyName = document.getElementById('i-company')?.value.trim();
+  let name = (nameInput?.value || '').trim();
+  if(!name){
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    name = (companyName || '이름없는 정관') + ' ' + dateStr;
+  }
+  // 동일 이름이 있으면 덮어쓰기 확인
+  const existIdx = list.findIndex(it => it.name === name);
+  if(existIdx >= 0){
+    if(!confirm(`'${name}' 이름의 저장본이 이미 있습니다. 덮어쓸까요?`)) return;
+  }
+  const now = new Date();
+  const entry = {
+    id: existIdx >= 0 ? list[existIdx].id : (Date.now() + '_' + Math.floor(Math.random()*1000)),
+    name,
+    createdAt: existIdx >= 0 ? list[existIdx].createdAt : formatDateTime(now),
+    updatedAt: formatDateTime(now),
+    data: gatherSaveData()
+  };
+  if(existIdx >= 0) list[existIdx] = entry;
+  else list.unshift(entry);
+  persistSaveList(list);
+  if(nameInput) nameInput.value = '';
+  renderSaveList();
+  alert(`저장되었습니다: ${name}`);
+}
+
+function loadSaveById(id){
+  const list = loadSaveList();
+  const it = list.find(e => e.id === id);
+  if(!it){ alert('저장 항목을 찾을 수 없습니다.'); return; }
+  if(!confirm(`'${it.name}' 을(를) 불러옵니다.\n현재 화면의 내용은 덮어쓰여집니다. 계속하시겠습니까?`)) return;
+  applyLoadedData(it.data);
+  // 저장 이름란에 채워두면 이어서 같은 이름으로 덮어쓰기 편함
+  const nm = document.getElementById('save-name');
+  if(nm) nm.value = it.name;
+  alert(`'${it.name}' 불러오기 완료`);
+}
+
+function deleteSaveById(id){
+  const list = loadSaveList();
+  const it = list.find(e => e.id === id);
+  if(!it) return;
+  if(!confirm(`'${it.name}' 을(를) 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.`)) return;
+  const next = list.filter(e => e.id !== id);
+  persistSaveList(next);
+  renderSaveList();
+}
+
+function renameSaveById(id){
+  const list = loadSaveList();
+  const it = list.find(e => e.id === id);
+  if(!it) return;
+  const newName = prompt('새 이름을 입력하세요:', it.name);
+  if(newName == null) return;
+  const trimmed = newName.trim();
+  if(!trimmed){ alert('이름은 비워둘 수 없습니다.'); return; }
+  if(list.some(e => e.id !== id && e.name === trimmed)){
+    alert('같은 이름의 다른 저장본이 이미 있습니다.'); return;
+  }
+  it.name = trimmed;
+  it.updatedAt = formatDateTime(new Date());
+  persistSaveList(list);
+  renderSaveList();
+}
+
+function confirmClearAll(){
+  const list = loadSaveList();
+  if(list.length === 0){ alert('저장된 데이터가 없습니다.'); return; }
+  if(!confirm(`저장된 ${list.length}건을 모두 삭제합니다.\n복구할 수 없습니다. 계속하시겠습니까?`)) return;
+  if(!confirm('정말로 모두 삭제하시겠습니까? (마지막 확인)')) return;
+  persistSaveList([]);
+  renderSaveList();
+}
+
+function renderSaveList(){
+  const wrap = document.getElementById('save-list');
+  if(!wrap) return;
+  const list = loadSaveList();
+  if(list.length === 0){
+    wrap.innerHTML = `<div class="save-list-empty">저장된 데이터가 없습니다. 위에 이름을 입력(선택)하고 💾 저장 버튼을 누르세요.</div>`;
+    return;
+  }
+  let html = `<div class="save-list-header"><div>이름</div><div>마지막 저장</div><div></div><div></div><div></div></div>`;
+  list.forEach(it => {
+    html += `<div class="save-row">
+      <div class="sv-name" title="${escAttr(it.name)}">${escHtml(it.name)}</div>
+      <div class="sv-date">${escHtml(it.updatedAt || it.createdAt || '')}</div>
+      <button class="sv-btn sv-btn-load" onclick="loadSaveById('${escAttr(it.id)}')">불러오기</button>
+      <button class="sv-btn sv-btn-rename" onclick="renameSaveById('${escAttr(it.id)}')">이름변경</button>
+      <button class="sv-btn-del" onclick="deleteSaveById('${escAttr(it.id)}')" title="삭제">✕</button>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+/* ════════════════════════════════════════
+   일괄 출력 + 미리보기
+   ════════════════════════════════════════ */
+const BULK_DOC_TITLES = {
+  doc1: '주주총회 의사록',
+  doc2: '개정 정관',
+  doc3: '임원보수지급규정',
+  doc4: '임원퇴직금지급규정',
+  doc5: '유족보상금지급규정',
+  doc6: '이사회결의서'
+};
+
+function toggleBulkItem(cb){
+  const item = cb.closest('.bulk-doc-item');
+  if(item) item.classList.toggle('checked', cb.checked);
+}
+
+function bulkSelectAll(check){
+  document.querySelectorAll('.bulk-doc-chk').forEach(cb => {
+    cb.checked = !!check;
+    const item = cb.closest('.bulk-doc-item');
+    if(item) item.classList.toggle('checked', !!check);
+  });
+}
+
+function getSelectedBulkDocs(){
+  return [...document.querySelectorAll('.bulk-doc-chk')]
+    .filter(cb => cb.checked)
+    .map(cb => cb.getAttribute('data-doc'));
+}
+
+function buildBulkPreview(){
+  const preview = document.getElementById('bulk-preview');
+  if(!preview) return;
+  const selected = getSelectedBulkDocs();
+  if(selected.length === 0){
+    preview.innerHTML = `<div class="bulk-preview-empty">선택된 문서가 없습니다. 위에서 출력할 문서를 선택하세요.</div>`;
+    return;
+  }
+  let html = '';
+  selected.forEach((docId, idx) => {
+    const pageEl = document.getElementById('page-' + docId);
+    if(!pageEl) return;
+    const wrap = pageEl.querySelector('.doc-wrap');
+    if(!wrap) return;
+    // 복사한 후 편집 가능 표시는 미리보기에서 비활성화
+    const clone = wrap.cloneNode(true);
+    clone.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable','false'));
+    // 미리보기용 툴바 텍스트 갱신
+    const tb = clone.querySelector('.doc-toolbar span');
+    if(tb) tb.textContent = `${idx+1}. ${BULK_DOC_TITLES[docId] || docId}`;
+    html += clone.outerHTML;
+    if(idx < selected.length - 1){
+      html += `<div class="page-break-marker">— 페이지 구분 —</div>`;
+    }
+  });
+  preview.innerHTML = html;
+}
+
+function bulkPrint(){
+  const selected = getSelectedBulkDocs();
+  if(selected.length === 0){ alert('출력할 문서를 1개 이상 선택해주세요.'); return; }
+  // 미리보기 최신화 후 출력
+  buildBulkPreview();
+  const company = (document.getElementById('i-company')?.value || '').trim();
+  // 선택된 문서가 1개면 그 문서명, 2개 이상이면 '정관 등'
+  let fname;
+  if(selected.length === 1){
+    fname = (company ? company + '_' : '') + (DOC_NAMES[selected[0]] || '문서');
+  } else {
+    fname = (company ? company + '_' : '') + '정관 등';
+  }
+  // 약간의 지연 후 인쇄 (DOM 반영 보장)
+  setTimeout(() => { _printWithTitle(fname); }, 50);
+}
+
+/* ── 페이지 전환 훅: 일괄 출력 페이지 진입 시 미리보기 빌드 ── */
+const _origShowPage = showPage;
+showPage = function(id, el){
+  _origShowPage(id, el);
+  if(id === 'bulk') buildBulkPreview();
+};
 
 /* ── 초기화 ── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -1415,6 +2039,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const d2body = document.getElementById('d2-body');
   if(d2body) d2body.innerHTML = buildJeongGwan({});
   refreshSignTables();
+
+  // 저장 리스트 초기 렌더
+  renderSaveList();
+
+  // 단위 표시 초기 정규화 (구버전 호환)
+  ['i-shares','i-maxshares','i-parval','i-salarylimit'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.value) fmtNumberInput(el);
+  });
 });
 </script>
 </body>
