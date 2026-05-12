@@ -1312,7 +1312,7 @@
 // Firebase Firestore - 데이터를 먼저 불러온 뒤 앱 초기화
 // ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, deleteDoc, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const _fbConfig = {
     apiKey: "AIzaSyAvMQ7zeug3besBpJu6jPrr9tViH7Gk3ys",
@@ -1324,21 +1324,25 @@ const _fbConfig = {
 };
 const _fbApp  = initializeApp(_fbConfig);
 const _fbDb   = getFirestore(_fbApp);
-const _fbClientsRef = doc(_fbDb, 'taxData', 'taxClients');
+const _fbClientsRefLegacy = doc(_fbDb, 'taxData', 'taxClients');  // 구버전 단일문서 (마이그레이션 전용)
+const _fbClientsCol = collection(_fbDb, 'taxClients');                // 신버전: 거래처별 개별 문서
 const _fbShiftRef   = doc(_fbDb, 'taxData', 'shiftBackup');
+const _fbClientsRef = _fbClientsRefLegacy; // 하위 호환 (window._fbClientsRef 참조 대비)
 
 // ── 인메모리 캐시 (localStorage를 완전 대체) ──────────────────
 window._fbClientsCache = {};
 window._fbShiftCache   = null;
 window._fbReady        = false;   // 데이터 로드 완료 후 true → 엑셀 업로드/내보내기 활성화
 window._fbPendingCount = 0;        // 현재 저장 대기 중인 쓰기 개수
+window._fbLocalWrites  = new Map(); // 내 기기의 최근 쓰기 (스냅샷 외부변경 알림 억제용)
+window._fbSyncOn       = false;    // onSnapshot 활성 여부
 
 // ── 저장 상태 토스트 (오른쪽 아래 작게) ──────────────────────
 let _saveToast = null;
 function _showSaveToast(text, color, autoHide) {
     if (!_saveToast) {
         _saveToast = document.createElement('div');
-        _saveToast.style.cssText = 'position:fixed;bottom:18px;right:18px;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;color:#fff;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.25);transition:opacity 0.25s;pointer-events:none;';
+        _saveToast.style.cssText = 'position:fixed;top:18px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;color:#fff;z-index:99999;box-shadow:0 3px 10px rgba(0,0,0,0.25);transition:opacity 0.25s;pointer-events:none;white-space:nowrap;';
         document.body.appendChild(_saveToast);
     }
     _saveToast.style.background = color;
@@ -1349,6 +1353,10 @@ function _showSaveToast(text, color, autoHide) {
         _saveToast._t = setTimeout(() => { if (_saveToast) _saveToast.style.opacity = '0'; }, 1800);
     }
 }
+
+// ── 모듈 외부(일반 script)에서 접근할 수 있도록 window에 노출 ──
+window._fbClientsRef = _fbClientsRef;
+window._fbShiftRef   = _fbShiftRef;
 
 // ── 직렬 저장 큐 (이전 저장이 끝나야 다음 저장 실행 → 순서 보장 + 동시 쓰기 방지) ──
 let _saveQueue = Promise.resolve();
@@ -1374,6 +1382,7 @@ function _enqueueSave(ref, data, label) {
         if (lastErr) {
             console.error('[FB] ' + label + ' 저장 실패:', lastErr);
             _showSaveToast('❌ 저장 실패 (' + lastErr.code + ') — 새로고침 전 확인!', '#dc2626', false);
+            throw lastErr; // saveData의 catch로 에러 전달
         } else if (window._fbPendingCount === 0) {
             _showSaveToast('✅ 저장됨', '#059669', true);
         }
@@ -1381,6 +1390,70 @@ function _enqueueSave(ref, data, label) {
     _saveQueue = job;
     return job;
 }
+window._enqueueSave = _enqueueSave; // saveData에서 호출할 수 있게 노출
+
+// ── 거래처 단건 저장/삭제 (개별 문서 방식) ─────────────────────
+// Firestore doc ID로 사용할 수 없는 문자 정리
+function _safeDocId(name) {
+    let s = String(name == null ? '' : name).trim();
+    if (!s) return '_empty';
+    s = s.replace(/\//g, '／'); // forward slash 금지 → 전각 슬래시
+    if (s === '.' || s === '..') s = '_dots_';
+    if (/^__.*__$/.test(s)) s = '_' + s + '_'; // 예약 패턴 회피
+    if (s.length > 1500) s = s.slice(0, 1500); // doc ID 1500바이트 제한
+    return s;
+}
+
+async function _saveOneClient(name, data) {
+    const ref = doc(_fbClientsCol, _safeDocId(name));
+    // 원본 거래처명을 _name 필드에 저장 (sanitize된 ID에서 복원용)
+    await setDoc(ref, Object.assign({}, data, { _name: name }));
+}
+
+async function _deleteOneClient(name) {
+    await deleteDoc(doc(_fbClientsCol, _safeDocId(name)));
+}
+
+// 작업 큐로 감싸기 (재시도·순서보장)
+function _enqueueClientOp(op, label) {
+    window._fbPendingCount++;
+    _showSaveToast('💾 ' + label + ' 저장 중...', '#2563eb', false);
+    const job = _saveQueue.then(async () => {
+        let lastErr = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try { await op(); lastErr = null; break; }
+            catch(e) { lastErr = e; if (attempt < 3) await new Promise(r => setTimeout(r, 600 * attempt)); }
+        }
+        window._fbPendingCount--;
+        if (lastErr) {
+            console.error('[FB] ' + label + ' 실패:', lastErr);
+            _showSaveToast('❌ 저장 실패 (' + (lastErr.code || lastErr.message) + ')', '#dc2626', false);
+            throw lastErr;
+        } else if (window._fbPendingCount === 0) {
+            _showSaveToast('✅ 저장됨', '#059669', true);
+        }
+    });
+    _saveQueue = job;
+    return job;
+}
+
+function _enqueueSaveClient(name, data) {
+    // 낙관적 캐시 갱신 (UI는 즉시 반영, 실패 시 onSnapshot이 복원)
+    window._fbClientsCache = Object.assign({}, window._fbClientsCache, { [name]: data });
+    window._fbLocalWrites.set(name, Date.now());
+    return _enqueueClientOp(() => _saveOneClient(name, data), '거래처 [' + name + ']');
+}
+
+function _enqueueDeleteClient(name) {
+    const nc = Object.assign({}, window._fbClientsCache);
+    delete nc[name];
+    window._fbClientsCache = nc;
+    window._fbLocalWrites.set(name, Date.now());
+    return _enqueueClientOp(() => _deleteOneClient(name), '거래처 [' + name + '] 삭제');
+}
+
+window._enqueueSaveClient = _enqueueSaveClient;
+window._enqueueDeleteClient = _enqueueDeleteClient;
 
 // localStorage 전체를 Firebase 연동 객체로 교체
 const _fbStorage = {
@@ -1391,9 +1464,33 @@ const _fbStorage = {
     },
     setItem(k, v) {
         if (k === 'taxClients') {
-            try { window._fbClientsCache = JSON.parse(v); }
+            // 들어온 객체를 현재 캐시와 비교해, 바뀐/추가된/삭제된 거래처만 개별 문서로 쓰기
+            let next;
+            try { next = JSON.parse(v) || {}; }
             catch(e) { console.error('[FB] 파싱 오류:', e); return; }
-            _enqueueSave(_fbClientsRef, window._fbClientsCache, '거래처');
+            const prev = window._fbClientsCache || {};
+            const allKeys = new Set([...Object.keys(prev), ...Object.keys(next)]);
+            let writes = 0, deletes = 0;
+            for (const key of allKeys) {
+                const inPrev = Object.prototype.hasOwnProperty.call(prev, key);
+                const inNext = Object.prototype.hasOwnProperty.call(next, key);
+                if (inNext && !inPrev) {
+                    _enqueueSaveClient(key, next[key]); writes++;
+                } else if (inNext && inPrev) {
+                    // 변경 여부 확인
+                    if (JSON.stringify(prev[key]) !== JSON.stringify(next[key])) {
+                        _enqueueSaveClient(key, next[key]); writes++;
+                    }
+                } else if (!inNext && inPrev) {
+                    _enqueueDeleteClient(key); deletes++;
+                }
+            }
+            // 명시적으로 캐시 동기화 (단건 API들이 각각 캐시를 갱신했지만 안전망)
+            window._fbClientsCache = next;
+            if (writes + deletes === 0) {
+                // 변경이 없으면 토스트 띄울 필요 없음
+                console.debug('[FB] setItem(taxClients): 변경 없음');
+            }
         } else if (k === '_taxShiftBackup') {
             window._fbShiftCache = v;
             _enqueueSave(_fbShiftRef, { data: v }, '이월백업');
@@ -1422,20 +1519,114 @@ _banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#2563eb;
 _banner.textContent = '☁ Firebase에서 데이터를 불러오는 중...';
 document.body.prepend(_banner);
 
-// ── Firebase에서 데이터 로드 후 앱 초기화 ─────────────────────
+// ── 자동 마이그레이션: 구버전 taxData/taxClients → 신버전 taxClients 컬렉션 ──
+async function _migrateLegacyIfNeeded() {
+    try {
+        const legacySnap = await getDoc(_fbClientsRefLegacy);
+        if (!legacySnap.exists()) return { migrated: 0, status: 'no-legacy' };
+        const legacyData = legacySnap.data() || {};
+        const legacyKeys = Object.keys(legacyData);
+        if (legacyKeys.length === 0) return { migrated: 0, status: 'empty-legacy' };
+        // 신버전 컬렉션이 비어있을 때만 마이그레이션 진행 (중복 회피)
+        const probe = await getDocs(query(_fbClientsCol, limit(1)));
+        if (!probe.empty) return { migrated: 0, status: 'already-migrated' };
+        // 한 건씩 복사
+        let count = 0;
+        for (const name of legacyKeys) {
+            try { await _saveOneClient(name, legacyData[name]); count++; }
+            catch(e) { console.error('[FB] 마이그레이션 실패:', name, e); }
+        }
+        return { migrated: count, status: 'ok' };
+    } catch(e) {
+        console.error('[FB] 마이그레이션 체크 실패:', e);
+        return { migrated: 0, status: 'error', error: e };
+    }
+}
+
+// ── Firebase 실시간 구독 + 초기 로드 ─────────────────────────
 (async () => {
     try {
-        const [clientsSnap, shiftSnap] = await Promise.all([
-            getDoc(_fbClientsRef),
-            getDoc(_fbShiftRef)
-        ]);
+        _banner.textContent = '☁ 데이터 마이그레이션 확인 중...';
+        const mig = await _migrateLegacyIfNeeded();
+        if (mig.migrated > 0) console.log('[FB] 마이그레이션 완료:', mig.migrated, '건');
 
-        if (clientsSnap.exists()) {
-            window._fbClientsCache = clientsSnap.data() || {};
-        }
+        _banner.textContent = '☁ 이월백업 로드 중...';
+        const shiftSnap = await getDoc(_fbShiftRef);
         if (shiftSnap.exists() && shiftSnap.data().data) {
             window._fbShiftCache = shiftSnap.data().data;
         }
+
+        _banner.textContent = '☁ 거래처 실시간 동기화 연결 중...';
+
+        // onSnapshot으로 컬렉션 구독 → 첫 스냅샷이 도착할 때까지 await
+        await new Promise((resolve, reject) => {
+            let firstSnap = true;
+            const unsub = onSnapshot(_fbClientsCol, (snap) => {
+                const prev = window._fbClientsCache || {};
+                const next = {};
+                snap.forEach(d => {
+                    const dat = d.data() || {};
+                    const realName = dat._name || d.id;
+                    const clean = Object.assign({}, dat);
+                    delete clean._name;
+                    next[realName] = clean;
+                });
+
+                if (firstSnap) {
+                    window._fbClientsCache = next;
+                    firstSnap = false;
+                    resolve();
+                    return;
+                }
+
+                // 외부 변경 감지 (내 기기의 최근 쓰기는 제외)
+                const now = Date.now();
+                const allKeys = new Set([...Object.keys(prev), ...Object.keys(next)]);
+                const externalChanged = [];
+                for (const key of allKeys) {
+                    const ourTs = window._fbLocalWrites.get(key);
+                    if (ourTs && now - ourTs < 3000) continue;
+                    if (JSON.stringify(prev[key] || null) !== JSON.stringify(next[key] || null)) {
+                        externalChanged.push(key);
+                    }
+                }
+                window._fbClientsCache = next;
+
+                // UI 갱신
+                try {
+                    if (typeof updateClientList === 'function') updateClientList();
+                    if (typeof filterClients === 'function') filterClients();
+                    if (typeof updateManagerBadge === 'function') updateManagerBadge();
+                } catch(e) { console.error('[FB] UI 갱신 오류:', e); }
+
+                if (externalChanged.length > 0) {
+                    const editing = (typeof _selectedClient !== 'undefined' ? _selectedClient : '') || '';
+                    if (editing && externalChanged.includes(editing)) {
+                        _showSaveToast('⚠ 편집 중인 [' + editing + ']이 다른 기기에서 변경됨', '#f59e0b', true);
+                    } else {
+                        _showSaveToast('🔄 다른 기기에서 거래처 ' + externalChanged.length + '건 갱신됨', '#0284c7', true);
+                    }
+                }
+
+                // 오래된 _fbLocalWrites 청소
+                for (const [k, ts] of window._fbLocalWrites) {
+                    if (now - ts > 5000) window._fbLocalWrites.delete(k);
+                }
+            }, (err) => {
+                console.error('[FB] onSnapshot 오류:', err);
+                if (firstSnap) {
+                    firstSnap = false;
+                    reject(err);
+                } else {
+                    _showSaveToast('❌ 실시간 동기화 끊김 (' + (err.code || err.message) + ')', '#dc2626', false);
+                    window._fbSyncOn = false;
+                    _banner.style.display = 'block';
+                    _banner.style.background = '#dc2626';
+                    _banner.textContent = '❌ 실시간 동기화 연결 끊김 — 새로고침을 권장합니다';
+                }
+            });
+            window._fbUnsubscribeClients = unsub;
+        });
 
         // localStorage를 Firebase 연동 객체로 교체
         Object.defineProperty(window, 'localStorage', {
@@ -1444,22 +1635,22 @@ document.body.prepend(_banner);
             configurable: true
         });
 
+        window._fbSyncOn = true;
         _banner.style.background = '#059669';
-        _banner.textContent = '✅ 데이터 로드 완료! (거래처 ' + Object.keys(window._fbClientsCache).length + '건)';
-        setTimeout(() => { _banner.style.display='none'; }, 2000);
+        _banner.textContent = '✅ 실시간 동기화 ON · 거래처 ' + Object.keys(window._fbClientsCache).length + '건' + (mig.migrated > 0 ? ' (마이그레이션 ' + mig.migrated + '건)' : '');
+        setTimeout(() => { _banner.style.display='none'; }, 2400);
         window._fbReady = true;
 
     } catch(e) {
         _banner.style.background = '#dc2626';
         _banner.textContent = '❌ Firebase 연결 실패 — Firestore 보안 규칙을 확인해주세요. (' + e.message + ')';
         console.error('[FB] 연결 오류:', e);
-        // 실패해도 앱은 빈 상태로 계속 실행 (단, 엑셀 업로드는 막아둠)
         Object.defineProperty(window, 'localStorage', {
             value: _fbStorage,
             writable: true,
             configurable: true
         });
-        window._fbReady = false; // 명시적으로 false (업로드 차단 유지)
+        window._fbReady = false;
     }
 
     // 엑셀 버튼 활성화 (Firebase 연결 성공 시에만)
@@ -2644,7 +2835,7 @@ function handleSearchKey(e) {
 }
 
 // ─── 저장 / 불러오기 / 삭제 ──────────────────────────────────
-function saveData() {
+async function saveData() {
     const name = document.getElementById('bizName').value.trim();
     if (!name) return alert('거래처 상호를 입력해야 저장할 수 있습니다.');
 
@@ -2674,11 +2865,27 @@ function saveData() {
     data['_manualFinal24'] = manualFinal[24] ? '1' : '';
     data['_manualFinal25'] = manualFinal[25] ? '1' : '';
 
+    // 저장 버튼 비활성화 (Firebase 저장 완료 전까지)
+    const _saveBtn = document.querySelector('button[onclick="saveData()"]');
+    if (_saveBtn) { _saveBtn.disabled = true; _saveBtn.textContent = '💾 저장 중...'; }
+
     let clients = JSON.parse(localStorage.getItem('taxClients') || '{}');
     clients[name] = data;
-    localStorage.setItem('taxClients', JSON.stringify(clients));
-    _selectedClient = name;
-    alert('저장되었습니다.');
+
+    // Firebase에 완전히 저장될 때까지 기다린 후 알림 (단건 API → 다른 기기와 충돌 회피)
+    try {
+        await window._enqueueSaveClient(name, data);
+        // (캐시는 _enqueueSaveClient 내부에서 이미 갱신됨)
+        _selectedClient = name;
+        alert('✅ 저장되었습니다.');
+    } catch(e) {
+        alert('❌ 저장에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
+        console.error('[saveData] 저장 실패:', e);
+    } finally {
+        // 저장 버튼 복구
+        if (_saveBtn) { _saveBtn.disabled = false; _saveBtn.textContent = '💾 저장'; }
+    }
+
     updateClientList(name);
     // 저장된 거래처를 검색창과 드롭다운에 즉시 반영 (드롭다운 열어두기)
     const _inpSv = document.getElementById('clientSearch');
