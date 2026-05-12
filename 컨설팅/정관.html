@@ -137,6 +137,22 @@ textarea{resize:vertical;min-height:70px;}
 .opt-item:hover{background:#eff6ff;}
 .opt-item input[type=checkbox]{cursor:pointer;accent-color:var(--primary);}
 .opt-item.disabled{opacity:.4;pointer-events:none;}
+/* 정관 표지 */
+.cover-wrap{background:#fff;}
+.cover-body{position:relative;min-height:870px;padding:0!important;
+  background:#fff;display:flex;flex-direction:column;align-items:stretch;}
+.cover-body::before{content:"";position:absolute;top:24px;left:24px;right:24px;bottom:24px;
+  border:3px solid #1a1a2e;pointer-events:none;}
+.cover-body::after{content:"";position:absolute;top:34px;left:34px;right:34px;bottom:34px;
+  border:0.8px solid #1a1a2e;pointer-events:none;}
+.cover-title{margin-top:30%;text-align:center;
+  font-family:'Nanum Myeongjo','Batang','바탕',serif;
+  font-size:48px;font-weight:700;letter-spacing:16px;color:#1a1a2e;line-height:1.4;}
+.cover-spacer{flex:1;min-height:80px;}
+.cover-company{margin-bottom:30%;text-align:center;
+  font-family:'Nanum Myeongjo','Batang','바탕',serif;
+  font-size:22px;font-weight:800;letter-spacing:5px;color:#1a1a2e;}
+
 /* 단위 접미사 표시 입력 */
 .input-with-suffix{position:relative;display:flex;align-items:center;}
 .input-with-suffix input{flex:1;padding-right:34px;text-align:right;}
@@ -186,7 +202,7 @@ textarea{resize:vertical;min-height:70px;}
 .bulk-preview-empty{text-align:center;color:var(--light);font-size:12px;padding:30px 0;}
 .bulk-preview .doc-wrap{margin-bottom:14px;}
 .bulk-preview .doc-wrap:last-child{margin-bottom:0;}
-.bulk-preview .doc-body{max-height:none;padding:30px 40px;}
+.bulk-preview .doc-body{max-height:none!important;overflow:visible!important;padding:30px 40px;}
 .bulk-preview .doc-toolbar{background:#e5e7eb;}
 .page-break-marker{text-align:center;font-size:11px;color:#9ca3af;padding:8px 0;border-top:1px dashed #d1d5db;border-bottom:1px dashed #d1d5db;margin:10px 0;background:#fff;}
 
@@ -846,18 +862,18 @@ textarea{resize:vertical;min-height:70px;}
       <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc4" checked onchange="toggleBulkItem(this)"><span class="bd-label">④ 임원퇴직금지급규정</span></label>
       <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc5" checked onchange="toggleBulkItem(this)"><span class="bd-label">⑤ 유족보상금지급규정</span></label>
       <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="doc6" checked onchange="toggleBulkItem(this)"><span class="bd-label">⑥ 이사회결의서</span></label>
+      <label class="bulk-doc-item checked"><input type="checkbox" class="bulk-doc-chk" data-doc="cover" checked onchange="toggleBulkItem(this)"><span class="bd-label">📄 정관 표지 <span style="color:#9ca3af;font-size:11px;">(정관 앞에만 삽입)</span></span></label>
     </div>
     <div class="bulk-toolbar">
       <button class="btn btn-sm" onclick="bulkSelectAll(true)">전체 선택</button>
       <button class="btn btn-sm" onclick="bulkSelectAll(false)">전체 해제</button>
-      <button class="btn btn-sm" onclick="buildBulkPreview()">🔍 미리보기 새로고침</button>
       <div style="flex:1;"></div>
       <button class="btn btn-primary" onclick="bulkPrint()">🖨 선택 문서 인쇄</button>
     </div>
   </div>
 
   <div id="bulk-preview" class="bulk-preview">
-    <div class="bulk-preview-empty">위 '미리보기 새로고침' 버튼을 누르거나 이 페이지에 진입하면 미리보기가 표시됩니다.</div>
+    <div class="bulk-preview-empty">이 페이지에 진입하면 미리보기가 자동으로 표시됩니다.</div>
   </div>
 </div>
 
@@ -1945,6 +1961,7 @@ function renderSaveList(){
    일괄 출력 + 미리보기
    ════════════════════════════════════════ */
 const BULK_DOC_TITLES = {
+  cover: '정관 표지',
   doc1: '주주총회 의사록',
   doc2: '개정 정관',
   doc3: '임원보수지급규정',
@@ -1953,9 +1970,24 @@ const BULK_DOC_TITLES = {
   doc6: '이사회결의서'
 };
 
+/* 정관 표지 HTML 생성 */
+function buildCoverHTML(){
+  const company = (document.getElementById('i-company')?.value || '').trim() || '주식회사 ○○';
+  return `<div class="doc-wrap cover-wrap">
+    <div class="doc-toolbar"><span>정관 표지</span></div>
+    <div class="doc-body cover-body">
+      <div class="cover-title">정 관</div>
+      <div class="cover-spacer"></div>
+      <div class="cover-company">${company.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</div>
+    </div>
+  </div>`;
+}
+
 function toggleBulkItem(cb){
   const item = cb.closest('.bulk-doc-item');
   if(item) item.classList.toggle('checked', cb.checked);
+  // 체크 변경 즉시 미리보기 자동 갱신
+  buildBulkPreview();
 }
 
 function bulkSelectAll(check){
@@ -1964,6 +1996,7 @@ function bulkSelectAll(check){
     const item = cb.closest('.bulk-doc-item');
     if(item) item.classList.toggle('checked', !!check);
   });
+  buildBulkPreview();
 }
 
 function getSelectedBulkDocs(){
@@ -1975,13 +2008,34 @@ function getSelectedBulkDocs(){
 function buildBulkPreview(){
   const preview = document.getElementById('bulk-preview');
   if(!preview) return;
-  const selected = getSelectedBulkDocs();
-  if(selected.length === 0){
-    preview.innerHTML = `<div class="bulk-preview-empty">선택된 문서가 없습니다. 위에서 출력할 문서를 선택하세요.</div>`;
+  // 실제 출력 순서: 표지(cover)는 정관(doc2)이 함께 선택된 경우에만 doc2 바로 앞에 삽입
+  const raw = getSelectedBulkDocs();
+  const coverChecked = raw.includes('cover');
+  const docs = raw.filter(d => d !== 'cover'); // 표지를 일단 제외
+  const ordered = [];
+  docs.forEach(d => {
+    if(d === 'doc2' && coverChecked) ordered.push('cover');
+    ordered.push(d);
+  });
+  if(ordered.length === 0){
+    preview.innerHTML = `<div class="bulk-preview-empty">선택된 문서가 없습니다. 위에서 출력할 문서를 선택하세요.<br>(정관 표지는 정관과 함께 선택해야 미리보기에 표시됩니다)</div>`;
     return;
   }
   let html = '';
-  selected.forEach((docId, idx) => {
+  ordered.forEach((docId, idx) => {
+    // 표지는 동적으로 HTML 생성
+    if(docId === 'cover'){
+      const tmp = document.createElement('div');
+      tmp.innerHTML = buildCoverHTML();
+      const cw = tmp.firstChild;
+      const tb = cw.querySelector('.doc-toolbar span');
+      if(tb) tb.textContent = `${idx+1}. ${BULK_DOC_TITLES['cover']}`;
+      html += cw.outerHTML;
+      if(idx < ordered.length - 1){
+        html += `<div class="page-break-marker">— 페이지 구분 —</div>`;
+      }
+      return;
+    }
     const pageEl = document.getElementById('page-' + docId);
     if(!pageEl) return;
     const wrap = pageEl.querySelector('.doc-wrap');
@@ -1993,7 +2047,7 @@ function buildBulkPreview(){
     const tb = clone.querySelector('.doc-toolbar span');
     if(tb) tb.textContent = `${idx+1}. ${BULK_DOC_TITLES[docId] || docId}`;
     html += clone.outerHTML;
-    if(idx < selected.length - 1){
+    if(idx < ordered.length - 1){
       html += `<div class="page-break-marker">— 페이지 구분 —</div>`;
     }
   });
@@ -2003,13 +2057,18 @@ function buildBulkPreview(){
 function bulkPrint(){
   const selected = getSelectedBulkDocs();
   if(selected.length === 0){ alert('출력할 문서를 1개 이상 선택해주세요.'); return; }
+  // 파일명 산정: 표지(cover)는 본 문서로 카운트하지 않음
+  const contentDocs = selected.filter(d => d !== 'cover');
+  if(contentDocs.length === 0){
+    alert('정관 표지만 단독으로 출력할 수 없습니다.\n정관 등 본 문서를 1개 이상 함께 선택해주세요.');
+    return;
+  }
   // 미리보기 최신화 후 출력
   buildBulkPreview();
   const company = (document.getElementById('i-company')?.value || '').trim();
-  // 선택된 문서가 1개면 그 문서명, 2개 이상이면 '정관 등'
   let fname;
-  if(selected.length === 1){
-    fname = (company ? company + '_' : '') + (DOC_NAMES[selected[0]] || '문서');
+  if(contentDocs.length === 1){
+    fname = (company ? company + '_' : '') + (DOC_NAMES[contentDocs[0]] || '문서');
   } else {
     fname = (company ? company + '_' : '') + '정관 등';
   }
