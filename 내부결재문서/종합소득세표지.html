@@ -768,8 +768,8 @@
             <button class="btn btn-outline" onclick="unshiftYear()" title="이월 직전 상태로 되돌립니다">↩️ 전년</button>
             <button class="btn btn-outline" onclick="doPrint()">🖨️ 인쇄</button>
             <button class="btn" onclick="openBulkPrintModal()" style="background:#0c4a6e;color:white;font-weight:600;" title="담당자에게 배정된 모든 거래처의 표지를 한번에 인쇄합니다">📑 일괄 인쇄</button>
-            <button class="btn" onclick="exportToExcel()" style="background:#1d6f42;color:white;font-weight:600;">📊 엑셀 내보내기</button>
-            <button class="btn" onclick="document.getElementById('excelImportFile').click()" style="background:#0c4a6e;color:white;font-weight:600;">📥 엑셀 업로드</button>
+            <button class="btn" id="excelExportBtn" onclick="exportToExcel()" style="background:#1d6f42;color:white;font-weight:600;" disabled title="Firebase 데이터 로딩 중...">📊 엑셀 내보내기</button>
+            <button class="btn" id="excelImportBtn" onclick="_handleExcelImportClick()" style="background:#0c4a6e;color:white;font-weight:600;" disabled title="Firebase 데이터 로딩 중...">📥 엑셀 업로드</button>
             <input type="file" id="excelImportFile" accept=".xlsx,.xls" style="display:none;" onchange="importFromExcel(event)">
         </div>
 
@@ -1330,6 +1330,57 @@ const _fbShiftRef   = doc(_fbDb, 'taxData', 'shiftBackup');
 // ── 인메모리 캐시 (localStorage를 완전 대체) ──────────────────
 window._fbClientsCache = {};
 window._fbShiftCache   = null;
+window._fbReady        = false;   // 데이터 로드 완료 후 true → 엑셀 업로드/내보내기 활성화
+window._fbPendingCount = 0;        // 현재 저장 대기 중인 쓰기 개수
+
+// ── 저장 상태 토스트 (오른쪽 아래 작게) ──────────────────────
+let _saveToast = null;
+function _showSaveToast(text, color, autoHide) {
+    if (!_saveToast) {
+        _saveToast = document.createElement('div');
+        _saveToast.style.cssText = 'position:fixed;bottom:18px;right:18px;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;color:#fff;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.25);transition:opacity 0.25s;pointer-events:none;';
+        document.body.appendChild(_saveToast);
+    }
+    _saveToast.style.background = color;
+    _saveToast.textContent = text;
+    _saveToast.style.opacity = '1';
+    if (_saveToast._t) clearTimeout(_saveToast._t);
+    if (autoHide) {
+        _saveToast._t = setTimeout(() => { if (_saveToast) _saveToast.style.opacity = '0'; }, 1800);
+    }
+}
+
+// ── 직렬 저장 큐 (이전 저장이 끝나야 다음 저장 실행 → 순서 보장 + 동시 쓰기 방지) ──
+let _saveQueue = Promise.resolve();
+function _enqueueSave(ref, data, label) {
+    window._fbPendingCount++;
+    _showSaveToast('💾 ' + label + ' 저장 중...', '#2563eb', false);
+    const job = _saveQueue.then(async () => {
+        let lastErr = null;
+        // 최대 3회 재시도 (지수적 백오프)
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                await setDoc(ref, data);
+                lastErr = null;
+                break;
+            } catch (e) {
+                lastErr = e;
+                if (attempt < 3) {
+                    await new Promise(r => setTimeout(r, 600 * attempt));
+                }
+            }
+        }
+        window._fbPendingCount--;
+        if (lastErr) {
+            console.error('[FB] ' + label + ' 저장 실패:', lastErr);
+            _showSaveToast('❌ 저장 실패 (' + lastErr.code + ') — 새로고침 전 확인!', '#dc2626', false);
+        } else if (window._fbPendingCount === 0) {
+            _showSaveToast('✅ 저장됨', '#059669', true);
+        }
+    });
+    _saveQueue = job;
+    return job;
+}
 
 // localStorage 전체를 Firebase 연동 객체로 교체
 const _fbStorage = {
@@ -1340,20 +1391,30 @@ const _fbStorage = {
     },
     setItem(k, v) {
         if (k === 'taxClients') {
-            window._fbClientsCache = JSON.parse(v);
-            setDoc(_fbClientsRef, window._fbClientsCache).catch(e => console.error('[FB] 저장 오류:', e));
+            try { window._fbClientsCache = JSON.parse(v); }
+            catch(e) { console.error('[FB] 파싱 오류:', e); return; }
+            _enqueueSave(_fbClientsRef, window._fbClientsCache, '거래처');
         } else if (k === '_taxShiftBackup') {
             window._fbShiftCache = v;
-            setDoc(_fbShiftRef, { data: v }).catch(e => console.error('[FB] 이월백업 저장 오류:', e));
+            _enqueueSave(_fbShiftRef, { data: v }, '이월백업');
         }
     },
     removeItem(k) {
         if (k === '_taxShiftBackup') {
             window._fbShiftCache = null;
-            setDoc(_fbShiftRef, {}).catch(e => console.error(e));
+            _enqueueSave(_fbShiftRef, {}, '이월백업 삭제');
         }
     }
 };
+
+// 저장 대기 중에 새로고침/탭 닫기 시 경고 → 사용자가 실수로 데이터 잃지 않도록
+window.addEventListener('beforeunload', (e) => {
+    if (window._fbPendingCount > 0) {
+        e.preventDefault();
+        e.returnValue = '아직 클라우드 저장이 끝나지 않았습니다. 잠시만 기다려주세요.';
+        return e.returnValue;
+    }
+});
 
 // ── 로딩 배너 ─────────────────────────────────────────────────
 const _banner = document.createElement('div');
@@ -1386,17 +1447,27 @@ document.body.prepend(_banner);
         _banner.style.background = '#059669';
         _banner.textContent = '✅ 데이터 로드 완료! (거래처 ' + Object.keys(window._fbClientsCache).length + '건)';
         setTimeout(() => { _banner.style.display='none'; }, 2000);
+        window._fbReady = true;
 
     } catch(e) {
         _banner.style.background = '#dc2626';
         _banner.textContent = '❌ Firebase 연결 실패 — Firestore 보안 규칙을 확인해주세요. (' + e.message + ')';
         console.error('[FB] 연결 오류:', e);
-        // 실패해도 앱은 빈 상태로 계속 실행
+        // 실패해도 앱은 빈 상태로 계속 실행 (단, 엑셀 업로드는 막아둠)
         Object.defineProperty(window, 'localStorage', {
             value: _fbStorage,
             writable: true,
             configurable: true
         });
+        window._fbReady = false; // 명시적으로 false (업로드 차단 유지)
+    }
+
+    // 엑셀 버튼 활성화 (Firebase 연결 성공 시에만)
+    if (window._fbReady) {
+        const _impBtn = document.getElementById('excelImportBtn');
+        const _expBtn = document.getElementById('excelExportBtn');
+        if (_impBtn) { _impBtn.disabled = false; _impBtn.title = '엑셀 파일에서 거래처 일괄 가져오기'; }
+        if (_expBtn) { _expBtn.disabled = false; _expBtn.title = '담당자별 거래처를 엑셀로 내보내기'; }
     }
 
     // 데이터 로드 완료 후 거래처 목록·배지 갱신
@@ -2599,6 +2670,9 @@ function saveData() {
     // 기장의무판단·경비율판단 수동 변경 플래그
     data['_bookManual'] = _bookManuallyChanged ? '1' : '';
     data['_expCatManual'] = _expCatManuallyChanged ? '1' : '';
+    // 납부세액 수동 입력 플래그 (자동 계산이 덮어쓰지 않도록 보존)
+    data['_manualFinal24'] = manualFinal[24] ? '1' : '';
+    data['_manualFinal25'] = manualFinal[25] ? '1' : '';
 
     let clients = JSON.parse(localStorage.getItem('taxClients') || '{}');
     clients[name] = data;
@@ -2634,6 +2708,20 @@ function loadClientData(name) {
         if (infoEl) infoEl.innerHTML = '';
         _bookManuallyChanged = false;
         _expCatManuallyChanged = false;
+        // 납부세액 수동 모드도 리셋 (UI도 자동 모드로 되돌림)
+        if (typeof resetFinalAuto === 'function') {
+            ['24','25'].forEach(yr => {
+                manualFinal[yr] = false;
+                const inp = document.getElementById('final'+yr);
+                const eBtn = document.getElementById('finalEditBtn'+yr);
+                const aBtn = document.getElementById('finalAutoBtn'+yr);
+                const mk   = document.getElementById('finalManualMark'+yr);
+                if (inp) { inp.readOnly = true; inp.classList.remove('manual-editing'); }
+                if (eBtn) eBtn.style.display = '';
+                if (aBtn) aBtn.style.display = 'none';
+                if (mk)   mk.style.display = 'none';
+            });
+        }
         return;
     }
 
@@ -2643,7 +2731,8 @@ function loadClientData(name) {
 
     for (let key in data) {
         if (key === '_bizCodeHint' || key === '_yearPrev' || key === '_yearCurr' ||
-            key === '_manager' || key === '_bookManual' || key === '_expCatManual') continue;
+            key === '_manager' || key === '_bookManual' || key === '_expCatManual' ||
+            key === '_manualFinal24' || key === '_manualFinal25') continue;
         const el = document.getElementById(key);
         if (!el) continue;
         if (el.type === 'checkbox') {
@@ -2685,6 +2774,26 @@ function loadClientData(name) {
     const expMark = document.getElementById('expCat25AutoMark');
     if (bookMark) bookMark.style.display = (!_bookManuallyChanged && document.getElementById('book25').value) ? 'inline-block' : 'none';
     if (expMark) expMark.style.display = (!_expCatManuallyChanged && document.getElementById('expCat25').value) ? 'inline-block' : 'none';
+
+    // 납부세액 수동 모드 복원 — calcAll()이 자동 계산값으로 덮어쓰지 않도록 반드시 calcAll 전에!
+    ['24','25'].forEach(yr => {
+        manualFinal[yr] = (data['_manualFinal' + yr] === '1');
+        const inp  = document.getElementById('final'+yr);
+        const eBtn = document.getElementById('finalEditBtn'+yr);
+        const aBtn = document.getElementById('finalAutoBtn'+yr);
+        const mk   = document.getElementById('finalManualMark'+yr);
+        if (manualFinal[yr]) {
+            if (inp) { inp.readOnly = false; inp.classList.add('manual-editing'); }
+            if (eBtn) eBtn.style.display = 'none';
+            if (aBtn) aBtn.style.display = '';
+            if (mk)   mk.style.display = '';
+        } else {
+            if (inp) { inp.readOnly = true; inp.classList.remove('manual-editing'); }
+            if (eBtn) eBtn.style.display = '';
+            if (aBtn) aBtn.style.display = 'none';
+            if (mk)   mk.style.display = 'none';
+        }
+    });
 
     calcAll();
     // 거래처 로드 시 기장의무/경비율 자동 판단 (수동 설정 보존, confirm 스킵)
@@ -3854,18 +3963,49 @@ function buildCoverSheet(bizName, data) {
 // ─── 엑셀 업로드 (담당자 선택 모달 + 키워드 검색 방식, 일괄 가져오기) ────
 let _pendingImport = null; // { filename, parsedList: [{bizName, data}], existingNames: Set }
 
+// 업로드 버튼 클릭 핸들러 — Firebase 준비 안 됐으면 차단
+function _handleExcelImportClick() {
+    if (!window._fbReady) {
+        alert('☁ Firebase 데이터 로딩이 끝나야 업로드할 수 있어요.\n페이지 상단 파란 배너가 사라진 뒤에 다시 시도해주세요.');
+        return;
+    }
+    if (window._fbPendingCount > 0) {
+        if (!confirm('아직 클라우드에 저장 중인 데이터가 있습니다. 그래도 업로드를 시작할까요?')) return;
+    }
+    document.getElementById('excelImportFile').click();
+}
+
 function importFromExcel(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
     event.target.value = ''; // 같은 파일 재업로드 가능하게
 
+    // Firebase 미준비 상태에서 어떤 경로로든 호출되면 안전 차단
+    if (!window._fbReady) {
+        alert('☁ Firebase 데이터 로딩이 끝나야 업로드할 수 있어요.');
+        return;
+    }
+
+    // CDN 폴백 — jsdelivr → unpkg 순서로 시도
+    const _cdnList = [
+        'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
+        'https://unpkg.com/xlsx-js-style@1.2.0/dist/xlsx.bundle.js'
+    ];
     const ensureXLSX = (cb) => {
         if (typeof XLSX !== 'undefined') return cb();
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';
-        script.onload = cb;
-        script.onerror = () => alert('SheetJS 라이브러리 로드 실패. 인터넷 연결을 확인하세요.');
-        document.head.appendChild(script);
+        let idx = 0;
+        const tryNext = () => {
+            if (idx >= _cdnList.length) {
+                alert('SheetJS 라이브러리 로드 실패.\n인터넷 연결 또는 사내망 차단 여부를 확인하세요.');
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = _cdnList[idx++];
+            script.onload = () => { if (typeof XLSX !== 'undefined') cb(); else tryNext(); };
+            script.onerror = tryNext;
+            document.head.appendChild(script);
+        };
+        tryNext();
     };
 
     ensureXLSX(() => {
