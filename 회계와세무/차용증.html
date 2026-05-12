@@ -113,6 +113,33 @@
     font-weight: 700;
     color: var(--accent);
   }
+  .special-clauses-inputs {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .special-clauses-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+  .special-clauses-item input {
+    width: 100%;
+  }
+  .btn.small {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .special-clauses-list {
+    margin: 6px 0 0 18px;
+    padding-left: 14px;
+    list-style-type: disc;
+  }
+  .special-clauses-list li {
+    margin-bottom: 4px;
+    line-height: 1.45;
+  }
   .field .err {
     font-size: 11px;
     color: var(--accent);
@@ -325,22 +352,28 @@
   <div class="section-title">차용 조건</div>
   <div class="grid">
     <div class="field"><label for="amount">차용금액 (원)</label><input id="amount" type="number" placeholder="500000000" min="0"></div>
-    <div class="field" id="rateField"><label for="rate">이자율 (연 %)</label><input id="rate" type="number" step="0.01" placeholder="4.6" min="0"></div>
+    <div class="field" id="rateField"><label for="rate">이자율계산 (연 %)</label><input id="rate" type="number" step="0.01" placeholder="4.6" min="0"></div>
     <div class="field"><label for="loanDate">차용일</label><input id="loanDate" type="date"></div>
     <div class="field">
       <label for="repayDate">변제일</label>
       <input id="repayDate" type="date">
       <div class="err" id="dateErr"></div>
     </div>
-    <div class="field"><label for="monthly">월 이자액 (자동 · 수정가능)</label><input id="monthly" class="calc" type="number" placeholder="자동계산" min="0"></div>
+    <div class="field"><label for="monthly">세법상 최저 월 이자액 (자동계산)</label><input id="monthly" class="calc" type="number" placeholder="자동계산" min="0"></div>
     <div class="field"><label for="payDay">이자지급일 (매월 ○일)</label><input id="payDay" type="number" min="1" max="31" placeholder="25"></div>
     <div class="field full"><label for="signDate">작성일</label><input id="signDate" type="date"></div>
   </div>
 
+    <div class="section-title">특약사항</div>
+    <div class="field full">
+      <div id="specialClausesList" class="special-clauses-inputs"></div>
+      <button type="button" class="btn" id="btnAddClause">특약사항 항목 추가</button>
+    </div>
+
   <div class="actions">
-    <button type="button" class="btn primary" id="btnRefresh">미리보기 갱신</button>
-    <button type="button" class="btn" id="btnPrint">🖨 인쇄 / PDF 저장</button>
-    <button type="button" class="btn" id="btnReset">초기화</button>
+    <button type="button" class="btn primary" id="btnSave">저장</button>
+    <button type="button" class="btn" id="btnLoad">불러오기</button>
+    <button type="button" class="btn primary" id="btnPrint">🖨 인쇄 / PDF 저장</button>
   </div>
 </div>
 
@@ -393,6 +426,7 @@
       <div class="clause"><span class="ct">제6조 (조기상환)</span><span class="cb">채무자는 사전 통지 후 언제든지 차용금의 전부 또는 일부를 조기 상환할 수 있으며, 조기상환수수료는 부과하지 아니한다.</span></div>
       <div class="clause"><span class="ct">제7조 (관할법원)</span><span class="cb">본 차용증과 관련한 분쟁은 채권자 주소지 관할 법원을 합의관할로 한다.</span></div>
       <div class="clause"><span class="ct">제8조 (기타)</span><span class="cb">본 증서에 정하지 아니한 사항은 민법 및 관련 법령에 따르며, 본 증서는 2부를 작성하여 채권자와 채무자가 각 1부씩 보관한다.</span></div>
+      <div class="clause"><span class="ct">제8조의2 (특약사항)</span><span class="cb"><ul id="o_specialClauses" class="special-clauses-list"><li>　</li></ul></span></div>
     </div>
 
     <div class="doc-date" id="o_signDate">작 성 일  :  　　　년　　월　　일</div>
@@ -436,6 +470,8 @@
 // ===== 법령 상수 (개정 시 여기만 수정) =====
 const STATUTORY_RATE = 4.6;          // 상증법 §41조의4 시행령 §31조의4 적정이자율 (%)
 const TAX_FREE_LIMIT = 10_000_000;   // 증여세 비과세 한도 (연간 차액 1천만원 미만)
+const MONTHLY_ROUND_UNIT = 10_000;   // 월 이자액은 만원 단위 올림
+const STORAGE_KEY = 'cha_yong_jeung_saved_data';
 
 // ===== 상태 =====
 let currentVer = 'related';
@@ -495,7 +531,124 @@ function setT(id, val, fb) {
   if (el) el.textContent = (val && val.trim()) ? val : (fb || '　');
 }
 
-// ===== 핵심 계산 =====
+function createClauseInput(text = '') {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'special-clauses-item';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'special-clause-input';
+  input.placeholder = '특약사항을 입력하세요';
+  input.value = text;
+  input.addEventListener('input', onInputChange);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn small';
+  removeBtn.textContent = '삭제';
+  removeBtn.addEventListener('click', () => {
+    wrapper.remove();
+    render();
+  });
+
+  wrapper.append(input, removeBtn);
+  return wrapper;
+}
+
+function getClauseValues() {
+  return Array.from(document.querySelectorAll('.special-clause-input'))
+    .map((input) => input.value.trim())
+    .filter((text) => text !== '');
+}
+
+function renderSpecialClauses() {
+  const clauseList = $('o_specialClauses');
+  clauseList.innerHTML = '';
+  const clauses = getClauseValues();
+
+  if (!clauses.length) {
+    const li = document.createElement('li');
+    li.textContent = '　';
+    clauseList.appendChild(li);
+    return;
+  }
+
+  clauses.forEach((text) => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    clauseList.appendChild(li);
+  });
+}
+
+function saveToLocalStorage() {
+  const data = {
+    currentVer,
+    cName: $('cName').value,
+    cRRN: $('cRRN').value,
+    cAddr: $('cAddr').value,
+    cPhone: $('cPhone').value,
+    cBank: $('cBank').value,
+    dName: $('dName').value,
+    dRRN: $('dRRN').value,
+    dAddr: $('dAddr').value,
+    dPhone: $('dPhone').value,
+    amount: $('amount').value,
+    rate: $('rate').value,
+    loanDate: $('loanDate').value,
+    repayDate: $('repayDate').value,
+    monthly: $('monthly').value,
+    payDay: $('payDay').value,
+    signDate: $('signDate').value,
+    specialClauses: Array.from(document.querySelectorAll('.special-clause-input')).map((input) => input.value),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  alert('입력한 내용이 로컬스토리지에 저장되었습니다.');
+}
+
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) {
+    alert('저장된 내용이 없습니다.');
+    return;
+  }
+
+  try {
+    const data = JSON.parse(saved);
+    applySavedData(data);
+  } catch (error) {
+    console.error(error);
+    alert('저장된 데이터를 불러올 수 없습니다.');
+  }
+}
+
+function applySavedData(data) {
+  if (!data) return;
+
+  if (data.currentVer && data.currentVer !== currentVer) {
+    const tab = document.querySelector(`.tab[data-ver="${data.currentVer}"]`);
+    switchVer(data.currentVer, tab);
+  }
+
+  [
+    'cName','cRRN','cAddr','cPhone','cBank',
+    'dName','dRRN','dAddr','dPhone',
+    'amount','rate','loanDate','repayDate','monthly','payDay','signDate'
+  ].forEach((field) => {
+    if ($(field)) $(field).value = data[field] || '';
+  });
+
+  const specialClausesList = $('specialClausesList');
+  specialClausesList.innerHTML = '';
+  const items = Array.isArray(data.specialClauses) && data.specialClauses.length ? data.specialClauses : [''];
+  items.forEach((text) => specialClausesList.appendChild(createClauseInput(text)));
+  if (!specialClausesList.children.length) specialClausesList.appendChild(createClauseInput(''));
+
+  calcInterest();
+  render();
+}
+
+// ===== 탭 전환 (데이터 손실 방지) =====
+
 // 상증법 §41조의4 : 증여세 비과세를 위한 월 최소 지급 이자
 // = ( 차용원금 × 적정이자율 − 1천만원 ) ÷ 12
 // 차액이 0 이하면 무이자 가능
@@ -503,7 +656,7 @@ function calcInterest() {
   if (currentVer !== 'related') return;
 
   const amount = parseFloat($('amount').value) || 0;
-  const rate = parseFloat($('rate').value) || 0;
+  const rate = currentVer === 'related' ? STATUTORY_RATE : (parseFloat($('rate').value) || 0);
 
   if (!amount || !rate) {
     $('monthly').value = '';
@@ -511,7 +664,14 @@ function calcInterest() {
   }
 
   const yearlyDiff = amount * rate / 100 - TAX_FREE_LIMIT;
-  $('monthly').value = yearlyDiff > 0 ? Math.floor(yearlyDiff / 12) : 0;
+  if (yearlyDiff <= 0) {
+    $('monthly').value = 0;
+    return;
+  }
+
+  const rawMonthly = yearlyDiff / 12;
+  const roundedMonthly = Math.ceil(rawMonthly / MONTHLY_ROUND_UNIT) * MONTHLY_ROUND_UNIT;
+  $('monthly').value = roundedMonthly;
 }
 
 // 변제일 ≤ 차용일 검증
@@ -588,6 +748,8 @@ function render() {
     ? `작 성 일  :  ${fmtDate(sd)}`
     : '작 성 일  :  　　　년　　월　　일';
 
+  renderSpecialClauses();
+
   // 서명란
   setT('s_cName', $('cName').value, '　　　　　　');
   setT('s_cRRN', $('cRRN').value, '　　　　　　');
@@ -611,10 +773,10 @@ function switchVer(v, btn) {
   $('memoBox').style.display = (v === 'related') ? 'block' : 'none';
 
   if (v === 'related') {
-    // 특수관계자: 이자율 자동 4.6% 고정 (사용자 입력값이 비어있을 때만)
+    // 특수관계자: 이자율 칸 공란, 자동 계산
     $('rateField').style.display = 'none';
     $('rateRow').style.display = 'none';
-    if (!$('rate').value) $('rate').value = STATUTORY_RATE;
+    $('rate').value = '';
     $('docSub').textContent = '— 특 수 관 계 자 간  금 전 소 비 대 차 —';
   } else {
     // 일반: 이자율 사용자가 직접 입력 (기존 입력값 유지)
@@ -622,16 +784,6 @@ function switchVer(v, btn) {
     $('rateRow').style.display = 'table-row';
     $('docSub').textContent = '— 금  전  소  비  대  차   계 약 서 —';
   }
-  calcInterest();
-  render();
-}
-
-// ===== 초기화 (확인 후 진행) =====
-function resetForm() {
-  if (!confirm('입력하신 모든 내용이 삭제됩니다. 진행하시겠습니까?')) return;
-  document.querySelectorAll('.control input').forEach(i => { i.value = ''; });
-  if (currentVer === 'related') $('rate').value = STATUTORY_RATE;
-  $('dateErr').textContent = '';
   calcInterest();
   render();
 }
@@ -655,14 +807,23 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 버튼 핸들러
-  $('btnRefresh').addEventListener('click', render);
+  $('btnSave').addEventListener('click', saveToLocalStorage);
+  $('btnLoad').addEventListener('click', loadFromLocalStorage);
   $('btnPrint').addEventListener('click', () => window.print());
-  $('btnReset').addEventListener('click', resetForm);
+  $('btnAddClause').addEventListener('click', () => {
+    $('specialClausesList').appendChild(createClauseInput(''));
+    render();
+  });
+
+  // 초기 특약사항 칸 하나 생성
+  if (!document.querySelector('.special-clause-input')) {
+    $('specialClausesList').appendChild(createClauseInput(''));
+  }
 
   // 초기 - 특수관계자 모드
   $('rateField').style.display = 'none';
   $('rateRow').style.display = 'none';
-  $('rate').value = STATUTORY_RATE;
+  $('rate').value = '';
   render();
 });
 </script>
