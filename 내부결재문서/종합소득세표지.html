@@ -780,7 +780,7 @@
                 <p id="dirtyModalMsg" style="margin:0 0 14px 0; font-size:13px; color:#374151; line-height:1.5;">현재 입력 중인 데이터가 저장되지 않았습니다.<br>어떻게 하시겠어요?</p>
                 <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap;">
                     <button class="btn btn-outline" onclick="_dirtyDecide('cancel')" style="padding:7px 14px;">취소</button>
-                    <button class="btn btn-danger" onclick="_dirtyDecide('discard')" style="padding:7px 14px;">변경 버리고 이동</button>
+                    <button class="btn btn-danger" onclick="_dirtyDecide('discard')" style="padding:7px 14px;">저장 안 하고 이동</button>
                     <button class="btn btn-primary" onclick="_dirtyDecide('save')" style="padding:7px 14px;">저장 후 이동</button>
                 </div>
             </div>
@@ -900,6 +900,7 @@
     <div class="file-margin"></div>
     <div class="report-card" id="printArea">
         <div class="report-header"><span><span id="titleYearCurr">2025</span>년 귀속 종합소득세 신고현황</span><button class="year-edit-btn no-print" onclick="editYears()" id="yearEditBtn">✏ 연도수정</button></div>
+        <div id="lastModifyInfo" class="no-print" style="display:none;margin:8px 14px 0 14px;padding:5px 12px;border-radius:5px;font-size:12px;font-weight:600;background:#dcfce7;color:#166534;"></div>
 
         <!-- 기본 정보 -->
         <div class="info-grid">
@@ -1307,6 +1308,13 @@
     </div><!-- /report-card -->
 </div><!-- /container -->
 
+<script>
+// ── [안전장치] 원본 localStorage 보존 (Firebase 프록시 교체 전 캡처) ──
+window._realLocalStorage = window.localStorage;
+window._userName = '';
+window._pendingExternalUpdate = {};
+window._currentClientViewedAt = 0;
+</script>
 <script type="module">
 // ============================================================
 // Firebase Firestore - 데이터를 먼저 불러온 뒤 앱 초기화
@@ -1504,6 +1512,39 @@ const _fbStorage = {
     }
 };
 
+// ── [안전장치 A+C+D] 사용자 이름 / 외부 변경 배너 헬퍼들 ─────────
+function _showExternalChangeBanner(clientName) {
+    let banner = document.getElementById('externalChangeBanner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'externalChangeBanner';
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#dc2626;color:#fff;padding:14px 18px;font-size:14px;font-weight:600;z-index:99998;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+        document.body.prepend(banner);
+    }
+    const safe = String(clientName).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const enc = encodeURIComponent(clientName);
+    banner.innerHTML = '⚠ <b>' + safe + '</b>가(이) 다른 곳에서 수정되었습니다. ' +
+        '<button onclick="_applyExternalUpdate(decodeURIComponent(\''+enc+'\'))" style="margin-left:14px;padding:6px 14px;background:#fff;color:#dc2626;border:0;border-radius:5px;font-weight:700;cursor:pointer;">외부 변경 적용</button>' +
+        '<button onclick="_dismissExternalUpdate(decodeURIComponent(\''+enc+'\'))" style="margin-left:8px;padding:6px 14px;background:transparent;color:#fff;border:1px solid #fff;border-radius:5px;font-weight:600;cursor:pointer;">무시 (내 화면 유지)</button>';
+    banner.style.display = 'block';
+}
+window._showExternalChangeBanner = _showExternalChangeBanner;
+
+window._applyExternalUpdate = function(name) {
+    if (window._pendingExternalUpdate && window._pendingExternalUpdate[name]) {
+        window._fbClientsCache = Object.assign({}, window._fbClientsCache, { [name]: window._pendingExternalUpdate[name] });
+        delete window._pendingExternalUpdate[name];
+        const banner = document.getElementById('externalChangeBanner');
+        if (banner) banner.style.display = 'none';
+        if (typeof loadClientData === 'function') loadClientData(name);
+        alert('✅ 외부 변경 사항을 화면에 반영했습니다.');
+    }
+};
+window._dismissExternalUpdate = function(name) {
+    const banner = document.getElementById('externalChangeBanner');
+    if (banner) banner.style.display = 'none';
+};
+
 // 저장 대기 중에 새로고침/탭 닫기 시 경고 → 사용자가 실수로 데이터 잃지 않도록
 window.addEventListener('beforeunload', (e) => {
     if (window._fbPendingCount > 0) {
@@ -1590,7 +1631,22 @@ async function _migrateLegacyIfNeeded() {
                         externalChanged.push(key);
                     }
                 }
-                window._fbClientsCache = next;
+
+                // ── [안전장치 A] 현재 화면에 띄워둔 거래처가 외부에서 변경된 경우:
+                //   캐시의 다른 거래처는 갱신, 현재 거래처는 보존 + 빨간 띠 표시
+                const _editingNow = (typeof _selectedClient !== 'undefined' ? _selectedClient : '') || '';
+                if (_editingNow && externalChanged.includes(_editingNow)) {
+                    const merged = Object.assign({}, next);
+                    if (prev[_editingNow] !== undefined) merged[_editingNow] = prev[_editingNow];
+                    window._fbClientsCache = merged;
+                    window._pendingExternalUpdate = window._pendingExternalUpdate || {};
+                    window._pendingExternalUpdate[_editingNow] = next[_editingNow];
+                    if (typeof window._showExternalChangeBanner === 'function') {
+                        window._showExternalChangeBanner(_editingNow);
+                    }
+                } else {
+                    window._fbClientsCache = next;
+                }
 
                 // UI 갱신
                 try {
@@ -2746,7 +2802,7 @@ async function selectClient(name) {
         if (action === 'save') {
             const bizName = document.getElementById('bizName').value.trim();
             if (!bizName) {
-                alert('현재 폼에 거래처 상호가 비어있어 저장할 수 없습니다. 먼저 상호를 입력하거나 "변경 버리고 이동"을 선택해주세요.');
+                alert('현재 폼에 거래처 상호가 비어있어 저장할 수 없습니다. 먼저 상호를 입력하거나 "저장 안 하고 이동"을 선택해주세요.');
                 return;
             }
             saveData();
@@ -2769,7 +2825,7 @@ async function newClient() {
         if (action === 'save') {
             const bizName = document.getElementById('bizName').value.trim();
             if (!bizName) {
-                alert('현재 폼에 거래처 상호가 비어있어 저장할 수 없습니다. 먼저 상호를 입력하거나 "변경 버리고 이동"을 선택해주세요.');
+                alert('현재 폼에 거래처 상호가 비어있어 저장할 수 없습니다. 먼저 상호를 입력하거나 "저장 안 하고 이동"을 선택해주세요.');
                 return;
             }
             saveData();
@@ -2865,6 +2921,10 @@ async function saveData() {
     data['_manualFinal24'] = manualFinal[24] ? '1' : '';
     data['_manualFinal25'] = manualFinal[25] ? '1' : '';
 
+    // ── [안전장치 C] 변경 이력 기록 ────────────────────────────────
+    data['_modifiedAt'] = Date.now();
+    data['_modifiedBy'] = window._userName || '(미지정)';
+
     // 저장 버튼 비활성화 (Firebase 저장 완료 전까지)
     const _saveBtn = document.querySelector('button[onclick="saveData()"]');
     if (_saveBtn) { _saveBtn.disabled = true; _saveBtn.textContent = '💾 저장 중...'; }
@@ -2877,6 +2937,16 @@ async function saveData() {
         await window._enqueueSaveClient(name, data);
         // (캐시는 _enqueueSaveClient 내부에서 이미 갱신됨)
         _selectedClient = name;
+        // 저장 직후 "🕐 마지막 저장:" 표시 즉시 갱신
+        const _modInfo = document.getElementById('lastModifyInfo');
+        if (_modInfo) {
+            const _dt = new Date(data._modifiedAt);
+            const _dtStr = _dt.toLocaleString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+            _modInfo.textContent = '🕐 마지막 저장: ' + _dtStr;
+            _modInfo.style.background = '#dcfce7';
+            _modInfo.style.color = '#166534';
+            _modInfo.style.display = 'inline-block';
+        }
         alert('✅ 저장되었습니다.');
     } catch(e) {
         alert('❌ 저장에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
@@ -3006,6 +3076,29 @@ function loadClientData(name) {
     // 거래처 로드 시 기장의무/경비율 자동 판단 (수동 설정 보존, confirm 스킵)
     if (typeof recalcBookExp === 'function') recalcBookExp(true);
     updateBookExpInfo();
+
+    // ── [안전장치 C+D] 거래처 로드 시각 기록 + 마지막 저장 정보 표시 ──
+    window._currentClientViewedAt = Date.now();
+    const _modInfo = document.getElementById('lastModifyInfo');
+    if (_modInfo) {
+        if (data && data._modifiedAt) {
+            const dt = new Date(data._modifiedAt);
+            const dtStr = dt.toLocaleString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+            _modInfo.textContent = '🕐 마지막 저장: ' + dtStr;
+            _modInfo.style.background = '#dcfce7';
+            _modInfo.style.color = '#166534';
+        } else {
+            _modInfo.textContent = '🕐 이력 정보 없음 (안전장치 적용 전 저장된 거래처)';
+            _modInfo.style.background = '#fef9c3';
+            _modInfo.style.color = '#854d0e';
+        }
+        _modInfo.style.display = 'inline-block';
+    }
+    // 외부 변경 배너가 떠있으면 닫기 (이 거래처를 다시 의식적으로 연 거니까)
+    const _bn = document.getElementById('externalChangeBanner');
+    if (_bn && _bn.style.display !== 'none' && (!window._pendingExternalUpdate || !window._pendingExternalUpdate[name])) {
+        _bn.style.display = 'none';
+    }
 }
 
 function deleteData() {
