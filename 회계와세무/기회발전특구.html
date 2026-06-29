@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기회발전특구 지정 현황 - 대한세무법인</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
+        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; color: #1e293b; }
+
+        .page-head { background: linear-gradient(135deg, #1a365d, #2b6cb0); color: #fff; padding: 28px 20px; border-radius: 0 0 20px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .meta-chip { display: inline-block; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.15); font-size: 12px; font-weight: 700; margin-right: 6px; }
+
+        .sido-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .sido-header { display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px; }
+        .sido-name { font-size: 18px; font-weight: 800; color: #1a365d; }
+        .sido-count { font-size: 12px; color: #64748b; font-weight: 700; background: #f1f5f9; padding: 2px 10px; border-radius: 999px; }
+        .sido-total-area { margin-left: auto; font-size: 12px; color: #475569; font-weight: 700; }
+
+        .site-row { display: grid; grid-template-columns: 110px 1fr 110px 90px; gap: 12px; padding: 12px 6px; border-bottom: 1px dashed #e2e8f0; align-items: start; }
+        .site-row:last-child { border-bottom: 0; }
+        .sigungu { font-size: 13px; font-weight: 800; color: #2b6cb0; }
+        .site-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+        .site-name .jibun-toggle { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 800; color: #4f46e5; cursor: pointer; user-select: none; }
+        .site-name .jibun-toggle:hover { text-decoration: underline; }
+        .jibun-body { display: none; margin-top: 8px; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; color: #334155; line-height: 1.55; word-break: break-all; }
+        .jibun-body.open { display: block; }
+        .jibun-pending { color: #94a3b8; font-style: italic; font-size: 12px; }
+        .area-val { font-size: 13px; font-weight: 800; color: #0f172a; text-align: right; }
+        .area-unit { font-size: 10px; color: #94a3b8; font-weight: 600; }
+        .date-val { font-size: 12px; color: #475569; font-weight: 700; text-align: right; }
+
+        @media (max-width: 640px) {
+            .site-row { grid-template-columns: 1fr; gap: 4px; padding: 10px 6px; }
+            .area-val, .date-val { text-align: left; }
+        }
+
+        @media print {
+            @page { size: A4; margin: 15mm; }
+            body { background: #fff; }
+            .no-print { display: none !important; }
+            .page-head { background: none; color: #1a365d; border-bottom: 2px solid #1a365d; border-radius: 0; padding: 10px 0; box-shadow: none; }
+            .sido-section { page-break-inside: avoid; box-shadow: none; }
+            .jibun-body { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="page-head">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-wrap items-baseline gap-3">
+                <h1 class="text-2xl sm:text-3xl font-extrabold">기회발전특구 지정 현황</h1>
+                <span class="meta-chip" id="meta-notice">고시번호</span>
+                <span class="meta-chip" id="meta-date">고시일</span>
+            </div>
+            <p class="mt-2 text-sm opacity-90">
+                「지방자치분권 및 지역균형발전에 관한 특별법」 제23조 제2항에 따른 기회발전특구 지정 내역입니다.
+                조세특례제한법 제121조의33(감면)과 연계되는 투자·창업 지원 대상 지역입니다.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                <span class="meta-chip" id="meta-total">총 N개 사이트</span>
+                <span class="meta-chip" id="meta-area">총 면적</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6">
+        <nav class="no-print mb-4 text-sm">
+            <a href="../index.html" class="text-blue-700 hover:underline">← 메인으로</a>
+        </nav>
+
+        <div id="sido-index" class="no-print mb-4 flex flex-wrap gap-2"></div>
+
+        <div id="content" class="text-slate-400 text-sm">데이터를 불러오는 중…</div>
+
+        <footer class="mt-10 pt-6 border-t border-slate-200 text-xs text-slate-500 leading-relaxed">
+            <p>출처: <span id="src-notice">산업통상부고시</span></p>
+            <p class="mt-1">지번 정보는 고시문 기준이며, "* 새로 지번 부여시 고시할 예정" 표기는 후속 고시 대상 사이트입니다.</p>
+            <p class="mt-1">본 자료는 참고용이며, 공식 효력은 관보 및 산업통상자원부 고시 원문을 따릅니다.</p>
+        </footer>
+    </main>
+
+    <script>
+        const fmt = n => (n ?? 0).toLocaleString('ko-KR');
+        const areaToPyeong = m2 => Math.round(m2 / 3.3058);
+
+        fetch('../data/기회발전특구_지정현황.json')
+            .then(r => r.json())
+            .then(render)
+            .catch(err => {
+                document.getElementById('content').innerHTML =
+                    `<div class="text-red-600">데이터를 불러오지 못했습니다: ${err.message}</div>`;
+            });
+
+        function render(data) {
+            document.getElementById('meta-notice').textContent = data['고시번호'] || '';
+            document.getElementById('meta-date').textContent = '고시일 ' + (data['고시일'] || '');
+            document.getElementById('meta-total').textContent = `총 ${data['총_사이트수']}개 사이트`;
+            document.getElementById('meta-area').textContent =
+                `총 면적 ${fmt(data['총_지정면적_㎡'])}㎡ (약 ${fmt(areaToPyeong(data['총_지정면적_㎡']))}평)`;
+            document.getElementById('src-notice').textContent =
+                `${data['고시번호']} 「${data['제목']}」 (${data['고시일']})`;
+
+            // 시도별 그룹핑 (원 순서 유지)
+            const groups = {};
+            const order = [];
+            for (const s of data.sites) {
+                if (!(s['시도'] in groups)) {
+                    groups[s['시도']] = [];
+                    order.push(s['시도']);
+                }
+                groups[s['시도']].push(s);
+            }
+
+            // 시도 인덱스 칩
+            const idx = document.getElementById('sido-index');
+            idx.innerHTML = order.map(sd => {
+                const id = 'sido-' + encodeURIComponent(sd);
+                return `<a href="#${id}" class="inline-block px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700">${sd} (${groups[sd].length})</a>`;
+            }).join('');
+
+            // 본문
+            const content = document.getElementById('content');
+            content.innerHTML = order.map(sd => {
+                const sites = groups[sd];
+                const totalArea = sites.reduce((a, b) => a + (b['지정면적_㎡'] || 0), 0);
+                const id = 'sido-' + encodeURIComponent(sd);
+                const rows = sites.map((s, i) => renderSite(s, `${id}-${i}`)).join('');
+                return `
+                    <section id="${id}" class="sido-section">
+                        <div class="sido-header">
+                            <h2 class="sido-name">${sd}</h2>
+                            <span class="sido-count">${sites.length}개 사이트</span>
+                            <span class="sido-total-area">${fmt(totalArea)}㎡</span>
+                        </div>
+                        <div>${rows}</div>
+                    </section>
+                `;
+            }).join('');
+        }
+
+        function renderSite(s, id) {
+            const jibun = s['지번'] || '';
+            const pending = !jibun || jibun.startsWith('*');
+            const jibunEl = pending
+                ? `<div class="jibun-pending">${jibun || '지번 정보 없음'}</div>`
+                : `<div class="jibun-body" id="${id}-jibun">${escapeHtml(jibun)}</div>`;
+            const toggle = pending
+                ? ''
+                : `<span class="jibun-toggle" onclick="toggleJibun('${id}-jibun', this)">[지번 보기]</span>`;
+            return `
+                <div class="site-row">
+                    <div class="sigungu">${s['시군구'] || '-'}</div>
+                    <div>
+                        <div class="site-name">${s['부지명']}${toggle}</div>
+                        ${jibunEl}
+                    </div>
+                    <div class="area-val">${fmt(s['지정면적_㎡'])}<span class="area-unit">㎡</span></div>
+                    <div class="date-val">${s['지정고시일'] || '-'}</div>
+                </div>
+            `;
+        }
+
+        function toggleJibun(id, btn) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const open = el.classList.toggle('open');
+            btn.textContent = open ? '[접기]' : '[지번 보기]';
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
+    </script>
+</body>
+</html>
