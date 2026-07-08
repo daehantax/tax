@@ -92,7 +92,7 @@
 <div class="app-container">
     <header class="app-header">
         <h1>근로소득세 계산기</h1>
-        <p>2026년 3월 개정 간이세액표 및 4대보험 요율 반영</p>
+        <p>근로소득 간이세액표 및 연도별 4대보험 요율 반영 (2025 · 2026)</p>
     </header>
 
     <div class="tabs">
@@ -106,6 +106,13 @@
             <div class="card-title">⌨️ 급여 정보 입력</div>
             <div class="grid-inputs">
                 <div class="input-group">
+                    <label>적용 연도</label>
+                    <select id="taxYear" onchange="onYearChange()">
+                        <option value="2026">2026년</option>
+                        <option value="2025">2025년</option>
+                    </select>
+                </div>
+                <div class="input-group">
                     <label>급여 구분</label>
                     <select id="salaryType" onchange="updateSalaryLabel()">
                         <option value="monthly">월급여</option>
@@ -113,7 +120,7 @@
                         <option value="net">월 실수령액 기준</option>
                     </select>
                 </div>
-                <div class="input-group">
+                <div class="input-group full">
                     <label id="salaryLabel">월 급여액 (원)</label>
                     <input type="text" id="salary" placeholder="예: 3,000,000" oninput="formatSalaryInput(event)">
                 </div>
@@ -138,8 +145,11 @@
             <div class="card-title">🔄 실수령액 기준 역산</div>
             <div class="grid-inputs">
                 <div class="input-group">
-                    <label>희망 월 실수령액 (원)</label>
-                    <input type="text" id="desiredTakeHome" placeholder="예: 3,000,000" oninput="formatSalaryInput(event)">
+                    <label>적용 연도</label>
+                    <select id="rev-taxYear" onchange="onYearChange()">
+                        <option value="2026">2026년</option>
+                        <option value="2025">2025년</option>
+                    </select>
                 </div>
                 <div class="input-group">
                     <label>부양가족 수</label>
@@ -149,6 +159,10 @@
                         <option value="3">3명</option>
                         <option value="4">4명</option>
                     </select>
+                </div>
+                <div class="input-group full">
+                    <label>희망 월 실수령액 (원)</label>
+                    <input type="text" id="desiredTakeHome" placeholder="예: 3,000,000" oninput="formatSalaryInput(event)">
                 </div>
             </div>
             <button class="btn-main" onclick="reverseCalculate()">역산하기</button>
@@ -187,13 +201,13 @@
                     <span class="deduction" id="total-insurance">0원</span>
                 </div>
                 <div class="insurance-toggle">
-                    <span>국민연금 (4.5%)</span>
+                    <span id="label-np">국민연금 (4.75%)</span>
                     <label class="switch"><input type="checkbox" id="toggle-np" checked onchange="calculateTax()"><span class="slider"></span></label>
                 </div>
                 <div class="detail-row" style="padding:0 12px"><span>금액</span><span class="val" id="national-pension">0원</span></div>
-                
+
                 <div class="insurance-toggle">
-                    <span>건강보험 (3.545%)</span>
+                    <span id="label-hi">건강보험 (3.595%)</span>
                     <label class="switch"><input type="checkbox" id="toggle-hi" checked onchange="calculateTax()"><span class="slider"></span></label>
                 </div>
                 <div class="detail-row" style="padding:0 12px"><span>금액</span><span class="val" id="health-insurance">0원</span></div>
@@ -222,8 +236,10 @@
     <div class="note-card">
         <h4>💡 계산 안내</h4>
         <ul style="list-style:none; padding-left:5px">
-            <li>• 본 계산기는 <strong>2026년 3월 개정 근로소득 간이세액표</strong>를 기준으로 합니다.</li>
-            <li>• 국민연금(상한 637만원), 건강보험(상한 900.8만원) 기준이 적용되었습니다.</li>
+            <li>• 세금은 <strong>근로소득 간이세액표(2026.3 개정)</strong>를 기준으로 하며, 4대보험 요율은 <strong>선택한 연도</strong>에 따라 적용됩니다.</li>
+            <li id="note-rates">• <strong>2026년</strong>: 국민연금 4.75% · 건강보험 3.595% · 장기요양 0.4724% · 고용보험 0.9% (본인 부담 기준)</li>
+            <li>• <strong>2025년</strong>: 국민연금 4.5% · 건강보험 3.545% · 장기요양 0.4591% · 고용보험 0.9%</li>
+            <li>• 건강보험 본인부담 상한(2026년 월 4,591,740원 / 2025년 월 4,504,170원)이 적용됩니다.</li>
             <li>• 실제 수령액은 기업의 비과세 항목(식대 등)에 따라 달라질 수 있습니다.</li>
         </ul>
     </div>
@@ -258,17 +274,71 @@
         label.textContent = type === 'annual' ? '연봉 (원)' : (type === 'net' ? '희망 월 실수령액 (원)' : '월 급여액 (원)');
     }
 
-    // 보험료 계산 로직
+    // 연도별 4대보험 요율 (본인 부담 기준)
+    const RATE_TABLE = {
+        '2026': {
+            label: '2026년',
+            pensionRate: 0.0475,      // 국민연금 (9.5% ÷ 2)
+            pensionCap: 6370000,      // 기준소득월액 상한
+            healthRate: 0.03595,      // 건강보험 (7.19% ÷ 2)
+            healthPremiumCap: 4591740,// 보수월액 기준 본인부담 상한(월)
+            ltcRatio: 0.131405,       // 장기요양 = 건강보험료 × 비율 (0.9448% ÷ 7.19%)
+            employmentRate: 0.009     // 고용보험 (1.8% ÷ 2)
+        },
+        '2025': {
+            label: '2025년',
+            pensionRate: 0.045,       // 국민연금 (9.0% ÷ 2)
+            pensionCap: 6370000,
+            healthRate: 0.03545,      // 건강보험 (7.09% ÷ 2)
+            healthPremiumCap: 4504170,
+            ltcRatio: 0.129506,       // 장기요양 (0.9182% ÷ 7.09%)
+            employmentRate: 0.009
+        }
+    };
+
+    function getSelectedYear() {
+        const el = document.getElementById('taxYear');
+        return (el && el.value) || '2026';
+    }
+    function getRates() { return RATE_TABLE[getSelectedYear()] || RATE_TABLE['2026']; }
+
+    // 보험료 계산 로직 (선택 연도 요율 적용)
     function calculateInsurance(salary) {
-        const pensionBase = Math.min(salary, 6370000);
-        const nationalPension = Math.floor(pensionBase * 0.045);
-        const healthBase = Math.min(salary, 9008340);
-        const healthInsurance = Math.floor(healthBase * 0.03545);
-        const longTermCare = Math.floor(healthInsurance * 0.1295);
-        const unemploymentInsurance = Math.floor(salary * 0.009);
-        
-        return { nationalPension, healthInsurance, longTermCare, unemploymentInsurance, 
+        const r = getRates();
+        const nationalPension = Math.floor(Math.min(salary, r.pensionCap) * r.pensionRate);
+        let healthInsurance = Math.floor(salary * r.healthRate);
+        if (healthInsurance > r.healthPremiumCap) healthInsurance = r.healthPremiumCap; // 본인부담 상한
+        const longTermCare = Math.floor(healthInsurance * r.ltcRatio);
+        const unemploymentInsurance = Math.floor(salary * r.employmentRate);
+
+        return { nationalPension, healthInsurance, longTermCare, unemploymentInsurance,
                  total: nationalPension + healthInsurance + longTermCare + unemploymentInsurance };
+    }
+
+    // 요율(%) 표기 헬퍼 및 라벨/연도 동기화
+    function pct(x) { return parseFloat((x * 100).toFixed(3)) + '%'; }
+    function updateInsuranceLabels() {
+        const r = getRates();
+        const np = document.getElementById('label-np');
+        const hi = document.getElementById('label-hi');
+        if (np) np.textContent = `국민연금 (${pct(r.pensionRate)})`;
+        if (hi) hi.textContent = `건강보험 (${pct(r.healthRate)})`;
+    }
+    function onYearChange() {
+        const year = event.currentTarget.value;
+        const y1 = document.getElementById('taxYear');
+        const y2 = document.getElementById('rev-taxYear');
+        if (y1) y1.value = year;
+        if (y2) y2.value = year;
+        updateInsuranceLabels();
+
+        if (document.getElementById('result').style.display !== 'block') return;
+        const reverseVisible = document.getElementById('reverse-calc').style.display !== 'none';
+        if (reverseVisible && document.getElementById('desiredTakeHome').value) {
+            reverseCalculate();
+        } else if (document.getElementById('salary').value) {
+            calculateTax();
+        }
     }
 
     // 2026.3 개정 간이세액표 데이터 (data/근로소득_간이세액표_2026-03.json)
@@ -430,7 +500,8 @@
         document.getElementById('summary-value').textContent = formatNumber(gross) + "원";
     }
 
-    // 페이지 로드 시 세액표 미리 가져오기
+    // 페이지 로드 시 세액표 미리 가져오기 및 보험 라벨 초기화
+    updateInsuranceLabels();
     loadTaxTable().catch(err => console.error('간이세액표 로드 실패:', err));
 </script>
 </body>
