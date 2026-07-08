@@ -85,6 +85,44 @@
             .input-group.full { grid-column: span 1; }
             .main-result-card .amount { font-size: 2.2rem; }
         }
+
+        /* 인쇄 버튼 */
+        .print-toolbar { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+        .btn-print { padding: 10px 18px; background: var(--card); color: var(--primary); border: 2px solid var(--primary); border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-print:hover { background: var(--primary); color: #fff; }
+
+        /* 인쇄 전용 요소는 평소 숨김 */
+        .print-only { display: none; }
+
+        /* 인쇄(PDF): 결과만 A4 1장으로 요약 */
+        @media print {
+            body { background: #fff; color: #000; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .app-container { max-width: 100%; margin: 0; }
+            /* 입력/탭/버튼/안내/토글스위치 등 불필요 요소 숨김 */
+            .tabs, #normal-calc, #reverse-calc, .note-card, .no-print,
+            .insurance-toggle .switch, #high-income-formula { display: none !important; }
+            .print-only { display: block !important; }
+
+            .app-header { margin-bottom: 6px; }
+            .app-header h1 { font-size: 1.3rem; }
+            .app-header p { display: none; }
+
+            #print-meta h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
+            #print-meta-line { font-size: 0.85rem; color: #333; margin-bottom: 12px; }
+
+            .card { box-shadow: none; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 12px; page-break-inside: avoid; }
+            .main-result-card { background: #fff !important; color: #111 !important; border: 2px solid var(--primary); padding: 16px; }
+            .main-result-card .label { color: #333; opacity: 1; margin-bottom: 4px; }
+            .main-result-card .amount { font-size: 1.9rem; color: var(--primary-dark); }
+
+            .detail-grid { gap: 12px; margin-top: 12px; }
+            .detail-item { padding: 12px; }
+            .insurance-toggle { padding: 6px 0; background: none; margin-bottom: 4px; }
+            .val, .deduction { color: #111 !important; }
+
+            #other-results { padding: 12px !important; margin-top: 12px !important; }
+            @page { size: A4 portrait; margin: 12mm; }
+        }
     </style>
 </head>
 <body>
@@ -171,6 +209,15 @@
 
     <!-- 결과 리포트 -->
     <div id="result" class="result-container">
+        <div class="print-toolbar no-print">
+            <button class="btn-print" onclick="window.print()">🖨️ 인쇄 / PDF 저장 (1장 요약)</button>
+        </div>
+
+        <div id="print-meta" class="print-only">
+            <h2>근로소득세 계산 결과</h2>
+            <div id="print-meta-line"></div>
+        </div>
+
         <div class="card main-result-card">
             <div class="label" id="res-main-label">예상 월 실수령액</div>
             <div class="amount" id="summary-value">0원</div>
@@ -454,6 +501,14 @@
         } else {
             document.getElementById('high-income-formula').style.display = 'none';
         }
+
+        // 인쇄 요약용 정보 갱신
+        const salaryTypeMap = { monthly: '월급여', annual: '연봉', net: '실수령액 기준' };
+        const depSel = document.getElementById('dependents').selectedOptions[0];
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+        document.getElementById('print-meta-line').textContent =
+            `적용연도 ${getRates().label} · 급여구분 ${salaryTypeMap[salaryType] || salaryType} · 부양가족 ${depSel ? depSel.text : dependents + '명'} · 출력일 ${dateStr}`;
 
         document.getElementById('result').style.display = 'block';
         document.getElementById('res-main-label').textContent = "예상 월 실수령액";
