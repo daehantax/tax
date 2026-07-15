@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기장의뢰고객 인계서</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: '맑은 고딕', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background: #dde3ea;
+    display: flex;
+    justify-content: center;
+    padding: 64px 16px 40px 16px;
+    min-height: 100vh;
+    color: #1a1a1a;
+  }
+
+  /* ── 툴바: 우상단 고정 ── */
+  .toolbar {
+    position: fixed;
+    top: 14px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    z-index: 100;
+  }
+  .toolbar button {
+    padding: 8px 16px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-print { background: #2c3e50; }
+  .btn-print:hover { background: #3a5068; }
+  .btn-save  { background: #1a7f4b; }
+  .btn-save:hover { background: #14663c; }
+  .btn-load  { background: #2b6cb0; }
+  .btn-load:hover { background: #225a94; }
+  .btn-reset { background: #6b7684; }
+  .btn-reset:hover { background: #505a66; }
+  .save-notice {
+    font-size: 11px;
+    color: #fff;
+    background: rgba(0,0,0,0.32);
+    padding: 6px 11px;
+    border-radius: 4px;
+    white-space: nowrap;
+    min-width: 128px;
+    text-align: center;
+  }
+
+  /* ── A4 페이지 ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    padding: 20mm 16mm 16mm 16mm;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.16);
+    position: relative;
+  }
+
+  /* ── 머리글 ── */
+  .doc-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .doc-brand {
+    font-size: 10.5pt;
+    color: #2b6cb0;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .doc-purpose {
+    font-size: 8.5pt;
+    color: #6b7684;
+    margin-top: 3px;
+    letter-spacing: 0.2px;
+  }
+
+  /* 결재란 */
+  .approval-table {
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+  .approval-table td { border: 1px solid #b0b8c4; text-align: center; }
+  .approval-table .a-head {
+    font-weight: 600; background: #e8f0fa; padding: 6px 5px;
+    letter-spacing: 4px; color: #2c3e50; writing-mode: vertical-rl;
+  }
+  .approval-table .a-label {
+    font-weight: 600; background: #e8f0fa; padding: 4px 0;
+    color: #2c3e50; white-space: nowrap; width: 66px; letter-spacing: 1px;
+  }
+  .approval-table .a-stamp { height: 46px; width: 66px; }
+
+  /* 제목 */
+  .title-wrap { text-align: center; margin: 6px 0 22px 0; }
+  .title {
+    font-size: 21pt; font-weight: 700; letter-spacing: 12px;
+    text-indent: 12px; color: #1a1a1a;
+  }
+  .title-sub {
+    display: block; font-size: 9.5pt; letter-spacing: 2px;
+    color: #6b7684; margin-top: 8px; font-weight: 400;
+  }
+
+  /* 섹션 제목 */
+  .sec-title {
+    background: #2c3e50;
+    color: #fff;
+    font-size: 10.5pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 6px 12px;
+    margin: 18px 0 0 0;
+    border-radius: 3px 3px 0 0;
+  }
+  .sec-title:first-of-type { margin-top: 0; }
+  .sec-desc {
+    font-size: 8pt; color: #cfd8e3; font-weight: 400; letter-spacing: 0.3px;
+    margin-left: 8px;
+  }
+
+  /* 공통 테이블 */
+  .form-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 9.5pt;
+    table-layout: fixed;
+  }
+  .form-table td { border: 1px solid #b0b8c4; vertical-align: middle; }
+  .cat {
+    background: #e8f0fa; text-align: center; font-weight: 700;
+    color: #2c3e50; width: 34px; letter-spacing: 1px; padding: 4px;
+    writing-mode: vertical-rl;
+  }
+  .lbl {
+    background: #f2f6fb; text-align: center; font-weight: 600;
+    color: #2c3e50; width: 128px; padding: 7px 6px;
+    letter-spacing: 0.4px; font-size: 9.5pt;
+  }
+  .val { padding: 5px 8px; }
+
+  .form-table input[type="text"],
+  .form-table input[type="tel"],
+  .form-table textarea {
+    width: 100%; border: none; outline: none; font-family: inherit;
+    font-size: 9.5pt; background: transparent; padding: 3px 2px;
+    color: #1a1a1a;
+  }
+  .form-table textarea { resize: none; line-height: 1.6; display: block; }
+  .form-table input::placeholder,
+  .form-table textarea::placeholder { color: #b8c0cc; }
+
+  /* 체크 항목 */
+  .chk-cell { padding: 6px 8px; display: flex; align-items: center; gap: 10px; }
+  .chk-wrap {
+    display: inline-flex; align-items: center; gap: 5px;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .chk-wrap input[type="checkbox"] {
+    width: 15px; height: 15px; cursor: pointer; accent-color: #1a7f4b;
+  }
+  .chk-wrap label { font-size: 9pt; color: #444; cursor: pointer; }
+  .chk-cell .memo {
+    flex: 1; border: none; border-bottom: 1px dashed #cfd6e0; outline: none;
+    font-family: inherit; font-size: 9.5pt; background: transparent;
+    padding: 2px 4px; color: #1a1a1a; min-width: 0;
+  }
+  .chk-cell .memo::placeholder { color: #c2cad6; }
+
+  .two-col td { width: 50%; }
+
+  .foot-note {
+    margin-top: 14px; font-size: 8pt; color: #8a94a2;
+    text-align: right; letter-spacing: 0.2px;
+  }
+
+  /* ── 인쇄 / PDF ── */
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { background: white; padding: 0; display: block; }
+    .toolbar { display: none !important; }
+    .page {
+      width: 100%; min-height: auto; padding: 12mm 12mm 10mm 12mm;
+      box-shadow: none;
+    }
+    .sec-title { break-after: avoid; page-break-after: avoid; }
+    .form-table { break-inside: auto; }
+    tr, td { break-inside: avoid; page-break-inside: avoid; }
+    textarea, input { color: #000 !important; }
+    .chk-cell .memo { border-bottom-color: transparent !important; }
+    .cat, .lbl, .sec-title, .approval-table .a-head, .approval-table .a-label {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- 툴바 -->
+<div class="toolbar">
+  <span class="save-notice" id="saveNotice">저장 내역 없음</span>
+  <button class="btn-save"  onclick="saveForm()">💾 직전저장</button>
+  <button class="btn-load"  onclick="loadForm()">📂 불러오기</button>
+  <button class="btn-reset" onclick="resetForm()">양식 초기화</button>
+  <button class="btn-print" onclick="doPrint()">🖨️ PDF 출력</button>
+</div>
+
+<!-- A4 페이지 -->
+<div class="page">
+
+  <!-- 머리글 -->
+  <div class="doc-head">
+    <div>
+      <div class="doc-brand">대한세무법인 · 내부결재문서</div>
+      <div class="doc-purpose">기장 신규 수임 내용을 담당 실무자에게 인계·공유하기 위한 문서입니다.</div>
+    </div>
+    <table class="approval-table">
+      <tr>
+        <td class="a-head" rowspan="2">결재</td>
+        <td class="a-label">담 당</td>
+        <td class="a-label">팀 장</td>
+        <td class="a-label">대 표</td>
+      </tr>
+      <tr>
+        <td class="a-stamp"></td>
+        <td class="a-stamp"></td>
+        <td class="a-stamp"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 제목 -->
+  <div class="title-wrap">
+    <span class="title">기 장 의 뢰 서</span>
+    <span class="title-sub">기장의뢰 고객 인계 · 공유 문서</span>
+  </div>
+
+  <!-- ① 고객 기본정보 -->
+  <div class="sec-title">① 고객 기본정보<span class="sec-desc">신규 기장 의뢰 고객의 기본 사항</span></div>
+  <table class="form-table">
+    <tr>
+      <td class="lbl">상호(회사명)</td>
+      <td class="val"><input type="text" name="상호" placeholder="상호를 입력하세요"></td>
+      <td class="lbl">대표자</td>
+      <td class="val"><input type="text" name="대표자" placeholder="대표자 성명"></td>
+    </tr>
+    <tr>
+      <td class="lbl">사업자등록번호</td>
+      <td class="val"><input type="text" name="사업자번호" placeholder="000-00-00000"></td>
+      <td class="lbl">업태 / 업종</td>
+      <td class="val"><input type="text" name="업태업종" placeholder="예) 도소매 / 전자상거래"></td>
+    </tr>
+    <tr>
+      <td class="lbl">연락처(대표)</td>
+      <td class="val"><input type="tel" name="연락처대표" placeholder="010-0000-0000"></td>
+      <td class="lbl">연락처(실무자 등)</td>
+      <td class="val"><input type="tel" name="연락처실무" placeholder="실무자 · 담당자 연락처"></td>
+    </tr>
+    <tr>
+      <td class="lbl">요청건</td>
+      <td class="val" colspan="3"><input type="text" name="요청건" placeholder="이번 기장 의뢰의 핵심 요청 사항"></td>
+    </tr>
+    <tr>
+      <td class="lbl">관계자 소개</td>
+      <td class="val" colspan="3"><input type="text" name="관계자소개" placeholder="소개자 · 소개 경로"></td>
+    </tr>
+  </table>
+
+  <!-- ② 기장계약 후 할일 -->
+  <div class="sec-title">② 기장계약 후 할일<span class="sec-desc">처리 완료 시 체크 · 비고에 진행상황 기재</span></div>
+  <table class="form-table">
+    <tr>
+      <td class="cat" rowspan="6">계약<br>후</td>
+      <td class="lbl">수임동의</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_수임동의" id="c_수임동의"><label for="c_수임동의">완료</label></span>
+        <input type="text" class="memo" name="m_수임동의" placeholder="진행상황 · 특이사항">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">자료이관</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_자료이관" id="c_자료이관"><label for="c_자료이관">완료</label></span>
+        <input type="text" class="memo" name="m_자료이관" placeholder="전임 세무대리인 · 이관 자료">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">자동이체</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_자동이체" id="c_자동이체"><label for="c_자동이체">완료</label></span>
+        <input type="text" class="memo" name="m_자동이체" placeholder="이체 계좌 · 등록 여부">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">신용카드 등록</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_카드등록" id="c_카드등록"><label for="c_카드등록">완료</label></span>
+        <input type="text" class="memo" name="m_카드등록" placeholder="홈택스 사업용 카드 등록">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">사업용계좌</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_사업용계좌" id="c_사업용계좌"><label for="c_사업용계좌">완료</label></span>
+        <input type="text" class="memo" name="m_사업용계좌" placeholder="신고 · 등록 여부">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">보험사무위탁</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_보험위탁" id="c_보험위탁"><label for="c_보험위탁">완료</label></span>
+        <input type="text" class="memo" name="m_보험위탁" placeholder="4대보험 사무위탁 여부">
+      </td>
+    </tr>
+  </table>
+
+  <!-- ③ 서류 -->
+  <div class="sec-title">③ 서류 수령<span class="sec-desc">수령 완료 시 체크</span></div>
+  <table class="form-table">
+    <tr>
+      <td class="cat" rowspan="5">서류</td>
+      <td class="lbl">신분증</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_신분증" id="c_신분증"><label for="c_신분증">수령</label></span>
+        <input type="text" class="memo" name="m_신분증" placeholder="비고">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">법인등기부등본</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_등기부" id="c_등기부"><label for="c_등기부">수령</label></span>
+        <input type="text" class="memo" name="m_등기부" placeholder="비고">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">사업자등록증</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_사업자증" id="c_사업자증"><label for="c_사업자증">수령</label></span>
+        <input type="text" class="memo" name="m_사업자증" placeholder="비고">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">주주명부</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_주주명부" id="c_주주명부"><label for="c_주주명부">수령</label></span>
+        <input type="text" class="memo" name="m_주주명부" placeholder="비고">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">임대차계약서</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_임대차" id="c_임대차"><label for="c_임대차">수령</label></span>
+        <input type="text" class="memo" name="m_임대차" placeholder="비고">
+      </td>
+    </tr>
+  </table>
+
+  <!-- ④ 사업내용 -->
+  <div class="sec-title">④ 사업내용<span class="sec-desc">거래 형태 및 자산 파악 내용</span></div>
+  <table class="form-table">
+    <tr>
+      <td class="cat" rowspan="9">사업<br>내용</td>
+      <td class="lbl">매출형태</td>
+      <td class="val"><input type="text" name="매출형태" placeholder="주요 매출 발생 형태 · 거래처"></td>
+    </tr>
+    <tr>
+      <td class="lbl">매입형태</td>
+      <td class="val"><input type="text" name="매입형태" placeholder="주요 매입 형태 · 매입처"></td>
+    </tr>
+    <tr>
+      <td class="lbl">신용카드</td>
+      <td class="val"><input type="text" name="사업_신용카드" placeholder="매출/매입 카드 사용 현황"></td>
+    </tr>
+    <tr>
+      <td class="lbl">빠진 비용</td>
+      <td class="val"><input type="text" name="빠진비용" placeholder="누락되기 쉬운 비용 항목"></td>
+    </tr>
+    <tr>
+      <td class="lbl">인건비 파악</td>
+      <td class="val"><input type="text" name="인건비" placeholder="직원 수 · 급여 · 4대보험 등"></td>
+    </tr>
+    <tr>
+      <td class="lbl">기타 재고자산</td>
+      <td class="val"><input type="text" name="재고자산" placeholder="재고 보유 · 관리 현황"></td>
+    </tr>
+    <tr>
+      <td class="lbl">영업특허 · 산업재산</td>
+      <td class="val"><input type="text" name="산업재산" placeholder="특허 · 상표 · 영업권 등"></td>
+    </tr>
+    <tr>
+      <td class="lbl">부동산</td>
+      <td class="val"><input type="text" name="부동산" placeholder="사업용 부동산 보유 현황"></td>
+    </tr>
+    <tr>
+      <td class="lbl">기타 고정자산</td>
+      <td class="val"><input type="text" name="고정자산" placeholder="차량 · 기계 · 비품 등"></td>
+    </tr>
+  </table>
+
+  <!-- ⑤ 대표자 중점사항 -->
+  <div class="sec-title">⑤ 대표자 중점사항<span class="sec-desc">재무 · 장부 관련 확인 사항</span></div>
+  <table class="form-table">
+    <tr>
+      <td class="lbl">대표자중점 사항</td>
+      <td class="val" colspan="3"><textarea name="대표자중점" rows="2" placeholder="대표자가 특별히 요청하거나 유의해야 할 사항"></textarea></td>
+    </tr>
+    <tr>
+      <td class="cat" rowspan="2">대출</td>
+      <td class="lbl">은행 등 재무제표</td>
+      <td class="val" colspan="2"><input type="text" name="은행재무제표" placeholder="대출 목적 재무제표 요구 여부 · 은행"></td>
+    </tr>
+    <tr>
+      <td class="lbl">초과인출금</td>
+      <td class="val" colspan="2"><input type="text" name="초과인출금" placeholder="가지급금 · 초과인출금 현황"></td>
+    </tr>
+    <tr>
+      <td class="cat" rowspan="2">장부<br>정리</td>
+      <td class="lbl">기장</td>
+      <td class="val" colspan="2"><input type="text" name="장부_기장" placeholder="기장 방식 · 정리 상태"></td>
+    </tr>
+    <tr>
+      <td class="lbl">재고관리</td>
+      <td class="val" colspan="2"><input type="text" name="장부_재고관리" placeholder="재고 관리 방식"></td>
+    </tr>
+  </table>
+
+  <!-- ⑥ 기타 특징 -->
+  <div class="sec-title">⑥ 기타 특징<span class="sec-desc">신고 유형 판단에 필요한 특이사항</span></div>
+  <table class="form-table">
+    <tr>
+      <td class="cat" rowspan="3">특징</td>
+      <td class="lbl">대표자의 타소득</td>
+      <td class="val"><input type="text" name="타소득" placeholder="근로 · 임대 · 금융소득 등 합산 소득"></td>
+    </tr>
+    <tr>
+      <td class="lbl">성실신고 대상 여부</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_성실신고" id="c_성실신고"><label for="c_성실신고">해당</label></span>
+        <input type="text" class="memo" name="m_성실신고" placeholder="사유 · 판단 근거">
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">현금영수증 의무 발행</td>
+      <td class="val chk-cell">
+        <span class="chk-wrap"><input type="checkbox" name="c_현금영수증" id="c_현금영수증"><label for="c_현금영수증">해당</label></span>
+        <input type="text" class="memo" name="m_현금영수증" placeholder="의무 발행 업종 여부">
+      </td>
+    </tr>
+  </table>
+
+  <!-- ⑦ 알려야 할 사항 -->
+  <div class="sec-title">⑦ 알려야 할 사항<span class="sec-desc">고객 · 실무자에게 안내 · 교육할 내용</span></div>
+  <table class="form-table">
+    <tr>
+      <td class="cat" rowspan="3">안내</td>
+      <td class="lbl">조특법상 감면대상</td>
+      <td class="val"><textarea name="조특법감면" rows="2" placeholder="적용 가능한 세액감면 · 공제 항목"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lbl">실무자 교육사항</td>
+      <td class="val"><textarea name="실무자교육" rows="2" placeholder="자료 수취 · 증빙 관리 등 실무 안내 사항"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lbl">대표자 교육사항</td>
+      <td class="val"><textarea name="대표자교육" rows="2" placeholder="세무 리스크 · 절세 · 유의사항 등 대표 안내"></textarea></td>
+    </tr>
+  </table>
+
+  <!-- ⑧ 수수료 -->
+  <div class="sec-title">⑧ 수수료<span class="sec-desc">약정 수수료</span></div>
+  <table class="form-table two-col">
+    <tr>
+      <td class="lbl">조정수수료</td>
+      <td class="val"><input type="text" name="조정수수료" placeholder="예) 000,000 원"></td>
+      <td class="lbl">기장수수료</td>
+      <td class="val"><input type="text" name="기장수수료" placeholder="예) 000,000 원 / 월"></td>
+    </tr>
+  </table>
+
+  <div class="foot-note">대한세무법인 · 당신을 지키는 가장 가까운 울타리 — 내부 인계용 문서</div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'kijang_uiroe_v1';
+
+  // 모든 입력 필드(name 보유) 수집
+  function fields() {
+    return document.querySelectorAll('.page input[name], .page textarea[name]');
+  }
+
+  // 현재 폼 상태 → 객체
+  function collect() {
+    const data = {};
+    fields().forEach(el => {
+      data[el.name] = (el.type === 'checkbox') ? el.checked : el.value;
+    });
+    return data;
+  }
+
+  // 객체 → 폼에 적용
+  function apply(data) {
+    fields().forEach(el => {
+      if (!(el.name in data)) return;
+      if (el.type === 'checkbox') el.checked = !!data[el.name];
+      else el.value = data[el.name];
+    });
+  }
+
+  // 직전저장 — 현재 상태를 통째로 보관
+  function saveForm() {
+    const payload = { savedAt: new Date().toISOString(), data: collect() };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    updateNotice(payload.savedAt, true);
+  }
+
+  // 불러오기 — 직전 저장분 복원
+  function loadForm() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) { alert('저장된 직전 문서가 없습니다.'); return; }
+    try {
+      const payload = JSON.parse(raw);
+      apply(payload.data || {});
+      updateNotice(payload.savedAt, false);
+      alert('직전 저장 내용을 불러왔습니다.\n(' + fmt(payload.savedAt) + ')');
+    } catch (e) {
+      alert('불러오기 중 오류가 발생했습니다.');
+    }
+  }
+
+  function resetForm() {
+    if (!confirm('현재 화면의 내용을 모두 지웁니다.\n(직전저장 내용은 유지됩니다)')) return;
+    fields().forEach(el => {
+      if (el.type === 'checkbox') el.checked = false;
+      else el.value = '';
+    });
+  }
+
+  function doPrint() { window.print(); }
+
+  function fmt(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function updateNotice(iso, justSaved) {
+    const el = document.getElementById('saveNotice');
+    el.textContent = (justSaved ? '💾 저장됨 · ' : '📂 불러옴 · ') + fmt(iso);
+  }
+
+  // 페이지 진입 시 직전저장 존재하면 안내만 표시(자동복원 안 함)
+  (function init() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const payload = JSON.parse(raw);
+      document.getElementById('saveNotice').textContent = '직전저장: ' + fmt(payload.savedAt);
+    } catch (e) {}
+  })();
+</script>
+</body>
+</html>
