@@ -63,6 +63,25 @@
 
     .hidden { display: none; }
     .flex-center { display: flex; align-items: center; gap: 8px; }
+
+    /* 다주택 중과 판정 블록 */
+    .heavy-box { background: #f8fafc; border: 1px dashed var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+    .heavy-box h3 { font-size: 15px; margin: 0 0 12px; color: var(--primary-dark); }
+    .heavy-box h3 a { font-size: 12px; font-weight: 500; margin-left: 8px; }
+    .heavy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+    @media (max-width: 768px) { .heavy-grid { grid-template-columns: 1fr; } }
+    .heavy-grid label { font-size: 13px; margin-bottom: 4px; }
+    .heavy-grid .field { padding: 9px 12px; font-size: 14px; }
+    .heavy-status { margin-top: 10px; padding: 12px 14px; border-radius: 10px; font-size: 14px; background: #fff; border: 1px solid var(--border); }
+    .heavy-status .pill { display: inline-block; padding: 2px 10px; border-radius: 50px; font-weight: 700; font-size: 13px; color: #fff; margin-right: 6px; }
+    .pill.조정 { background: #ef4444; }
+    .pill.비조정 { background: var(--success); }
+    .pill.확인필요 { background: #d97706; }
+    .pill.중과 { background: #b91c1c; }
+    .pill.배제 { background: #64748b; }
+    .heavy-status ul { margin: 8px 0 0; padding-left: 18px; color: var(--text-muted); font-size: 13px; }
+    .heavy-row { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 13px; }
+    .heavy-row label { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; margin: 0; }
   </style>
 </head>
 <body>
@@ -106,6 +125,58 @@
         <span class="chip" data-period="btw1_2">1년 ~ 2년</span>
         <span class="chip" data-period="ge2">2년 이상</span>
       </div>
+    </div>
+
+    <!-- 다주택 중과 판정 (자산 유형 = 주택일 때만 표시) -->
+    <div id="heavyBlock" class="heavy-box hidden">
+      <h3>🏠 다주택 중과 판정 <a href="../부동산기준자료/조정대상지역.html" target="_blank" rel="noopener">조정대상지역 현황 보기 ↗</a></h3>
+
+      <span class="chips-label">1세대 보유 주택 수 (양도 주택 포함)</span>
+      <div id="houseCountChips" class="chips">
+        <span class="chip" data-count="1">1주택</span>
+        <span class="chip" data-count="2">2주택</span>
+        <span class="chip" data-count="3">3주택 이상</span>
+      </div>
+
+      <div id="heavyInputs" class="hidden">
+        <div class="heavy-grid">
+          <div>
+            <label for="hSido">양도 주택 소재지 · 시도</label>
+            <select id="hSido" class="field"></select>
+          </div>
+          <div>
+            <label for="hSgg">시군구</label>
+            <select id="hSgg" class="field"></select>
+          </div>
+          <div>
+            <label for="hEmd">읍·면·동 (선택)</label>
+            <input id="hEmd" class="field" list="hEmdList" placeholder="예) 서신면">
+            <datalist id="hEmdList"></datalist>
+          </div>
+          <div>
+            <label for="hSaleDate">양도일 (잔금일)</label>
+            <input id="hSaleDate" class="field" type="date">
+          </div>
+          <div>
+            <label for="hContractDate">매매계약일 (선택)</label>
+            <input id="hContractDate" class="field" type="date">
+          </div>
+          <div>
+            <label for="hOverride">조정지역 여부</label>
+            <select id="hOverride" class="field">
+              <option value="auto">자동 판정</option>
+              <option value="조정">직접 선택: 조정</option>
+              <option value="비조정">직접 선택: 비조정</option>
+            </select>
+          </div>
+        </div>
+        <div class="heavy-row">
+          <label><input id="hDeposit" type="checkbox"> 계약금 수령 확인 (계약일 예외 판정용)</label>
+          <label><input id="hExempt" type="checkbox"> 중과배제 주택 해당 (장기임대·감면·지방 저가주택 등, 소득령 §167의3①·§167의10①)</label>
+        </div>
+      </div>
+
+      <div id="heavyStatus" class="heavy-status hidden"></div>
     </div>
 
     <div id="compareWrap" class="hidden note" style="margin-bottom: 15px; border: 1px solid #fee2e2;">
@@ -179,6 +250,7 @@
   </div>
 </div>
 
+<script src="../../js/조정대상지역.js"></script>
 <script>
     const KRW = (v) => {
       if (typeof v !== 'number' || isNaN(v)) return '-';
@@ -196,12 +268,25 @@
       { min: 1_000_000_000, max: Infinity, rate: 0.45, deduction: 65_940_000 },
     ];
 
-    const btlBrackets = baseBrackets.map((b) => ({
+    // 기본세율 + 가산세율(%p). 가산은 과세표준 전체에 붙으므로 누진공제액은 기본세율과 같다.
+    // 예) 과세표준 1억, +10%p → 1억×45% − 1,544만 = 2,956만
+    const surchargeBrackets = (add) => baseBrackets.map((b) => ({
       min: b.min,
       max: b.max,
-      rate: b.rate + 0.10,
-      deduction: b.deduction + Math.round(0.10 * b.min),
+      rate: b.rate + add,
+      deduction: b.deduction,
     }));
+
+    const btlBrackets = surchargeBrackets(0.10);   // 비사업용 토지 +10%p
+
+    // 다주택 중과 한시배제 기간 (보유 2년 이상 주택, 소득령 §167의3①12의2·§167의10①12의2)
+    // 연장·종료 등 법령이 바뀌면 이 두 날짜만 고치면 된다.
+    const HEAVY_RELIEF_FROM = '2022-05-10';
+    const HEAVY_RELIEF_TO = '2026-05-09';
+
+    // 조정대상지역 데이터 (../../data/조정대상지역.json)
+    let AREA = null;
+    let areaLoadError = '';
 
     function findBracket(brackets, taxable) {
       for (const b of brackets) {
@@ -241,11 +326,117 @@
     const $ = (id) => document.getElementById(id);
     let selectedAsset = null;
     let selectedPeriod = null;
+    let selectedCount = null;   // 1세대 보유 주택 수 (1, 2, 3=3주택 이상)
+
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    /**
+     * 다주택 중과 판정
+     * 반환: { add: 가산세율(0 / 0.2 / 0.3), pill, 사유: [..], show: 상태표시 여부 }
+     */
+    function judgeHeavy() {
+      const out = { add: 0, pill: '', title: '', 사유: [], show: false };
+      if (selectedAsset !== 'house' || !selectedCount) return out;
+      out.show = true;
+
+      if (selectedCount === 1) {
+        out.pill = '배제'; out.title = '1주택 → 다주택 중과 대상 아님';
+        out.사유.push('1세대1주택 비과세·고가주택 여부는 별도 검토');
+        return out;
+      }
+
+      const saleDate = $('hSaleDate').value;
+      if (!saleDate) {
+        out.pill = '확인필요'; out.title = '양도일을 입력하세요';
+        return out;
+      }
+
+      // 1) 양도일 현재 조정대상지역 여부
+      const q = { 시도: $('hSido').value, 시군구: $('hSgg').value, 읍면동: $('hEmd').value, 기준일: saleDate };
+      let area = $('hOverride').value;
+      if (area === 'auto') {
+        if (!AREA) {
+          out.pill = '확인필요'; out.title = '조정지역 데이터를 불러오지 못했습니다 → 직접 선택하세요';
+          if (areaLoadError) out.사유.push(areaLoadError);
+          return out;
+        }
+        const r = AdjustedArea.judge(AREA, q);
+        area = r.상태;
+        r.근거.forEach(g => out.사유.push(`[${g.판정}] ${g.레코드.시군구.join(', ')} (${AdjustedArea.formatDate(g.레코드.지정일)}~${g.레코드.해제일 ? AdjustedArea.formatDate(g.레코드.해제일) : '현재'}) ${g.사유}`));
+      } else {
+        out.사유.push('조정지역 여부 직접 선택: ' + area);
+      }
+
+      if (area === '확인필요') {
+        out.pill = '확인필요'; out.title = '일부 지역만 지정 → 읍·면·동 입력 또는 조정지역 여부를 직접 선택하세요';
+        return out;
+      }
+      if (area === '비조정') {
+        out.pill = '비조정'; out.title = `양도일(${AdjustedArea.formatDate(saleDate)}) 현재 비조정지역 → 중과 없음`;
+        return out;
+      }
+
+      // 2) 조정지역 → 중과 배제 사유 확인
+      const base = `양도일(${AdjustedArea.formatDate(saleDate)}) 현재 조정대상지역`;
+      if ($('hExempt').checked) {
+        out.pill = '배제'; out.title = base + ' · 중과배제 주택 해당 → 중과 없음';
+        return out;
+      }
+
+      const contract = $('hContractDate').value;
+      if (contract && $('hDeposit').checked && contract < saleDate && AREA) {
+        const c = AdjustedArea.judge(AREA, { ...q, 기준일: contract });
+        if (c.상태 === '비조정') {
+          out.pill = '배제';
+          out.title = base + ` · 계약일(${AdjustedArea.formatDate(contract)})에는 비조정 + 계약금 수령 → 중과 배제`;
+          out.사유.push('조정지역 공고일 전 매매계약·계약금 수령 주택 (서면법규재산 2019-4276). 데이터는 지정일 기준이므로 공고일과 차이가 있으면 확인');
+          return out;
+        }
+      }
+
+      if (selectedPeriod === 'ge2' && saleDate >= HEAVY_RELIEF_FROM && saleDate <= HEAVY_RELIEF_TO) {
+        out.pill = '배제';
+        out.title = base + ` · 보유 2년 이상 + 한시배제 기간(${AdjustedArea.formatDate(HEAVY_RELIEF_FROM)}~${AdjustedArea.formatDate(HEAVY_RELIEF_TO)}) 양도 → 중과 배제`;
+        return out;
+      }
+
+      out.add = selectedCount === 2 ? 0.20 : 0.30;
+      out.pill = '중과';
+      out.title = base + ` · ${selectedCount === 2 ? '2주택' : '3주택 이상'} → 기본세율 + ${out.add * 100}%p 중과`;
+      out.사유.push('중과 적용 시 장기보유특별공제 배제 — 과세표준 입력 시 장특공을 빼지 마세요');
+      if (selectedPeriod !== 'ge2') out.사유.push('보유 2년 미만: 단기세율과 중과세율 중 큰 세액 적용 (소득세법 §104⑦)');
+      return out;
+    }
+
+    function renderHeavy(h) {
+      const box = $('heavyStatus');
+      $('heavyBlock').classList.toggle('hidden', selectedAsset !== 'house');
+      $('heavyInputs').classList.toggle('hidden', !(selectedCount >= 2));
+      if (!h.show) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden');
+      box.innerHTML = `<span class="pill ${h.pill}">${esc(h.pill)}</span>${esc(h.title)}` +
+        (h.사유.length ? `<ul>${h.사유.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : '');
+    }
+
+    function fillSgg() {
+      if (!AREA) return;
+      $('hSgg').innerHTML = AdjustedArea.listSgg(AREA, $('hSido').value).map(a => `<option>${esc(a)}</option>`).join('');
+      fillPlaces();
+    }
+
+    function fillPlaces() {
+      if (!AREA) return;
+      $('hEmdList').innerHTML = AdjustedArea.listPlaces(AREA, $('hSido').value, $('hSgg').value)
+        .map(x => `<option value="${esc(x)}">`).join('');
+    }
 
     function recalc() {
       const taxable = Number($('taxableBase').value.replace(/[^0-9]/g, ''));
       const includeLocal = $('includeLocal').checked;
       let result = null;
+
+      const heavy = judgeHeavy();
+      renderHeavy(heavy);
 
       // 비사업용 토지 비교과세 옵션 노출
       if (selectedAsset === 'land_btl' && selectedPeriod && selectedPeriod !== 'ge2') {
@@ -257,6 +448,19 @@
       if (selectedAsset && selectedPeriod && taxable > 0) {
         if (selectedAsset === 'subscription') {
             result = compute(null, taxable, includeLocal, true, 0.70 - (selectedPeriod === 'lt1' ? 0 : 0.10));
+        } else if (selectedAsset === 'house' && heavy.add > 0) {
+            // 조정지역 다주택 중과: 기본세율 + 20%p / 30%p
+            const prog = compute(surchargeBrackets(heavy.add), taxable, includeLocal);
+            const label = `다주택 중과 (기본세율 + ${heavy.add * 100}%p)`;
+            if (selectedPeriod === 'ge2') {
+              result = prog;
+              result.formula = `[${label}]\n` + prog.formula;
+            } else {
+              // 보유 2년 미만: 단기세율 vs 중과세율 중 큰 세액 (소득세법 §104⑦)
+              const flat = compute(null, taxable, includeLocal, true, selectedPeriod === 'lt1' ? 0.70 : 0.60);
+              result = prog.incomeTax > flat.incomeTax ? prog : flat;
+              result.formula = `[비교과세] 단기세율 ${flat.incomeTax.toLocaleString()}원 vs ${label} ${prog.incomeTax.toLocaleString()}원 → 큰 금액 적용\n` + result.formula;
+            }
         } else if (selectedAsset === 'house' || selectedAsset === 'member') {
             if (selectedPeriod === 'lt1') result = compute(null, taxable, includeLocal, true, 0.70);
             else if (selectedPeriod === 'btw1_2') result = compute(null, taxable, includeLocal, true, 0.60);
@@ -313,12 +517,33 @@
         if (parent.id === 'assetChips') {
           selectedAsset = this.dataset.asset;
           $('periodBlock').classList.remove('hidden');
+        } else if (parent.id === 'houseCountChips') {
+          selectedCount = Number(this.dataset.count);
         } else {
           selectedPeriod = this.dataset.period;
         }
         recalc();
       });
     });
+
+    // 다주택 중과 입력 변경 → 재계산
+    ['hEmd', 'hSaleDate', 'hContractDate', 'hOverride', 'hDeposit', 'hExempt'].forEach(id => {
+      $(id).addEventListener('input', recalc);
+      $(id).addEventListener('change', recalc);
+    });
+    $('hSido').addEventListener('change', () => { fillSgg(); recalc(); });
+    $('hSgg').addEventListener('change', () => { fillPlaces(); recalc(); });
+
+    // 조정대상지역 데이터 불러오기
+    AdjustedArea.load('../../data/조정대상지역.json')
+      .then(data => {
+        AREA = data;
+        $('hSido').innerHTML = AdjustedArea.listSido(AREA).map(s => `<option>${esc(s)}</option>`).join('') +
+          '<option value="__none">그 외 지역 (지정 이력 없음)</option>';
+        fillSgg();
+        recalc();
+      })
+      .catch(e => { areaLoadError = e.message; recalc(); });
 </script>
 
 </body>

@@ -171,5 +171,28 @@
         return d ? d.replace(/-/g, ".") : "";
     }
 
-    global.AdjustedArea = { load, judge, activeOn, isActive, formatDate };
+    // ---------- 입력 화면용 목록 (시도 → 시군구 → 읍면동) ----------
+
+    /** 데이터에 나오는 시도 (처음 나온 순서) */
+    function listSido(data) {
+        return [...new Set(data.지정이력.map(r => r.시도))];
+    }
+
+    /** 시도 안의 시군구 (가나다순) */
+    function listSgg(data, 시도) {
+        const set = new Set();
+        data.지정이력.filter(r => r.시도 === 시도).forEach(r => r.시군구.forEach(a => set.add(a)));
+        return [...set].sort((a, b) => a.localeCompare(b, "ko"));
+    }
+
+    /** 시군구에서 따로 지정·제외된 읍면동 (입력 도우미용) */
+    function listPlaces(data, 시도, 시군구) {
+        const set = new Set();
+        data.지정이력
+            .filter(r => coversArea(r, 시도, 시군구))
+            .forEach(r => [...(r.포함 || []), ...(r.제외 || [])].forEach(x => set.add(x)));
+        return [...set];
+    }
+
+    global.AdjustedArea = { load, judge, activeOn, isActive, formatDate, listSido, listSgg, listPlaces };
 })(window);

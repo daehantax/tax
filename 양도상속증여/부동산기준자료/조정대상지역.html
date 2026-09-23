@@ -223,18 +223,6 @@
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     }
 
-    // 데이터에 나오는 시도 목록 (처음 나온 순서 유지)
-    function sidoList() {
-      return [...new Set(DATA.지정이력.map(r => r.시도))];
-    }
-
-    // 특정 시도의 시군구 목록
-    function sggList(sido) {
-      const set = new Set();
-      DATA.지정이력.filter(r => r.시도 === sido).forEach(r => r.시군구.forEach(a => set.add(a)));
-      return [...set].sort((a, b) => a.localeCompare(b, "ko"));
-    }
-
     // ---------------- 1. 현재 현황 ----------------
     function renderNow() {
       const day = today();
@@ -262,12 +250,12 @@
     // ---------------- 2. 조회 ----------------
     function fillSido(sel, withAll) {
       sel.innerHTML = (withAll ? `<option value="">전체 시도</option>` : "") +
-        sidoList().map(s => `<option>${esc(s)}</option>`).join("");
+        AdjustedArea.listSido(DATA).map(s => `<option>${esc(s)}</option>`).join("");
     }
 
     function fillSgg() {
       const sido = document.getElementById("q-sido").value;
-      document.getElementById("q-sgg").innerHTML = sggList(sido).map(a => `<option>${esc(a)}</option>`).join("");
+      document.getElementById("q-sgg").innerHTML = AdjustedArea.listSgg(DATA, sido).map(a => `<option>${esc(a)}</option>`).join("");
       fillEmd();
     }
 
@@ -275,11 +263,7 @@
     function fillEmd() {
       const sido = document.getElementById("q-sido").value;
       const sgg = document.getElementById("q-sgg").value;
-      const set = new Set();
-      DATA.지정이력
-        .filter(r => r.시도 === sido && r.시군구.some(a => a === sgg || sgg.startsWith(a + " ")))
-        .forEach(r => [...(r.포함 || []), ...(r.제외 || [])].forEach(x => set.add(x)));
-      document.getElementById("emd-list").innerHTML = [...set].map(x => `<option value="${esc(x)}">`).join("");
+      document.getElementById("emd-list").innerHTML = AdjustedArea.listPlaces(DATA, sido, sgg).map(x => `<option value="${esc(x)}">`).join("");
     }
 
     function runJudge() {
