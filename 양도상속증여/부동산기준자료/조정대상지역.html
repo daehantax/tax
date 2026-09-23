@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#005a9e">
+  <title>조정대상지역 지정·해제 현황 | 대한세무법인</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/daehan-brand.css">
+  <style>
+    /* ---- 이 페이지 전용 스타일 (공통은 daehan-brand.css) ---- */
+    .dh-field select,
+    .dh-field input[type="date"] {
+      width: 100%;
+      padding: 11px 14px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--dh-text);
+      background: #fbfdff;
+      border: 1.5px solid var(--dh-line);
+      border-radius: var(--dh-radius);
+    }
+    .dh-field select:focus,
+    .dh-field input[type="date"]:focus {
+      outline: none;
+      border-color: var(--dh-aqua);
+      box-shadow: 0 0 0 4px rgba(0, 180, 216, .16);
+    }
+    .dh-field .hint { font-size: .8rem; color: var(--dh-muted); }
+
+    /* 현재 현황 */
+    .now-grid { display: grid; gap: 12px; margin-top: 16px; }
+    .now-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--dh-sea-foam);
+      border: 1px solid var(--dh-line);
+      border-radius: var(--dh-radius);
+    }
+    .now-row .sido { font-weight: 900; color: var(--dh-brand-900); }
+    .now-row .sido small { display: block; font-weight: 500; color: var(--dh-muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      font-size: .88rem;
+      background: #fff;
+      border: 1px solid var(--dh-line);
+      border-radius: 999px;
+    }
+    .chip.new { border-color: var(--dh-sun); background: var(--dh-sand); }
+    .chip .d { font-size: .72rem; color: var(--dh-muted); }
+
+    /* 판정 결과 */
+    .result { margin-top: 20px; padding: 18px 20px; border-radius: var(--dh-radius); border: 2px solid; display: none; }
+    .result.show { display: block; }
+    .result.조정 { background: #fff1ef; border-color: var(--dh-coral); }
+    .result.비조정 { background: #eefaf3; border-color: #2fa36b; }
+    .result.확인필요 { background: var(--dh-sand); border-color: var(--dh-sun); }
+    .result .badge {
+      display: inline-block; padding: 4px 14px; margin-right: 8px;
+      font-weight: 900; color: #fff; border-radius: 999px;
+    }
+    .result.조정 .badge { background: var(--dh-coral); }
+    .result.비조정 .badge { background: #2fa36b; }
+    .result.확인필요 .badge { background: #d99500; }
+    .result .summary { font-weight: 700; }
+    .result ul { margin: 12px 0 0; padding-left: 18px; font-size: .9rem; }
+    .result li { margin: 4px 0; }
+    .tag { display: inline-block; padding: 0 8px; margin-right: 4px; font-size: .78rem; font-weight: 700; border-radius: 6px; background: #fff; border: 1px solid var(--dh-line); }
+
+    /* 표 */
+    .tbl-wrap { overflow-x: auto; margin-top: 14px; }
+    table.tbl { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 640px; }
+    .tbl th, .tbl td { padding: 9px 10px; border-bottom: 1px solid var(--dh-line); text-align: left; vertical-align: top; }
+    .tbl th { background: #eef6fb; color: var(--dh-brand-700); font-weight: 700; white-space: nowrap; }
+    .tbl td { white-space: normal; text-align: left; font-weight: 400; }
+    .tbl td.date { white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .tbl .detail { display: block; margin-top: 2px; font-size: .8rem; color: var(--dh-muted); }
+    .st { display: inline-block; padding: 1px 8px; font-size: .78rem; font-weight: 700; border-radius: 999px; white-space: nowrap; }
+    .st.on { color: #fff; background: var(--dh-coral); }
+    .st.off { color: var(--dh-muted); background: #eef2f6; }
+    .st.re { color: var(--dh-brand-700); background: var(--dh-sea-foam); }
+
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+    .filter-bar select, .filter-bar input[type="search"] {
+      padding: 8px 12px; font-family: inherit; font-size: .92rem;
+      border: 1.5px solid var(--dh-line); border-radius: var(--dh-radius); background: #fbfdff;
+    }
+    .filter-bar input[type="search"] { flex: 1 1 200px; }
+    .filter-bar label { font-size: .9rem; display: inline-flex; gap: 6px; align-items: center; }
+
+    .special { margin: 10px 0; padding: 12px 14px; border-left: 4px solid var(--dh-aqua); background: #f7fbfe; border-radius: 8px; font-size: .9rem; }
+    .special b { color: var(--dh-brand-900); }
+
+    @media (max-width: 560px) {
+      .now-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="dh-header">
+    <div class="dh-wrap">
+      <span class="dh-brandline">🏠 대한세무법인 · 부동산 기준자료</span>
+      <h1>조정대상지역 지정·해제 현황</h1>
+      <p class="dh-lead">주소와 날짜를 넣으면 그날 <strong>조정대상지역이었는지</strong> 판정합니다. 1세대1주택 거주요건, 양도세·취득세 중과, 종부세 경정청구 검토에 사용하세요.</p>
+    </div>
+    <svg class="dh-wave" viewBox="0 0 1440 54" preserveAspectRatio="none" aria-hidden="true">
+      <path class="w1" d="M0,26 C280,54 560,0 860,22 C1120,42 1300,12 1440,30 L1440,54 L0,54 Z"></path>
+      <path class="w2" d="M0,40 C300,16 600,58 900,38 C1140,22 1300,46 1440,34 L1440,54 L0,54 Z"></path>
+    </svg>
+  </header>
+
+  <main class="dh-wrap dh-main">
+
+    <!-- 1. 현재 지정 현황 -->
+    <section class="dh-card">
+      <h2><span class="dh-step">1</span>현재 지정 현황</h2>
+      <p class="dh-note" id="now-caption">불러오는 중…</p>
+      <div class="now-grid" id="now-grid"></div>
+    </section>
+
+    <!-- 2. 기준일 조회 -->
+    <section class="dh-card">
+      <h2><span class="dh-step">2</span>기준일 조정지역 조회</h2>
+      <p class="dh-note">시군구와 기준일을 고르면 그날 조정대상지역이었는지 판정합니다. 일부 읍·면·동만 지정된 곳은 읍·면·동도 입력하세요.</p>
+
+      <div class="dh-fields">
+        <div class="dh-field">
+          <label for="q-sido">시·도</label>
+          <select id="q-sido"></select>
+        </div>
+        <div class="dh-field">
+          <label for="q-sgg">시·군·구</label>
+          <select id="q-sgg"></select>
+          <span class="hint">목록에 없는 시군구 = 지정 이력 없음 (비조정)</span>
+        </div>
+        <div class="dh-field">
+          <label for="q-emd">읍·면·동 (선택)</label>
+          <input type="text" id="q-emd" list="emd-list" placeholder="예) 서신면, 원삼면 사암리">
+          <datalist id="emd-list"></datalist>
+          <span class="hint">목록은 이 지역에서 별도로 지정·제외된 곳만 보여줍니다</span>
+        </div>
+        <div class="dh-field">
+          <label for="q-date">기준일</label>
+          <input type="date" id="q-date">
+          <span class="hint">세목별 기준일은 아래 3번 표 참고</span>
+        </div>
+      </div>
+      <div class="dh-field-check" style="margin-top:14px">
+        <input type="checkbox" id="q-t2">
+        <label for="q-t2">1세대1주택 거주요건 판정 (소득령 §154①: 2017.9.6 지정분을 2017.8.3 지정으로 봄)</label>
+      </div>
+      <button class="dh-btn" id="q-run" type="button">판정하기</button>
+
+      <div class="result" id="q-result"></div>
+    </section>
+
+    <!-- 3. 세목별 기준일 -->
+    <section class="dh-card">
+      <h2><span class="dh-step">3</span>세목별 판정 기준일</h2>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>용도</th><th>기준일</th><th>유의사항</th></tr></thead>
+          <tbody>
+            <tr><td>1세대1주택 2년 거주요건</td><td>취득일</td><td>공고일 이전 매매계약 + 계약금 지급 + 계약일 현재 무주택세대이면 거주요건 배제. 위 체크박스(§154① 의제) 사용</td></tr>
+            <tr><td>양도세 다주택 중과</td><td>양도일</td><td>공고일 이전 매매계약 + 계약금 지급 시 중과 배제 (서면법규재산 2019-4276)</td></tr>
+            <tr><td>취득세 다주택 중과</td><td>취득일</td><td>조정지역 지정 전 매매계약분은 종전 규정 적용</td></tr>
+            <tr><td>증여 취득세 중과</td><td>증여 취득일</td><td>조정지역 내 공시가격 3억원 이상 주택</td></tr>
+            <tr><td>종합부동산세</td><td>과세기준일 (6.1)</td><td>2023년부터 조정지역과 무관(3주택 이상 기준). <strong>2019~2022년분 경정청구 검토용</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dh-notice">위 기준일은 실무 검토용 요약입니다. 개별 사안은 법령·예규를 확인하세요.</p>
+    </section>
+
+    <!-- 4. 전체 이력 -->
+    <section class="dh-card">
+      <h2><span class="dh-step">4</span>지정·해제 전체 이력</h2>
+      <div class="filter-bar">
+        <select id="h-sido"></select>
+        <input type="search" id="h-q" placeholder="지역 검색 (예: 수원, 동탄, 해운대)">
+        <label><input type="checkbox" id="h-now"> 현재 지정만</label>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th>시도</th><th>지정지역</th><th>지정일</th><th>해제일</th><th>상태</th></tr></thead>
+          <tbody id="h-body"></tbody>
+        </table>
+      </div>
+      <p class="dh-note" id="h-count"></p>
+    </section>
+
+    <!-- 5. 특례·주석 -->
+    <section class="dh-card">
+      <h2><span class="dh-step">5</span>특례 · 주석</h2>
+      <div id="specials"></div>
+      <p class="dh-note" id="source"></p>
+    </section>
+
+  </main>
+
+  <script src="../../js/조정대상지역.js"></script>
+  <script>
+    const DATA_URL = "../../data/조정대상지역.json";
+    const fmt = AdjustedArea.formatDate;
+    let DATA = null;
+
+    // 화면에 넣을 글자 안전 처리 (<, > 등이 태그로 해석되지 않게)
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    // 오늘 날짜 "YYYY-MM-DD" (한국 시간 기준)
+    function today() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
+
+    // 데이터에 나오는 시도 목록 (처음 나온 순서 유지)
+    function sidoList() {
+      return [...new Set(DATA.지정이력.map(r => r.시도))];
+    }
+
+    // 특정 시도의 시군구 목록
+    function sggList(sido) {
+      const set = new Set();
+      DATA.지정이력.filter(r => r.시도 === sido).forEach(r => r.시군구.forEach(a => set.add(a)));
+      return [...set].sort((a, b) => a.localeCompare(b, "ko"));
+    }
+
+    // ---------------- 1. 현재 현황 ----------------
+    function renderNow() {
+      const day = today();
+      const rows = AdjustedArea.activeOn(DATA, day);
+      document.getElementById("now-caption").textContent =
+        `오늘(${fmt(day)}) 기준 · 데이터 기준일 ${fmt(DATA.meta.기준일)} 고시 반영`;
+
+      const bySido = {};
+      rows.forEach(r => {
+        (bySido[r.시도] ||= []);
+        r.시군구.forEach(a => bySido[r.시도].push({ 이름: a, 지정일: r.지정일, 세부: r.세부 }));
+      });
+
+      const newest = rows.reduce((m, r) => (r.지정일 > m ? r.지정일 : m), "");
+      document.getElementById("now-grid").innerHTML = Object.entries(bySido).map(([sido, list]) => `
+        <div class="now-row">
+          <div class="sido">${esc(sido)}<small>${list.length}곳</small></div>
+          <div class="chips">
+            ${list.map(x => `<span class="chip${x.지정일 === newest ? " new" : ""}" title="${esc(x.세부 || "")}">
+              ${esc(x.이름)} <span class="d">${fmt(x.지정일)}</span></span>`).join("")}
+          </div>
+        </div>`).join("") || `<p>현재 지정된 지역이 없습니다.</p>`;
+    }
+
+    // ---------------- 2. 조회 ----------------
+    function fillSido(sel, withAll) {
+      sel.innerHTML = (withAll ? `<option value="">전체 시도</option>` : "") +
+        sidoList().map(s => `<option>${esc(s)}</option>`).join("");
+    }
+
+    function fillSgg() {
+      const sido = document.getElementById("q-sido").value;
+      document.getElementById("q-sgg").innerHTML = sggList(sido).map(a => `<option>${esc(a)}</option>`).join("");
+      fillEmd();
+    }
+
+    // 선택한 시군구에서 따로 지정·제외된 읍면동 목록 → 입력 도우미
+    function fillEmd() {
+      const sido = document.getElementById("q-sido").value;
+      const sgg = document.getElementById("q-sgg").value;
+      const set = new Set();
+      DATA.지정이력
+        .filter(r => r.시도 === sido && r.시군구.some(a => a === sgg || sgg.startsWith(a + " ")))
+        .forEach(r => [...(r.포함 || []), ...(r.제외 || [])].forEach(x => set.add(x)));
+      document.getElementById("emd-list").innerHTML = [...set].map(x => `<option value="${esc(x)}">`).join("");
+    }
+
+    function runJudge() {
+      const q = {
+        시도: document.getElementById("q-sido").value,
+        시군구: document.getElementById("q-sgg").value,
+        읍면동: document.getElementById("q-emd").value,
+        기준일: document.getElementById("q-date").value,
+        거주요건특례: document.getElementById("q-t2").checked
+      };
+      const box = document.getElementById("q-result");
+      if (!q.기준일) { alert("기준일을 입력하세요."); return; }
+
+      const r = AdjustedArea.judge(DATA, q);
+      const place = [q.시도, q.시군구, q.읍면동].filter(Boolean).join(" ");
+      const reasons = r.근거.map(g => `
+        <li><span class="tag">${esc(g.판정)}</span>
+          ${esc(g.레코드.시군구.join(", "))} (${fmt(g.레코드.지정일)} ~ ${g.레코드.해제일 ? fmt(g.레코드.해제일) : "현재"})
+          — ${esc(g.사유)} <small>[${esc(g.레코드.id)}]</small></li>`).join("");
+      const history = r.이력.map(h => `${fmt(h.지정일)} ~ ${h.해제일 ? fmt(h.해제일) : "현재"}${h.세부 ? " (" + esc(h.세부) + ")" : ""}`)
+        .map(t => `<li>${t}</li>`).join("");
+
+      box.className = "result show " + r.상태;
+      box.innerHTML = `
+        <div><span class="badge">${esc(r.상태)}</span><span class="summary">${esc(place)} · ${esc(r.요약)}</span></div>
+        ${reasons ? `<ul>${reasons}</ul>` : ""}
+        ${q.거주요건특례 ? `<p class="dh-note">소득령 §154① 적용: 2017.9.6 지정분을 2017.8.3 지정으로 보고 판정했습니다.</p>` : ""}
+        ${history ? `<p class="dh-note" style="margin-top:12px"><b>이 지역 지정·해제 이력</b></p><ul>${history}</ul>` : ""}`;
+    }
+
+    // ---------------- 4. 전체 이력 ----------------
+    function renderHistory() {
+      const sido = document.getElementById("h-sido").value;
+      const kw = document.getElementById("h-q").value.trim();
+      const nowOnly = document.getElementById("h-now").checked;
+      const day = today();
+
+      const rows = DATA.지정이력.filter(r => {
+        if (sido && r.시도 !== sido) return false;
+        const active = AdjustedArea.isActive(r, day, false);
+        if (nowOnly && !active) return false;
+        if (kw) {
+          const text = [r.시도, ...r.시군구, r.세부 || "", ...(r.포함 || [])].join(" ");
+          if (!text.includes(kw)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById("h-body").innerHTML = rows.map(r => {
+        const active = AdjustedArea.isActive(r, day, false);
+        const st = active ? `<span class="st on">지정 중</span>` : `<span class="st off">해제</span>`;
+        const re = r.재지정 ? ` <span class="st re">재지정</span>` : "";
+        return `<tr>
+          <td>${esc(r.시도)}</td>
+          <td>${esc(r.시군구.join(", "))}${r.세부 ? `<span class="detail">${esc(r.세부)}</span>` : ""}${r.비고 ? `<span class="detail">※ ${esc(r.비고)}</span>` : ""}</td>
+          <td class="date">${fmt(r.지정일)}</td>
+          <td class="date">${r.해제일 ? fmt(r.해제일) : "-"}</td>
+          <td>${st}${re}</td>
+        </tr>`;
+      }).join("");
+      document.getElementById("h-count").textContent = `${rows.length}건 / 전체 ${DATA.지정이력.length}건`;
+    }
+
+    // ---------------- 5. 특례 ----------------
+    function renderSpecials() {
+      document.getElementById("specials").innerHTML = DATA.특례.map(t => `
+        <div class="special"><b>${esc(t.id)}. ${esc(t.제목)}</b>${t.근거 ? ` <small>(${esc(t.근거)})</small>` : ""}<br>
+          ${esc(t.내용)}
+          ${t.고시이력 ? `<br>${t.고시이력.map(esc).join("<br>")}` : ""}
+        </div>`).join("");
+      document.getElementById("source").textContent = `출처: ${DATA.meta.출처}`;
+    }
+
+    // ---------------- 시작 ----------------
+    (async function init() {
+      try {
+        DATA = await AdjustedArea.load(DATA_URL);
+      } catch (e) {
+        document.getElementById("now-caption").textContent = e.message;
+        return;
+      }
+      renderNow();
+
+      fillSido(document.getElementById("q-sido"), false);
+      fillSgg();
+      document.getElementById("q-date").value = today();
+      document.getElementById("q-sido").addEventListener("change", fillSgg);
+      document.getElementById("q-sgg").addEventListener("change", fillEmd);
+      document.getElementById("q-run").addEventListener("click", runJudge);
+
+      fillSido(document.getElementById("h-sido"), true);
+      ["h-sido", "h-q", "h-now"].forEach(id =>
+        document.getElementById(id).addEventListener("input", renderHistory));
+      renderHistory();
+
+      renderSpecials();
+    })();
+  </script>
+</body>
+</html>
