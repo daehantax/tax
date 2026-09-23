@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#005a9e">
+  <title>종부세 조정지역 중과 경정청구 점검 | 대한세무법인</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/daehan-brand.css">
+  <style>
+    /* ---- 이 페이지 전용 스타일 (공통은 daehan-brand.css) ---- */
+    .dh-field select {
+      width: 100%;
+      padding: 11px 14px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--dh-text);
+      background: #fbfdff;
+      border: 1.5px solid var(--dh-line);
+      border-radius: var(--dh-radius);
+    }
+    .dh-field .hint { font-size: .8rem; color: var(--dh-muted); }
+    .hidden { display: none !important; }
+
+    /* 주택 목록 */
+    .house {
+      display: grid;
+      grid-template-columns: 34px 1fr 1fr 1fr 1.1fr 1fr 34px;
+      gap: 8px;
+      align-items: end;
+      padding: 12px;
+      margin-top: 10px;
+      background: #f7fbfe;
+      border: 1px solid var(--dh-line);
+      border-radius: var(--dh-radius);
+    }
+    .house .no { font-weight: 900; color: var(--dh-brand-700); align-self: center; text-align: center; }
+    .house label { display: block; font-size: .78rem; font-weight: 700; color: var(--dh-brand-700); margin-bottom: 4px; }
+    .house select, .house input {
+      width: 100%; padding: 8px 10px;
+      font-family: inherit; font-size: .92rem;
+      border: 1.5px solid var(--dh-line); border-radius: 10px; background: #fff;
+    }
+    .house .del { align-self: center; border: none; background: none; font-size: 1.2rem; color: var(--dh-muted); cursor: pointer; }
+    .house .area { grid-column: 2 / -1; font-size: .85rem; }
+    .badge { display: inline-block; padding: 1px 10px; margin-right: 6px; font-size: .8rem; font-weight: 700; color: #fff; border-radius: 999px; background: var(--dh-muted); }
+    .badge.조정 { background: var(--dh-coral); }
+    .badge.비조정 { background: #2fa36b; }
+    .badge.확인필요 { background: #d99500; }
+    .area small { color: var(--dh-muted); }
+    .add-btn {
+      margin-top: 10px; padding: 8px 18px;
+      font-family: inherit; font-size: .92rem; font-weight: 700;
+      color: var(--dh-brand); background: #fff;
+      border: 1.5px dashed var(--dh-brand); border-radius: 999px; cursor: pointer;
+    }
+    @media (max-width: 760px) {
+      .house { grid-template-columns: 1fr 1fr; }
+      .house .no { grid-column: 1 / -1; text-align: left; }
+      .house .del { grid-column: 2; justify-self: end; }
+      .house .area { grid-column: 1 / -1; }
+    }
+
+    /* 결론 */
+    .verdict { margin-top: 18px; padding: 16px 18px; border-radius: var(--dh-radius); border: 2px solid var(--dh-line); background: #fff; }
+    .verdict.claim { border-color: var(--dh-coral); background: #fff1ef; }
+    .verdict.ok { border-color: #2fa36b; background: #eefaf3; }
+    .verdict.check { border-color: var(--dh-sun); background: var(--dh-sand); }
+    .verdict .head { font-size: 1.05rem; font-weight: 900; color: var(--dh-brand-900); }
+    .verdict ul { margin: 10px 0 0; padding-left: 18px; font-size: .9rem; }
+    .verdict li { margin: 3px 0; }
+
+    table.cmp { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    .cmp th, .cmp td { padding: 10px 12px; border: 1px solid var(--dh-line); white-space: normal; font-weight: 400; }
+    .cmp tr:first-child th { position: static; }
+    .cmp td { text-align: right; font-variant-numeric: tabular-nums; }
+    .cmp td:first-child { text-align: left; }
+    .cmp tr.diff td { font-weight: 900; color: var(--dh-coral); background: #fff7f5; }
+
+    .rate-tbl { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: .88rem; }
+    .rate-tbl th, .rate-tbl td { padding: 8px; border: 1px solid var(--dh-line); text-align: center; white-space: normal; font-weight: 400; }
+    .rate-tbl th { background: #eef6fb; color: var(--dh-brand-700); font-weight: 700; }
+    .rate-tbl td:first-child { text-align: center; }
+  </style>
+</head>
+<body>
+
+  <header class="dh-header">
+    <div class="dh-wrap">
+      <span class="dh-brandline">🏠 대한세무법인 · 재산도우미</span>
+      <h1>종부세 조정지역 중과<br>경정청구 점검 (2019~2022년분)</h1>
+      <p class="dh-lead">과세기준일(6.1) 현재 <strong>조정대상지역 2주택</strong>에 해당했는지 판정해, 중과세율이 잘못 적용된 경우 예상 환급액을 계산합니다.</p>
+    </div>
+    <svg class="dh-wave" viewBox="0 0 1440 54" preserveAspectRatio="none" aria-hidden="true">
+      <path class="w1" d="M0,26 C280,54 560,0 860,22 C1120,42 1300,12 1440,30 L1440,54 L0,54 Z"></path>
+      <path class="w2" d="M0,40 C300,16 600,58 900,38 C1140,22 1300,46 1440,34 L1440,54 L0,54 Z"></path>
+    </svg>
+  </header>
+
+  <main class="dh-wrap dh-main">
+    <section class="dh-card">
+      <h2><span class="dh-step">1</span>과세연도와 보유 주택</h2>
+
+      <div class="dh-fields">
+        <div class="dh-field">
+          <label for="year">과세연도</label>
+          <select id="year">
+            <option value="2019">2019년분</option>
+            <option value="2020">2020년분</option>
+            <option value="2021" selected>2021년분</option>
+            <option value="2022">2022년분</option>
+          </select>
+          <span class="hint" id="yearInfo"></span>
+        </div>
+        <div class="dh-field">
+          <label for="applied">고지(신고)서에 적용된 세율</label>
+          <select id="applied">
+            <option value="heavy">중과세율 (3주택 이상·조정 2주택)</option>
+            <option value="general">일반세율</option>
+          </select>
+          <span class="hint">종부세 고지서의 세율 구분을 확인해 선택</span>
+        </div>
+      </div>
+
+      <h3>납세의무자 본인 소유 주택 (과세기준일 현재)</h3>
+      <p class="dh-note">종부세는 <strong>사람별(인별)</strong> 과세입니다. 본인 명의 주택만 입력하고, 공동소유는 본인 지분만큼의 공시가격을 넣으세요.</p>
+      <div id="houses"></div>
+      <button type="button" class="add-btn" id="addHouse">+ 주택 추가</button>
+
+      <div class="verdict" id="verdict"></div>
+
+      <table class="cmp hidden" id="cmp">
+        <tr><th>구분</th><th>일반세율</th><th>중과세율</th></tr>
+        <tr><td>공시가격 합계</td><td id="cGongsi" colspan="2"></td></tr>
+        <tr><td>과세표준 ((합계 − 6억) × 공정시장가액비율)</td><td id="cBase" colspan="2"></td></tr>
+        <tr><td>종부세 (세율 적용 세액)</td><td id="cGen"></td><td id="cHeavy"></td></tr>
+        <tr><td>농어촌특별세 (20%)</td><td id="cGenAg"></td><td id="cHeavyAg"></td></tr>
+        <tr class="diff"><td>차이 (예상 환급액, 세부담상한 적용 전)</td><td id="cDiff" colspan="2"></td></tr>
+      </table>
+
+      <p class="dh-notice">
+        · 공제할 재산세액은 세율과 무관하게 같으므로 차이 계산에서 뺐습니다.<br>
+        · <strong>세부담상한</strong>(전년도 대비 일반 150% / 중과 200~300%)이 적용됐으면 실제 환급액은 줄어듭니다. 고지서의 세부담상한 적용 여부를 확인하세요.<br>
+        · 부과고지분의 경정청구 가능 여부와 기한은 국세기본법 §45의2를 확인하세요.
+      </p>
+    </section>
+
+    <section class="dh-card">
+      <h2><span class="dh-step">2</span>2019~2022년 주택분 종부세 기준</h2>
+      <div class="dh-table-scroll">
+        <table class="rate-tbl">
+          <thead>
+            <tr><th>과세표준</th><th>2019·2020 일반</th><th>2019·2020 중과</th><th>2021·2022 일반</th><th>2021·2022 중과</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>3억 이하</td><td>0.5%</td><td>0.6%</td><td>0.6%</td><td>1.2%</td></tr>
+            <tr><td>3억~6억</td><td>0.7%</td><td>0.9%</td><td>0.8%</td><td>1.6%</td></tr>
+            <tr><td>6억~12억</td><td>1.0%</td><td>1.3%</td><td>1.2%</td><td>2.2%</td></tr>
+            <tr><td>12억~50억</td><td>1.4%</td><td>1.8%</td><td>1.6%</td><td>3.6%</td></tr>
+            <tr><td>50억~94억</td><td>2.0%</td><td>2.5%</td><td>2.2%</td><td>5.0%</td></tr>
+            <tr><td>94억 초과</td><td>2.7%</td><td>3.2%</td><td>3.0%</td><td>6.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dh-note">중과 대상: 3주택 이상 또는 <strong>조정대상지역 내 2주택</strong> (조정지역 1채 + 비조정 1채는 일반세율)</p>
+      <p class="dh-note">공정시장가액비율: 2019년 85%, 2020년 90%, 2021년 95%, 2022년 60%</p>
+      <p class="dh-note">조정지역 현황은 <a href="../부동산기준자료/조정대상지역.html" target="_blank" rel="noopener">조정대상지역 지정·해제 현황</a>에서 볼 수 있습니다.</p>
+    </section>
+  </main>
+
+  <script src="../../js/조정대상지역.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const KRW = (v) => Math.floor(v).toLocaleString('ko-KR') + ' 원';
+    const fmt = (d) => AdjustedArea.formatDate(d);
+
+    // ---------- 연도별 기준 ----------
+    // 세율: 과세표준 구간(3억·6억·12억·50억·94억)별 %
+    const RATES_2019 = { general: [0.5, 0.7, 1.0, 1.4, 2.0, 2.7], heavy: [0.6, 0.9, 1.3, 1.8, 2.5, 3.2] };
+    const RATES_2021 = { general: [0.6, 0.8, 1.2, 1.6, 2.2, 3.0], heavy: [1.2, 1.6, 2.2, 3.6, 5.0, 6.0] };
+    const YEARS = {
+      2019: { ratio: 0.85, rates: RATES_2019, dueDate: '2019-12-16' },   // 12.15 일요일 → 12.16
+      2020: { ratio: 0.90, rates: RATES_2019, dueDate: '2020-12-15' },
+      2021: { ratio: 0.95, rates: RATES_2021, dueDate: '2021-12-15' },
+      2022: { ratio: 0.60, rates: RATES_2021, dueDate: '2022-12-15' },
+    };
+    const LIMITS = [300_000_000, 600_000_000, 1_200_000_000, 5_000_000_000, 9_400_000_000, Infinity];
+    const BASIC_DEDUCTION = 600_000_000;   // 1세대1주택이 아닌 경우 기본공제 6억
+
+    /** 누진세율 구간별로 나눠 세액 계산 */
+    function progressive(base, rates) {
+      let tax = 0, lower = 0;
+      for (let i = 0; i < LIMITS.length && base > lower; i++) {
+        tax += (Math.min(base, LIMITS[i]) - lower) * rates[i] / 100;
+        lower = LIMITS[i];
+      }
+      return tax;
+    }
+
+    /** 경정청구 기한 = 법정신고기한 + 5년 */
+    function claimDeadline(year) {
+      const d = YEARS[year].dueDate;
+      return (Number(d.slice(0, 4)) + 5) + d.slice(4);
+    }
+
+    function today() {
+      const t = new Date();
+      return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    }
+
+    // ---------- 주택 목록 ----------
+    let AREA = null;
+    let areaLoadError = '';
+    let nextId = 1;
+
+    function sidoOptions() {
+      if (!AREA) return '';
+      return AdjustedArea.listSido(AREA).map(s => `<option>${esc(s)}</option>`).join('') +
+        '<option value="__none">그 외 지역 (지정 이력 없음)</option>';
+    }
+
+    function addHouse() {
+      const id = nextId++;
+      const div = document.createElement('div');
+      div.className = 'house';
+      div.dataset.id = id;
+      div.innerHTML = `
+        <div class="no"></div>
+        <div><label>시도</label><select class="sido">${sidoOptions()}</select></div>
+        <div><label>시군구</label><select class="sgg"></select></div>
+        <div><label>읍·면·동 (선택)</label><input class="emd" list="emd-${id}"><datalist id="emd-${id}"></datalist></div>
+        <div><label>공시가격 (본인 지분, 원)</label><input class="gongsi" inputmode="numeric" placeholder="예) 900,000,000"></div>
+        <div><label>조정지역 여부</label>
+          <select class="override">
+            <option value="auto">자동 판정</option>
+            <option value="조정">직접: 조정</option>
+            <option value="비조정">직접: 비조정</option>
+          </select></div>
+        <button type="button" class="del" title="삭제">✕</button>
+        <div class="area"></div>`;
+      $('houses').appendChild(div);
+
+      const sido = div.querySelector('.sido');
+      const sgg = div.querySelector('.sgg');
+      const fillSgg = () => {
+        sgg.innerHTML = AREA ? AdjustedArea.listSgg(AREA, sido.value).map(a => `<option>${esc(a)}</option>`).join('') : '';
+        fillPlaces();
+      };
+      const fillPlaces = () => {
+        div.querySelector('datalist').innerHTML = AREA
+          ? AdjustedArea.listPlaces(AREA, sido.value, sgg.value).map(x => `<option value="${esc(x)}">`).join('') : '';
+      };
+      sido.addEventListener('change', () => { fillSgg(); recalc(); });
+      sgg.addEventListener('change', () => { fillPlaces(); recalc(); });
+      div.querySelector('.gongsi').addEventListener('input', (e) => {
+        const v = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = v ? Number(v).toLocaleString() : '';
+        recalc();
+      });
+      ['.emd', '.override'].forEach(sel => div.querySelector(sel).addEventListener('input', recalc));
+      div.querySelector('.override').addEventListener('change', recalc);
+      div.querySelector('.del').addEventListener('click', () => { div.remove(); recalc(); });
+      fillSgg();
+      recalc();
+    }
+
+    /** 주택 하나의 과세기준일 현재 조정지역 여부 */
+    function judgeHouse(div, day) {
+      const override = div.querySelector('.override').value;
+      if (override !== 'auto') return { 상태: override, 요약: '직접 선택' };
+      if (!AREA) return { 상태: '확인필요', 요약: '조정지역 데이터를 불러오지 못했습니다 → 직접 선택하세요 ' + areaLoadError };
+      const r = AdjustedArea.judge(AREA, {
+        시도: div.querySelector('.sido').value,
+        시군구: div.querySelector('.sgg').value,
+        읍면동: div.querySelector('.emd').value,
+        기준일: day
+      });
+      const detail = r.근거.map(g => `${g.판정}: ${g.사유}`).join(' / ');
+      return { 상태: r.상태, 요약: detail || '지정 이력 없음' };
+    }
+
+    // ---------- 판정 + 계산 ----------
+    function recalc() {
+      const year = $('year').value;
+      const cfg = YEARS[year];
+      const day = `${year}-06-01`;
+      const deadline = claimDeadline(year);
+      const expired = today() > deadline;
+      $('yearInfo').textContent = `과세기준일 ${fmt(day)} · 경정청구 기한 ${fmt(deadline)}${expired ? ' (경과)' : ''}`;
+
+      // 주택별 판정
+      const houses = [...$('houses').children];
+      let total = 0, nAdj = 0, nCheck = 0;
+      houses.forEach((div, i) => {
+        div.querySelector('.no').textContent = i + 1;
+        const j = judgeHouse(div, day);
+        if (j.상태 === '조정') nAdj++;
+        if (j.상태 === '확인필요') nCheck++;
+        total += Number(div.querySelector('.gongsi').value.replace(/[^0-9]/g, '')) || 0;
+        div.querySelector('.area').innerHTML = `<span class="badge ${j.상태}">${esc(j.상태)}</span><small>${fmt(day)} 기준 · ${esc(j.요약)}</small>`;
+      });
+
+      const n = houses.length;
+      const applied = $('applied').value;
+      const box = $('verdict');
+      const notes = [];
+      let cls = 'check', head = '';
+      let shouldBe = null;   // 'heavy' | 'general'
+
+      if (n === 0) {
+        head = '주택을 추가하세요';
+      } else if (nCheck > 0) {
+        head = `확인필요 주택 ${nCheck}채 — 읍·면·동을 입력하거나 조정지역 여부를 직접 선택하세요`;
+      } else if (n >= 3) {
+        shouldBe = 'heavy';
+        notes.push('3주택 이상 → 조정지역과 관계없이 중과세율');
+        if (year === '2022') notes.push('2022년분: 일시적 2주택·상속주택·지방 저가주택은 주택 수에서 제외하는 특례 신청 가능 (종부세법 시행령 §4의2) — 제외 후 주택 수로 다시 확인');
+      } else if (n === 2) {
+        shouldBe = nAdj === 2 ? 'heavy' : 'general';
+        notes.push(nAdj === 2
+          ? '2채 모두 과세기준일 현재 조정대상지역 → 조정 2주택 중과'
+          : `조정지역 주택 ${nAdj}채 → 조정대상지역 내 2주택 아님 → 일반세율`);
+        if (year === '2022') notes.push('2022년분: 일시적 2주택·상속주택·지방 저가주택 주택 수 제외 특례도 확인');
+      } else {
+        shouldBe = 'general';
+        notes.push('1주택 → 일반세율 (1세대1주택 공제·세액공제는 별도 검토)');
+      }
+
+      if (shouldBe) {
+        if (applied === 'heavy' && shouldBe === 'general') {
+          cls = 'claim';
+          head = '⚠ 중과세율이 잘못 적용된 것으로 보입니다 → 경정청구 검토 대상';
+        } else if (applied === 'general' && shouldBe === 'heavy') {
+          cls = 'check';
+          head = '일반세율로 고지됐지만 판정상 중과 대상입니다 (과소 고지 — 경정청구 대상 아님)';
+        } else {
+          cls = 'ok';
+          head = `고지 세율(${applied === 'heavy' ? '중과' : '일반'})이 판정과 같습니다 → 조정지역 관련 경정 사유 없음`;
+        }
+        if (expired) notes.push(`${year}년분 경정청구 기한(${fmt(deadline)})이 지났습니다. 후발적 경정청구 사유가 있는지 확인`);
+      }
+
+      box.className = 'verdict ' + cls;
+      box.innerHTML = `<div class="head">${esc(head)}</div>` +
+        (notes.length ? `<ul>${notes.map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : '');
+
+      // 일반 vs 중과 세액 비교
+      const base = Math.max(0, (total - BASIC_DEDUCTION) * cfg.ratio);
+      if (n > 0 && total > 0) {
+        const gen = progressive(base, cfg.rates.general);
+        const heavy = progressive(base, cfg.rates.heavy);
+        $('cmp').classList.remove('hidden');
+        $('cGongsi').textContent = KRW(total);
+        $('cBase').textContent = `${KRW(base)} (비율 ${cfg.ratio * 100}%)`;
+        $('cGen').textContent = KRW(gen);
+        $('cHeavy').textContent = KRW(heavy);
+        $('cGenAg').textContent = KRW(gen * 0.2);
+        $('cHeavyAg').textContent = KRW(heavy * 0.2);
+        $('cDiff').textContent = KRW((heavy - gen) * 1.2);
+      } else {
+        $('cmp').classList.add('hidden');
+      }
+    }
+
+    // ---------- 시작 ----------
+    $('addHouse').addEventListener('click', addHouse);
+    $('year').addEventListener('change', recalc);
+    $('applied').addEventListener('change', recalc);
+
+    AdjustedArea.load('../../data/조정대상지역.json')
+      .then(data => { AREA = data; })
+      .catch(e => { areaLoadError = e.message; })
+      .finally(() => { addHouse(); addHouse(); });
+  </script>
+</body>
+</html>
