@@ -29,7 +29,8 @@
         <section class="dh-card">
             <h2>시뮬레이션 안내</h2>
             <p class="dh-note">상속인이 농사짓지 않는 <strong>비사업용 토지</strong>는 사망일로부터 5년 이후 양도하는 경우 기본세율에 10%를 추가합니다.</p>
-            <p class="dh-note">보유기간은 <strong>사망일 ~ 양도일</strong> (만, 년) 기준입니다.</p>
+            <p class="dh-note">보유기간은 <strong>사망일 ~ 양도일</strong> (만, 년) 기준이며 장기보유특별공제(3년 6% ~ 15년 30%)에 씁니다.</p>
+            <p class="dh-note">세율을 정할 때의 보유기간은 <strong>피상속인이 취득한 날부터</strong> 계산하므로 단기 중과세율은 보통 적용되지 않습니다(소득세법 §104②). 1세대1주택 비과세·다주택 중과는 반영하지 않은 계산입니다.</p>
             <p class="dh-note">아래 세 가지 경우를 입력한 뒤 <strong>모두 계산하기</strong>를 누르면 한 표로 비교됩니다.</p>
         </section>
 
@@ -149,22 +150,24 @@
     }
 
     function calculateTaxes(section) {
-        let transferPrice = parseFloat(document.getElementById('transferPrice' + section).value.replace(/,/g, ''));
-        let acquisitionPrice = parseFloat(document.getElementById('acquisitionPrice' + section).value.replace(/,/g, ''));
-        let holdingPeriod = section === '1' ? 0.5 : parseFloat(document.getElementById('holdingPeriod' + section).value);
+        const val = (id) => parseFloat((document.getElementById(id).value || '').replace(/,/g, '')) || 0;
+        let transferPrice = val('transferPrice' + section);
+        let acquisitionPrice = section === '1' ? transferPrice : val('acquisitionPrice' + section);
+        let holdingPeriod = section === '1' ? 0.5 : (parseFloat(document.getElementById('holdingPeriod' + section).value) || 0);
         let isNonBusinessUse = section !== '1' && document.getElementById('nonBusinessUse' + section).checked;
 
         if (section === '1') {
             document.getElementById('acquisitionPrice1').value = transferPrice.toLocaleString();
-            acquisitionPrice = transferPrice;
         }
 
-        let capitalGain = transferPrice - acquisitionPrice;
-        let longTermDeduction = calculateLongTermDeduction(capitalGain, holdingPeriod);
+        let capitalGain = Math.max(0, transferPrice - acquisitionPrice);
+        let longTermDeduction = Math.floor(calculateLongTermDeduction(capitalGain, holdingPeriod));
         let taxableIncome = capitalGain - longTermDeduction;
-        let taxBase = Math.max(0, taxableIncome - (section === '1' ? 0 : 2500000));
+        // 양도소득 기본공제 연 250만원
+        let taxBase = Math.max(0, taxableIncome - 2500000);
         let transferTax = calculateTransferTax(taxBase, holdingPeriod >= 5 && isNonBusinessUse);
-        let localIncomeTax = transferTax * 0.1;
+        transferTax = Math.floor(transferTax / 10) * 10;
+        let localIncomeTax = Math.floor(transferTax * 0.1 / 10) * 10;
         let totalTax = transferTax + localIncomeTax;
 
         results[section] = {
@@ -174,15 +177,11 @@
     }
 
     function calculateLongTermDeduction(capitalGain, holdingPeriod) {
-        let deductionRate = 0;
-        if (holdingPeriod >= 3 && holdingPeriod < 4) {
-            deductionRate = 0.06;
-        } else if (holdingPeriod >= 4 && holdingPeriod < 5) {
-            deductionRate = 0.08;
-        } else if (holdingPeriod >= 5) {
-            deductionRate = Math.min(0.3, 0.02 * holdingPeriod);
-        }
-        return capitalGain * deductionRate;
+        // 장기보유특별공제(일반): 3년 이상 6%, 1년마다 2%씩, 15년 이상 30%
+        // 상속받은 자산은 상속개시일부터 보유기간 계산 (만 년수 기준)
+        const years = Math.floor(holdingPeriod);
+        if (years < 3) return 0;
+        return capitalGain * Math.min(0.3, 0.02 * years);
     }
 
     function calculateTransferTax(taxBase, isNonBusinessLongTerm) {
@@ -226,8 +225,8 @@
             { key: 'capitalGain', label: '양도차익', note: '양도가액 - 취득가액' },
             { key: 'longTermDeduction', label: '장기보유특별공제', note: '' },
             { key: 'taxableIncome', label: '양도소득금액', note: '양도차익 - 장기보유특별공제' },
-            { key: 'taxBase', label: '과세표준', note: '' },
-            { key: 'transferTax', label: '양도세', note: '' },
+            { key: 'taxBase', label: '과세표준', note: '양도소득금액 - 기본공제 250만원' },
+            { key: 'transferTax', label: '양도세', note: '비사업용 토지(5년 이후 양도)는 기본세율 + 10%p' },
             { key: 'localIncomeTax', label: '지방소득세', note: '양도세 * 10%' },
             { key: 'totalTax', label: '세액합계', note: '양도세 + 지방소득세' }
         ];
@@ -251,7 +250,7 @@
 
     // 모든 연결은 상속세 절세보고서 프리미엄으로 이동
     function goToPremiumPage() {
-            window.location.href = 'https://dangse.github.io/tax/inheritPremium.html';
+            window.location.href = '../상속/inheritPremium.html';
         }
 
     </script>

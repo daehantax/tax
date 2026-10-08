@@ -171,7 +171,7 @@
           </div>
         </div>
         <div class="heavy-row">
-          <label><input id="hDeposit" type="checkbox"> 계약금 수령 확인 (계약일 예외 판정용)</label>
+          <label><input id="hDeposit" type="checkbox"> 계약금 수령 확인 (계약일 예외·유예 종료 경과조치 판정용)</label>
           <label><input id="hExempt" type="checkbox"> 중과배제 주택 해당 (장기임대·감면·지방 저가주택 등, 소득령 §167의3①·§167의10①)</label>
         </div>
       </div>
@@ -179,11 +179,8 @@
       <div id="heavyStatus" class="heavy-status hidden"></div>
     </div>
 
-    <div id="compareWrap" class="hidden note" style="margin-bottom: 15px; border: 1px solid #fee2e2;">
-      <label class="flex-center" style="color:#b91c1c; font-weight:600;">
-        <input id="applyCompare" type="checkbox">
-        비교과세 적용 (단기세율 vs 중과세율 중 큰 금액 적용)
-      </label>
+    <div id="compareWrap" class="hidden note" style="margin-bottom: 15px; border: 1px solid #fee2e2; color:#b91c1c; font-weight:600;">
+      비교과세 자동 적용: 비사업용 토지를 2년 미만 보유하면 단기세율과 (기본세율 + 10%p) 중 큰 세액을 냅니다 (소득세법 §104①단서)
     </div>
 
     <table class="result-table">
@@ -283,6 +280,15 @@
     // 연장·종료 등 법령이 바뀌면 이 두 날짜만 고치면 된다.
     const HEAVY_RELIEF_FROM = '2022-05-10';
     const HEAVY_RELIEF_TO = '2026-05-09';
+    // 유예 종료 경과조치 (2026.2.24 소득령 개정): 2026.5.9까지 매매계약 + 계약금 수령 시
+    //  기존 조정지역은 계약일부터 4개월, 2025.10.16 신규 지정지역은 6개월 이내 양도하면 중과 배제
+    const NEW_AREA_DESIGNATED = '2025-10-16';
+    // 'YYYY-MM-DD' + n개월 (시간대 영향 없이 날짜 문자열로 계산)
+    const addMonths = (d, n) => {
+      const [y, m, day] = d.split('-').map(Number);
+      const t = new Date(Date.UTC(y, m - 1 + n, day));
+      return t.toISOString().slice(0, 10);
+    };
 
     // 조정대상지역 데이터 (../../data/조정대상지역.json)
     let AREA = null;
@@ -310,8 +316,8 @@
         type = "누진세율";
       }
 
-      const incomeTax = Math.max(0, Math.round(taxable * rate - deduction));
-      const localTax = includeLocal ? Math.round(incomeTax * 0.10) : 0;
+      const incomeTax = Math.max(0, Math.floor(taxable * rate - deduction));   // 원 미만 절사
+      const localTax = includeLocal ? Math.floor(incomeTax * 0.10) : 0;
       
       return {
         rate: (rate * 100).toFixed(0) + '%',
@@ -354,6 +360,7 @@
       // 1) 양도일 현재 조정대상지역 여부
       const q = { 시도: $('hSido').value, 시군구: $('hSgg').value, 읍면동: $('hEmd').value, 기준일: saleDate };
       let area = $('hOverride').value;
+      let isNewArea = false;   // 2025.10.16 신규 지정지역 여부 (경과조치 기간 판정용)
       if (area === 'auto') {
         if (!AREA) {
           out.pill = '확인필요'; out.title = '조정지역 데이터를 불러오지 못했습니다 → 직접 선택하세요';
@@ -362,6 +369,7 @@
         }
         const r = AdjustedArea.judge(AREA, q);
         area = r.상태;
+        isNewArea = r.근거.some(g => g.판정 === '해당' && g.레코드.지정일 === NEW_AREA_DESIGNATED);
         r.근거.forEach(g => out.사유.push(`[${g.판정}] ${g.레코드.시군구.join(', ')} (${AdjustedArea.formatDate(g.레코드.지정일)}~${g.레코드.해제일 ? AdjustedArea.formatDate(g.레코드.해제일) : '현재'}) ${g.사유}`));
       } else {
         out.사유.push('조정지역 여부 직접 선택: ' + area);
@@ -398,6 +406,20 @@
         out.pill = '배제';
         out.title = base + ` · 보유 2년 이상 + 한시배제 기간(${AdjustedArea.formatDate(HEAVY_RELIEF_FROM)}~${AdjustedArea.formatDate(HEAVY_RELIEF_TO)}) 양도 → 중과 배제`;
         return out;
+      }
+
+      // 유예 종료 경과조치: 2026.5.9까지 계약(계약금 수령) + 계약일부터 4개월(신규 지정지역 6개월) 이내 양도
+      if (selectedPeriod === 'ge2' && saleDate > HEAVY_RELIEF_TO && contract && contract <= HEAVY_RELIEF_TO && $('hDeposit').checked) {
+        const months = isNewArea ? 6 : 4;
+        const limit = addMonths(contract, months);
+        if (saleDate <= limit) {
+          out.pill = '배제';
+          out.title = base + ` · ${AdjustedArea.formatDate(HEAVY_RELIEF_TO)}까지 계약 + 계약일부터 ${months}개월(${AdjustedArea.formatDate(limit)}) 이내 양도 → 중과 배제(경과조치)`;
+          out.사유.push('2026.2.24 소득세법 시행령 개정 경과조치. 가계약·토지거래허가 전 사전약정은 계약으로 보지 않음');
+          if ($('hOverride').value !== 'auto') out.사유.push('조정지역을 직접 선택한 경우 4개월 기준으로 판정 — 2025.10.16 신규 지정지역이면 6개월');
+          return out;
+        }
+        out.사유.push(`경과조치 기한(계약일부터 ${months}개월, ${AdjustedArea.formatDate(limit)})을 넘겨 양도 → 경과조치 적용 불가`);
       }
 
       out.add = selectedCount === 2 ? 0.20 : 0.30;
@@ -473,11 +495,13 @@
             if (selectedPeriod === 'lt1') {
                 const flat = compute(null, taxable, includeLocal, true, 0.50);
                 const prog = compute(btlBrackets, taxable, includeLocal);
-                result = ($('applyCompare').checked && prog.incomeTax > flat.incomeTax) ? prog : flat;
+                result = prog.incomeTax > flat.incomeTax ? prog : flat;
+                result.formula = `[비교과세] 단기세율 50% ${flat.incomeTax.toLocaleString()}원 vs 기본세율+10%p ${prog.incomeTax.toLocaleString()}원 → 큰 금액 적용\n` + result.formula;
             } else if (selectedPeriod === 'btw1_2') {
                 const flat = compute(null, taxable, includeLocal, true, 0.40);
                 const prog = compute(btlBrackets, taxable, includeLocal);
-                result = ($('applyCompare').checked && prog.incomeTax > flat.incomeTax) ? prog : flat;
+                result = prog.incomeTax > flat.incomeTax ? prog : flat;
+                result.formula = `[비교과세] 단기세율 40% ${flat.incomeTax.toLocaleString()}원 vs 기본세율+10%p ${prog.incomeTax.toLocaleString()}원 → 큰 금액 적용\n` + result.formula;
             } else {
                 result = compute(btlBrackets, taxable, includeLocal);
             }
@@ -506,7 +530,6 @@
     });
 
     $('includeLocal').addEventListener('change', recalc);
-    $('applyCompare').addEventListener('change', recalc);
 
     document.querySelectorAll('.chip').forEach(chip => {
       chip.addEventListener('click', function() {

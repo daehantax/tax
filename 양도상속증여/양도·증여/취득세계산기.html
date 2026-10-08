@@ -328,7 +328,7 @@
       const space = Number($('aSpace').value);
       const [take, ag, edu] = calc_taking_tax(type, price, h.code, 0, space, h.heavyGive);
 
-      $('rRate').textContent = (take / price * 100).toFixed(2).replace(/\.?0+$/, '') + '%';
+      $('rRate').textContent = (take / price * 100).toFixed(4).replace(/\.?0+$/, '') + '%';   // 6~9억 구간은 소수점 넷째자리까지
       $('rTake').textContent = KRW(take);
       $('rAg').textContent = KRW(ag);
       $('rEdu').textContent = KRW(edu);
