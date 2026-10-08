@@ -324,13 +324,13 @@
     <div class="page">
         <section class="hero">
             <h1>종소세세율</h1>
-            <p>종합소득금액을 입력하여 세액을 계산하세요 (2023년 세율 적용)</p>
+            <p>과세표준을 입력하여 산출세액을 계산하세요 (2023년 이후 귀속 세율 · 2026년 현재 적용)</p>
         </section>
 
         <section class="card">
             <div class="input-group">
                 <div class="field">
-                    <label for="incomeInput">종합소득금액</label>
+                    <label for="incomeInput">과세표준 (종합소득금액 − 종합소득공제)</label>
                     <input id="incomeInput" type="text" inputmode="numeric" placeholder="예: 80000000" autocomplete="off">
                 </div>
                 <button id="printButton" class="print-btn">인쇄하기</button>
@@ -376,7 +376,7 @@
                 </thead>
                 <tbody id="bracketBody"></tbody>
             </table>
-            <div class="note">산출세액 = 과세표준 × 세율 − 누진공제</div>
+            <div class="note">산출세액 = 과세표준 × 세율 − 누진공제 (원 미만 절사). 세액공제·감면, 기납부세액은 반영하지 않은 산출세액입니다.</div>
         </section>
     </div>
 
@@ -454,7 +454,7 @@
         function computeNationalTax(base) {
             const bracket = getBracketFor(base);
             const raw = base * bracket.rate - bracket.quick;
-            return Math.max(0, Math.floor(raw + 0.5));
+            return Math.max(0, Math.floor(raw));   // 원 미만 절사
         }
 
         function renderBracketTable() {
@@ -483,7 +483,7 @@
             }
 
             const national = computeNationalTax(base);
-            const local = Math.round(national * 0.10);
+            const local = Math.floor(national * 0.10);
             const total = national + local;
             const bracket = getBracketFor(base);
 
