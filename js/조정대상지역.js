@@ -135,7 +135,24 @@
                 }
             }
 
-            const a = applyRecord(rec, 읍면동);
+            let a = applyRecord(rec, 읍면동);
+
+            // 선해제(세부) 레코드는 원래 지정 범위 안에서만 의미가 있다.
+            // 원래 레코드가 처음부터 제외한 '하위' 리(里)는 세부 레코드로도 '해당'이 되지 않는다.
+            // 예) 안성시(2020.6.19)는 '죽산면 용설리'를 제외 → '죽산면' 선해제 레코드(GG-37)로 용설리가 조정이 되면 안 됨
+            // ※ 제외 항목과 포함 항목이 같은 이름이면(남양주 별내동, 기장군 일광면 등) 별도 기간 레코드이므로 해당 없음
+            if (a && a.판정 === "해당" && rec.포함) {
+                const p = rec.포함.find(item => matchPlace(읍면동, item) === "같음" || matchPlace(읍면동, item) === "부분");
+                const subs = all
+                    .filter(g => !g.포함 && g.제외 && overrides(rec, g))
+                    .flatMap(g => g.제외.filter(e => p && e.startsWith(p + " ")).map(e => ({ e, id: g.id })));
+                const hit = subs.find(x => matchPlace(읍면동, x.e) === "같음");
+                if (hit) {
+                    a = { 판정: "제외", 사유: 읍면동 + " 은(는) 처음부터 제외지역 (" + hit.id + ")" };
+                } else if (subs.some(x => matchPlace(읍면동, x.e) === "부분")) {
+                    a = { 판정: "확인필요", 사유: "리(里) 단위 제외 있음: " + subs.map(x => x.e).join(", ") };
+                }
+            }
             if (a) 근거.push({ 레코드: rec, ...a });
         }
 
