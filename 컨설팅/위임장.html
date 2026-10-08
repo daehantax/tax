@@ -454,8 +454,8 @@ function liveUpdate() {
 
   $('doc-content').innerHTML = `
     <div class="doc-title">위 임 장</div>
-    <div class="doc-subtitle">세무사법 제2조 및 제6조에 의한 세무대리 위임</div>
-    <div class="doc-notice">※ 아래 위임인은 수임인에게 기재된 세무 관련 업무의 세무대리를 위임하며, 본 위임장은 세무사법 제6조에 따라 효력을 가집니다.</div>
+    <div class="doc-subtitle">세무사법 제2조(세무사의 직무)에 따른 세무대리 위임</div>
+    <div class="doc-notice">※ 아래 위임인은 수임인에게 기재된 세무 관련 업무의 세무대리를 위임하며, 본 위임장은 위임인이 서명 또는 날인한 때부터 효력을 가집니다.</div>
 
     <div class="doc-section">
       <div class="doc-section-hd">1. 위임인 (납세자)</div>
@@ -503,7 +503,7 @@ function liveUpdate() {
         </div>
       </div>
       <div class="doc-footnote">
-        ※ 이 위임장은 세무사법 제2조(세무사의 직무) 및 제6조(세무대리의 신고 등)에 의거하여 작성되었습니다.<br>
+        ※ 이 위임장은 세무사법 제2조(세무사의 직무)에 따른 세무대리를 위임하기 위하여 작성되었습니다.<br>
         ※ 위임인의 자유로운 의사에 따라 서명 또는 날인하여야 효력이 발생합니다. 위임 사항 변경 시 별도의 위임장을 작성하여야 합니다.
       </div>
     </div>`;
@@ -565,10 +565,10 @@ async function exportWord() {
           children:[new TextRun({text:'위    임    장',bold:true,size:48,font:'Malgun Gothic',color:'111111'})] }),
         new Paragraph({ alignment:AlignmentType.CENTER, spacing:{after:50},
           border:{bottom:{style:BorderStyle.THICK,size:8,color:'111111',space:4}},
-          children:[new TextRun({text:'세무사법 제2조 및 제6조에 의한 세무대리 위임',size:17,color:'666666',font:'Malgun Gothic'})] }),
+          children:[new TextRun({text:'세무사법 제2조(세무사의 직무)에 따른 세무대리 위임',size:17,color:'666666',font:'Malgun Gothic'})] }),
         new Paragraph({ spacing:{before:120,after:160}, shading:{fill:'FFFBEB',type:ShadingType.CLEAR},
           border:{left:{style:BorderStyle.THICK,size:8,color:'F59E0B',space:4}},
-          children:[new TextRun({text:'※ 아래 위임인은 수임인에게 기재된 세무 관련 업무의 세무대리를 위임하며, 세무사법 제6조에 따라 효력을 가집니다.',size:17,color:'92400E',font:'Malgun Gothic'})] }),
+          children:[new TextRun({text:'※ 아래 위임인은 수임인에게 기재된 세무 관련 업무의 세무대리를 위임하며, 위임인이 서명 또는 날인한 때부터 효력을 가집니다.',size:17,color:'92400E',font:'Malgun Gothic'})] }),
 
         sHdr('1. 위임인 (납세자)'),
         new Table({ width:{size:9060,type:WidthType.DXA}, columnWidths:[1500,7560], rows:[
@@ -635,7 +635,7 @@ async function exportWord() {
 
         new Paragraph({ spacing:{before:160}, border:{top:{style:BorderStyle.SINGLE,size:4,color:'CCCCCC',space:4}},
           shading:{fill:'FAFAFA',type:ShadingType.CLEAR},
-          children:[new TextRun({text:'※ 이 위임장은 세무사법 제2조 및 제6조에 의거하여 작성되었습니다. 위임인의 자유로운 의사에 따라 서명 또는 날인하여야 효력이 발생합니다. 위임 사항 변경 시 별도의 위임장을 작성하여야 합니다.',size:15,color:'888888',font:'Malgun Gothic'})] }),
+          children:[new TextRun({text:'※ 이 위임장은 세무사법 제2조(세무사의 직무)에 따른 세무대리를 위임하기 위하여 작성되었습니다. 위임인의 자유로운 의사에 따라 서명 또는 날인하여야 효력이 발생합니다. 위임 사항 변경 시 별도의 위임장을 작성하여야 합니다.',size:15,color:'888888',font:'Malgun Gothic'})] }),
       ]}]
   });
 

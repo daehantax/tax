@@ -240,7 +240,7 @@ input[readonly]{background:#f0f0f0;color:var(--mid);cursor:default;}
         </div>
       </div>
       <div class="col col3">
-        <label>퇴직소득 한도액 <span class="sub">한도 내 금액 — 인출금액과 자동 일치 (대화1 계산기 결과로 변경 가능)</span></label>
+        <label>퇴직소득 한도액 <span class="sub">한도 내 금액 — 인출금액과 자동 일치 (퇴직금한도계산 결과로 변경 가능)</span></label>
         <div class="inp-wrap">
           <input type="text" id="retireLimit" oninput="fN(this)" placeholder="인출금액 자동 입력됨">
           <span class="unit">원</span>
@@ -249,7 +249,7 @@ input[readonly]{background:#f0f0f0;color:var(--mid);cursor:default;}
     </div>
     <div class="note">
       ▪ 퇴직소득 한도액은 <b>인출하고자 하는 금액과 자동으로 일치</b>합니다 — 이 금액은 <b>한도 내 금액</b>으로 전액 퇴직소득으로 인정됩니다<br>
-      ▪ 한도를 초과하는 경우 대화1 퇴직금한도계산기에서 확인한 한도액을 직접 수정 입력하세요 (초과분은 근로소득 과세)
+      ▪ 한도를 초과하는 경우 컨설팅 메뉴의 퇴직금한도계산에서 확인한 한도액을 직접 수정 입력하세요 (초과분은 근로소득 과세)
     </div>
   </div>
 </div>
@@ -291,7 +291,7 @@ input[readonly]{background:#f0f0f0;color:var(--mid);cursor:default;}
     <div class="note-head" onclick="togB(this)">급여·배당 과세 및 법인세 절감<span class="basis-tog">▼ 펼치기</span></div>
     <div class="note-body">
       ▪ 기존 급여에 추가되므로 <b>누진세율 적용</b>. 고소득 구간(과세표준 3억↑)은 한계세율 38~45%로 불리합니다.<br>
-      ▪ 건강보험료는 회사+본인 전액(14.18%+장기요양) 반영됩니다.<br>
+      ▪ 건강보험료는 회사+본인 전액(14.38%+장기요양) 반영됩니다. 국민연금은 기준소득월액 상한이 있어 제외했습니다.<br>
       ▪ 배당 연 2,000만원 초과 시 근로소득과 <b>합산 종합과세</b>. 법인세 납부 후 세후이익에서 배당하는 <b>실질적 이중과세</b> 구조에 유의하세요.<br>
       ▪ 배당은 <b>손금불산입</b>으로 법인세 절감 효과가 없습니다.
     </div>
@@ -330,7 +330,7 @@ input[readonly]{background:#f0f0f0;color:var(--mid);cursor:default;}
   </div>
 </div>
 
-<div class="footnote">※ 2026년 세법 기준 · 건강보험료율 7.09% · 장기요양 12.95% · 지방소득세 10% · 사적연금 건보료 현행 미부과</div>
+<div class="footnote">※ 2026년 세법 기준 · 건강보험료율 7.19% · 장기요양 건보료의 13.14% · 지방소득세 10% · 법인세 절감은 법인지방소득세 포함 · 사적연금 건보료 현행 미부과</div>
 
 </div><!-- /print-p2 -->
 </div><!-- /result-wrap -->
@@ -338,6 +338,10 @@ input[readonly]{background:#f0f0f0;color:var(--mid);cursor:default;}
 
 <script>
 let splitYr=1, annYr=10;
+/* 2026년 요율 (매년 확인) */
+const HEALTH_RATE = 0.0719;   // 건강보험료율
+const LTC_RATIO   = 0.1314;   // 장기요양보험료 = 건강보험료 × 13.14% (소득 대비 0.9448%)
+const GROSS_UP    = 0.10;     // 배당가산율 (2024년 이후 배당분 10%)
 
 /* 유틸 */
 function fN(el){let r=el.value.replace(/[^0-9]/g,'');el.value=r?Number(r).toLocaleString('ko-KR'):'';}
@@ -380,14 +384,14 @@ function salTax(s){
 }
 /* 건강보험 전체 (회사+본인) — 3번 수정사항 */
 function healthTotal(salary){
-  // 건강보험: 7.09%×2(회사+본인) + 장기요양: 건보×12.95%×2
-  const hRate=0.0709*2*(1+0.1295);
+  // 2026년 건강보험료율 7.19%(회사·본인 각 3.595%) + 장기요양 = 건보료 × 13.14%
+  const hRate=HEALTH_RATE*2*(1+LTC_RATIO);
   return salary*hRate;
 }
 /* 배당 소득월액보험료 (직장가입자 본인 전액) */
 function divHealth(divAmt){
   const over=Math.max(divAmt-20e6,0);
-  return over*0.0709*(1+0.1295);
+  return over*HEALTH_RATE*(1+LTC_RATIO);
 }
 
 /* ── 퇴직소득세 (이미지 구조 그대로) ── */
@@ -454,7 +458,8 @@ function calc(){
   const curSal = pN('curSalary');
   const total  = pN('totalAmt');
   const tenure = parseInt(document.getElementById('tenure').value)||20;
-  const cRate  = parseFloat(document.getElementById('corpTax').value)||0.19;
+  // 법인세율 + 법인지방소득세(법인세의 10% 상당) → 손금 1원당 절감액
+  const cRate  = (parseFloat(document.getElementById('corpTax').value)||0.20)*1.1;
   let rlimit   = pN('retireLimit');
   if(!rlimit) rlimit=total;
 
@@ -481,18 +486,21 @@ function calc(){
     D_hlth= 0;
     divBasisTxt=`배당 ${w(annAmt)} × 15.4% (분리과세) = ${w(annAmt*0.154)}\n건강보험료: 없음 (2,000만원 이하)\n법인세 절감: 없음 (배당은 손금불산입)`;
   } else {
-    const grossUp = annAmt*0.11;
+    // 금융소득 종합과세 (소득세법 §62): 2,000만원까지 14%, 초과분은 Gross-up 후 근로소득과 합산 누진세율
+    const excess  = annAmt-20e6;
+    const grossUp = excess*GROSS_UP;
     const salEd   = earnDed(curSal);
     const salBase = Math.max(curSal-salEd-6e6-7e6,0);
-    const totBase = salBase+annAmt+grossUp;
-    const totSan  = taxBracket(totBase);
-    const totFin  = Math.max(totSan-1.5e6,0)*1.1;
-    const dCredit = Math.min(grossUp, taxBracket(totBase)*0.1)*1.1;
-    const divTx   = Math.max(totFin-sTaxOld-dCredit,0);
+    const totBase = salBase+excess+grossUp;
+    const general = taxBracket(totBase)+20e6*0.14;          // 일반산출세액
+    const compare = taxBracket(salBase)+annAmt*0.14;         // 비교산출세액 (배당 전액 14%)
+    const dCredit = Math.min(grossUp, Math.max(general-compare,0)); // 배당세액공제 (한도: 일반-비교)
+    const finalTx = Math.max(general-dCredit, compare);
+    const divTx   = Math.max(finalTx-taxBracket(salBase),0)*1.1; // 늘어난 세액 (지방소득세 포함)
     const dHlth   = divHealth(annAmt);
     D_tax  = divTx*splitYr;
     D_hlth = dHlth*splitYr;
-    divBasisTxt=`배당 ${w(annAmt)} (2,000만 초과 → 종합과세)\nGross-up: ${w(annAmt)} × 11% = ${w(grossUp)}\n근로소득 과세표준: ${w(salBase)}\n합산 과세표준: ${w(totBase)}\n합산세액 - 기존근로소득세 - 배당세액공제 = ${w(divTx)}\n건강보험 소득월액(초과분 본인전액): ${w(dHlth)}\n법인세 절감: 없음 (손금불산입)`;
+    divBasisTxt=`배당 ${w(annAmt)} (2,000만 초과 → 종합과세)\n2,000만원 × 14% + 초과분 ${w(excess)} 누진세율\nGross-up: ${w(excess)} × 10% = ${w(grossUp)}\n근로소득 과세표준: ${w(salBase)}\n합산 과세표준: ${w(totBase)}\n배당세액공제: ${w(dCredit)}\n늘어난 세액(지방세 포함): ${w(divTx)}\n건강보험 소득월액(초과분 본인전액): ${w(dHlth)}\n법인세 절감: 없음 (손금불산입)`;
   }
   const D_corp = 0;
   const D_recv = total - D_tax - D_hlth + D_corp;
@@ -543,7 +551,7 @@ function calc(){
     {lbl:'실질 세부담 합계',          vs:[S_tax+S_hlth,D_tax+D_hlth,R_tax,A_tax],        cls:'sep-row'},
     {lbl:'(+) 법인세 절감 (손금)',    vs:[S_corp,D_corp,R_corp,A_corp],                  cls:'sub-row',isPlus:true},
     {lbl:'실수령액 (법인절감 포함)',  vs:[S_recv,D_recv,R_recv,A_recv],                  cls:'recv-row'},
-    {lbl:'실효세율 ((실질 세무담합계 - 법인세 절감) ÷ 총액)', vs:[S_eff,D_eff,R_eff,A_eff],                      cls:'rate-row',isPct:true},
+    {lbl:'실효세율 ((실질 세부담 합계 - 법인세 절감) ÷ 총액)', vs:[S_eff,D_eff,R_eff,A_eff],                      cls:'rate-row',isPct:true},
     {lbl:'유불리 순위',               vs:[rnk.sal,rnk.div,rnk.ret,rnk.ann],              cls:'rate-row',isRank:true},
   ];
 
@@ -626,7 +634,7 @@ ${ac2.y3>0?`\n21년~ 연세금: ${w(ac2.taxY3)}/년`:''}
   const salEdN=earnDed(curSal+annAmt), salEdO=earnDed(curSal);
   const salBN=Math.max(curSal+annAmt-salEdN-6e6-7e6,0);
   const salBO=Math.max(curSal-salEdO-6e6-7e6,0);
-  const hRatePct='14.18%+장기요양(7.09%×2×12.95%)';
+  const hRatePct='14.38%+장기요양(7.19%×2×13.14%)';
 
   const bases=[
     {
@@ -645,8 +653,8 @@ ${ac2.y3>0?`\n21년~ 연세금: ${w(ac2.taxY3)}/년`:''}
 
 <b>연간 추가 소득세:</b> ${w(sTaxInc)}
 <b>건강보험+장기요양 (회사+본인 전액):</b>
-  ${w(annAmt)} × 7.09% × 2 × 1.1295 = ${w(sHlth)}
-<b>법인세 절감 (급여는 손금):</b> ${w(annAmt)} × ${(cRate*100).toFixed(0)}% = ${w(sCorpSv)}
+  ${w(annAmt)} × 7.19% × 2 × 1.1314 = ${w(sHlth)}
+<b>법인세 절감 (급여는 손금):</b> ${w(annAmt)} × ${(cRate/1.1*100).toFixed(0)}% × 1.1(지방세 포함) = ${w(sCorpSv)}
 
 [${splitYr}년 총액 기준]
 소득세 합계: ${w(S_tax)}
@@ -696,7 +704,7 @@ ${divBasisTxt}
 
 한도 초과 근로소득세: ${w(R_excTx)}
 건강보험료: 없음 (퇴직소득)
-법인세 절감: ${w(retAmt)} × ${(cRate*100).toFixed(0)}% = △${w(R_corp)}
+법인세 절감: ${w(retAmt)} × ${(cRate/1.1*100).toFixed(0)}% × 1.1(지방세 포함) = △${w(R_corp)}
 ━━━━━━━━━━━━━━━━━━
 <b>실수령액 = ${w(total)} - ${w(R_tax)} + ${w(R_corp)} = ${w(R_recv)}</b>
 실효세율: ${pc(R_eff)}`
@@ -806,7 +814,7 @@ async function saveWord(){
     H('■ 유의사항 및 핵심 정보',24),
     ...chkP,
     new Paragraph({border:{bottom:{style:'single',size:6,color:'555555'}},spacing:{before:60,after:80}}),
-    P('※ 2026년 세법 기준 · 건강보험료율 7.09% · 장기요양 12.95% · 지방소득세 10% · 본 계산기는 참고용입니다.',18),
+    P('※ 2026년 세법 기준 · 건강보험료율 7.19% · 장기요양 건보료의 13.14% · 지방소득세 10% · 본 계산기는 참고용입니다.',18),
   ]}]});
 
   const blob=await Packer.toBlob(doc);

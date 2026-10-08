@@ -225,7 +225,7 @@ input:focus{border-color:var(--dark);background:var(--white);}
         <div id="box-nojk">
           <div class="warn-note">
             <b>정관 없을 때 두 가지 한도가 동시에 고려.</b><br>
-            · <b>소득세법 한도</b> (§22): 구간별 산식 합계 → 초과분은 개인 근로소득 과세<br>
+            · <b>소득세법 한도</b> (§22): 3년 연평균급여 기준 구간별 산식 합계 (정관 유무와 무관) → 초과분은 개인 근로소득 과세<br>
             · <b>법인세법 손금 한도</b> (시행령 §44): 퇴직 전 1년 총급여 × 1/10 × 근속연수 → 초과분은 법인 손금불산입
           </div>
           <div class="formula-box">법인세법 손금 한도 = 퇴직 전 1년 총급여(비과세 제외) × 1/10 × 근속연수</div>
@@ -234,7 +234,7 @@ input:focus{border-color:var(--dark);background:var(--white);}
         <!-- 정관 있음: 2011 이전 구간 추가 입력 -->
         <div id="box-jk" class="hidden">
           <div class="note" style="margin-bottom:8px;">
-            정관·주총 결의 지급규정이 있으면 소득세법 §22 구간별 한도만 적용됩니다.<br>
+            정관·주총 결의 지급규정이 있으면 법인세법 손금 한도는 그 규정 금액이 되고(이 계산기는 규정 금액 이내로 지급한다고 가정), 소득세법 §22 구간별 한도로 퇴직소득을 판정합니다.<br>
             2011.12.31 이전 근속 구간이 있는 경우 아래 정보를 입력하면 비례안분법과 정관규정법 중 유리한 방법을 자동 선택합니다.
           </div>
           <div id="card-pre-jk" style="display:none;">
@@ -272,11 +272,11 @@ input:focus{border-color:var(--dark);background:var(--white);}
       <div class="blk-head">③ 급여 정보</div>
       <div class="blk-body">
 
-        <!-- 정관 없음: 퇴직 전 1년 총급여 (법인세법 한도 + 소득세법 한도 공용) -->
+        <!-- 정관 없음: 퇴직 전 1년 총급여 (법인세법 손금 한도용) -->
         <div id="row-sal1y">
           <div class="row">
             <div class="col">
-              <label>퇴직 전 1년간 총급여 <span class="sub">비과세 제외 · 법인세법 §44 손금 한도용</span></label>
+              <label>퇴직 전 1년간 총급여 <span class="sub">비과세 제외 · 정관이 없을 때 법인세법 §44 손금 한도용</span></label>
               <div class="inp-wrap">
                 <input type="text" id="sal_1y" placeholder="예) 130,000,000" oninput="fmtNum(this)">
                 <span class="unit">원</span>
@@ -285,27 +285,32 @@ input:focus{border-color:var(--dark);background:var(--white);}
             <div class="col"></div>
           </div>
           <div class="note">
-            법인세법 손금 한도 = 퇴직 전 1년 총급여 × <b>1/10</b> × 근속연수<br>
-            소득세법 구간별 한도 계산에도 이 금액을 연평균 급여로 사용합니다.<br>
-            이 한도를 초과 지급한 금액은 <b>법인 비용 불인정</b> + 퇴직자에게 근로소득 과세됩니다.
+            법인세법 손금 한도 = 퇴직 전 1년 총급여 × <b>1/10</b> × 근속연수 (1년 미만은 월수로, 1개월 미만은 버림)<br>
+            이 한도를 초과 지급한 금액은 <b>법인 비용 불인정</b>(손금불산입·상여처분) + 퇴직자에게 근로소득 과세됩니다.
           </div>
         </div>
 
-        <!-- 정관 있음: 퇴직 소급 3년 연평균 (소득세법 한도용) -->
-        <div id="row-sal-avg" style="display:none;">
+        <!-- 소득세법 한도용 3년 연평균 (정관 유무와 관계없이 항상 필요) -->
+        <div id="row-sal-avg">
           <div class="row">
             <div class="col">
-              <label>퇴직 소급 3년 연평균 총급여 <span class="sub">비과세 제외 · 소득세법 §22 한도용</span></label>
+              <label>퇴직일(기준일)부터 소급 3년 연평균 총급여 <span class="sub">비과세 제외 · 2020년 이후 구간(2배)용</span></label>
               <div class="inp-wrap">
                 <input type="text" id="sal_avg" placeholder="예) 120,000,000" oninput="fmtNum(this)">
                 <span class="unit">원</span>
               </div>
             </div>
-            <div class="col"></div>
+            <div class="col">
+              <label>2019.12.31부터 소급 3년 연평균 총급여 <span class="sub">2012~2019 근무기간이 있을 때 · 3배 구간용</span></label>
+              <div class="inp-wrap">
+                <input type="text" id="sal_avg19" placeholder="비우면 왼쪽 금액으로 계산" oninput="fmtNum(this)">
+                <span class="unit">원</span>
+              </div>
+            </div>
           </div>
           <div class="note">
-            연평균 급여 = 퇴직일 소급 3년 총급여(상여 포함·비과세 제외) ÷ 36개월 × 12<br>
-            근속 3년 미만이면 실제 근속월수 기준 환산 / 2012~2019(3배)·2020이후(2배) 구간에 동일 금액 적용
+            연평균 급여 = 해당일부터 소급 3년 총급여(상여 포함·비과세 제외) ÷ 36개월 × 12. 근무기간이 3년 미만이면 그 기간의 월평균 × 12 (소득세법 §22③)<br>
+            <b>2012~2019 구간은 2019.12.31 기준, 2020년 이후 구간은 퇴직일 기준</b> 3년 평균을 각각 씁니다. 근무기간은 개월 수로 계산하며 1개월 미만은 1개월로 봅니다.
           </div>
         </div>
 
@@ -380,7 +385,7 @@ input:focus{border-color:var(--dark);background:var(--white);}
           <li><span class="chk-key">정관 없을 때</span><span class="chk-val"><b>소득세법 한도</b>와 <b>법인세법 손금 한도(1년 총급여 × 1/10 × 근속연수)</b>를 동시에 확인하세요. 두 한도 중 작은 금액이 실질 인정 한도입니다.</span></li>
           <li><span class="chk-key">한도 초과</span><span class="chk-val">소득세법 한도 초과분 → <b>개인 근로소득 과세</b>, 법인세법 한도 초과분 → <b>법인 손금불산입</b>이 동시에 발생할 수 있습니다.</span></li>
           <li><span class="chk-key">법인세법 §44</span><span class="chk-val">정관이 없어도 <b>퇴직 전 1년 총급여 × 1/10 × 근속연수</b> 범위 내 퇴직금은 손금 인정됩니다. 이 한도 초과분은 법인 비용으로 인정되지 않습니다.</span></li>
-          <li><span class="chk-key">3년 평균급여</span><span class="chk-val"><b>연평균 급여 = 상여 포함·비과세 제외</b> 총급여 ÷ 36개월 × 12. 근속 3년 미만이면 실제 근속월수 기준으로 환산합니다.</span></li>
+          <li><span class="chk-key">3년 평균급여</span><span class="chk-val"><b>연평균 급여 = 상여 포함·비과세 제외</b> 총급여 ÷ 36개월 × 12. 2012~2019 구간은 <b>2019.12.31 기준</b>, 2020년 이후 구간은 <b>퇴직일 기준</b> 3년 평균을 씁니다. 근속 3년 미만이면 실제 근속월수 기준으로 환산합니다.</span></li>
           <li><span class="chk-key">연분연승법</span><span class="chk-val">퇴직소득세는 <b>연분연승법</b>(÷근속연수 → 세율 적용 → ×근속연수)으로 계산됩니다.</span></li>
           <li><span class="chk-key">2011년 이전</span><span class="chk-val">2011.12.31 이전 근속분은 <b>한도 없음</b>. 정관이 있으면 비례안분법·정관규정법 중 유리한 방법 선택 가능합니다.</span></li>
           <li><span class="chk-key">임원 범위</span><span class="chk-val"><b>등기임원뿐 아니라 미등기임원도</b> 실질적 지배력이 있으면 한도 규정 적용 대상입니다.</span></li>
@@ -435,6 +440,20 @@ function dispDate(s){
 function ybd(s,e){ return e>s?(e-s)/86400000/365.25:0; }
 function clamp(d,lo,hi){ return d<lo?lo:d>hi?hi:d; }
 function pY(s,e,lo,hi){ const a=clamp(s,lo,hi),b=clamp(e,lo,hi); return a>=b?0:ybd(a,b); }
+/* 개월 수: [s, e) 구간. ceil=true 이면 1개월 미만 올림, false 이면 버림 */
+function mSpan(s,e,ceil){
+  if(e<=s) return 0;
+  let m=(e.getFullYear()-s.getFullYear())*12+(e.getMonth()-s.getMonth());
+  if(new Date(s.getFullYear(), s.getMonth()+m, s.getDate())>e) m--;
+  const rest=new Date(s.getFullYear(), s.getMonth()+m, s.getDate())<e;
+  return m+(ceil&&rest?1:0);
+}
+/* 구간 [lo, hiExcl) 안의 근무 개월 수 — 퇴직일 당일까지 근무로 보아 e+1일을 끝으로 사용 */
+function pMon(s,e,lo,hiExcl,ceil){
+  const eEx=new Date(e.getFullYear(), e.getMonth(), e.getDate()+1);
+  const a=s<lo?lo:s, b=eEx>hiExcl?hiExcl:eEx;
+  return mSpan(a,b,ceil);
+}
 function mDiff(s,e){
   let y=e.getFullYear()-s.getFullYear(), m=e.getMonth()-s.getMonth();
   return y*12+m+(e.getDate()>=s.getDate()?0:-1);
@@ -454,7 +473,7 @@ function onDate(){
   const D2=new Date('2012-01-01'),D3=new Date('2019-12-31');
   const D4=new Date('2020-01-01'),D9=new Date('2999-12-31');
   if(!s||!e||s>=e){ pv.style.display='none'; updatePreJk(false); return; }
-  const y0=pY(s,e,D0,D1),y1=pY(s,e,D2,D3),y2=pY(s,e,D4,D9),yt=ybd(s,e);
+  const y0=pMon(s,e,D0,D2,true)/12,y1=pMon(s,e,D2,D4,true)/12,y2=pMon(s,e,D4,D9,true)/12,yt=pMon(s,e,D0,D9,true)/12;
   let t='';
   if(y0>0) t+=`▪ 2011이전: ${fy(y0)}년  `;
   if(y1>0) t+=`▪ 2012~2019: ${fy(y1)}년  `;
@@ -490,19 +509,21 @@ function setJk(v){
   document.getElementById('box-nojk').style.display=v?'none':'block';
   /* 급여 입력란 전환 */
   document.getElementById('row-sal1y').style.display=v?'none':'block';
-  document.getElementById('row-sal-avg').style.display=v?'block':'none';
+  document.getElementById('row-sal-avg').style.display='block';
   onDate();
 }
 
 /* ── 소득세법 한도 계산 ── */
-function calcSodLimit(s, e, salAvg, retire, jkY, jkM, jkX){
+function calcSodLimit(s, e, salAvg, retire, jkY, jkM, jkX, salAvg19){
+  salAvg19 = salAvg19 || salAvg;   // 2019.12.31 기준 3년 평균 (미입력 시 퇴직일 기준으로 대체)
   const D0=new Date('1800-01-01'),D1=new Date('2011-12-31');
   const D2=new Date('2012-01-01'),D3=new Date('2019-12-31');
   const D4=new Date('2020-01-01'),D9=new Date('2999-12-31');
-  const yPre=pY(s,e,D0,D1),y12=pY(s,e,D2,D3),y20=pY(s,e,D4,D9);
-  const yTot=ybd(s,e);
-  const mPre=mDiff(clamp(s,D0,D1),clamp(e,D0,D1));
-  const mTot=mDiff(s,e);
+  // 근무기간은 개월 수로 계산, 1개월 미만은 1개월 (소득세법 시행령 §42의2)
+  const yPre=pMon(s,e,D0,D2,true)/12, y12=pMon(s,e,D2,D4,true)/12, y20=pMon(s,e,D4,D9,true)/12;
+  const yTot=pMon(s,e,D0,D9,true)/12;
+  const mPre=pMon(s,e,D0,D2,true);   // 2011.12.31 이전 근무 개월 수 (비례안분용)
+  const mTot=pMon(s,e,D0,D9,true);
 
   /* 2011 이전 */
   let lR=0,lJ=0,lPre=0,mth='비례안분법',bPre='';
@@ -526,20 +547,20 @@ function calcSodLimit(s, e, salAvg, retire, jkY, jkM, jkX){
 
   /* 2012~2019: 3배 */
   let l12=0,b12='';
-  if(y12>0&&salAvg>0){
-    l12=Math.round(salAvg*0.1*y12*3);
-    b12=`(${won(salAvg)} × 10%) × ${fy(y12)}년 × 3배\n= ${won(Math.round(salAvg*0.1))} × ${fy(y12)} × 3\n= ${won(l12)}`;
+  if(y12>0&&salAvg19>0){
+    l12=Math.floor(salAvg19*0.1*y12*3);
+    b12=`2019.12.31 기준 3년 연평균 ${won(salAvg19)} × 10% × ${fy(y12)}년(${Math.round(y12*12)}개월) × 3배\n= ${won(l12)}`;
   }
 
   /* 2020 이후: 2배 */
   let l20=0,b20='';
   if(y20>0&&salAvg>0){
-    l20=Math.round(salAvg*0.1*y20*2);
-    b20=`(${won(salAvg)} × 10%) × ${fy(y20)}년 × 2배\n= ${won(Math.round(salAvg*0.1))} × ${fy(y20)} × 2\n= ${won(l20)}`;
+    l20=Math.floor(salAvg*0.1*y20*2);
+    b20=`퇴직일 기준 3년 연평균 ${won(salAvg)} × 10% × ${fy(y20)}년(${Math.round(y20*12)}개월) × 2배\n= ${won(l20)}`;
   }
 
   return {yPre,y12,y20,yTot,mPre,mTot,lPre,lR,lJ,mth,l12,l20,
-          total:lPre+l12+l20, bPre,b12,b20,salAvg};
+          total:lPre+l12+l20, bPre,b12,b20,salAvg,salAvg19};
 }
 
 /* ── 계산 실행 ── */
@@ -553,20 +574,21 @@ function calc(){
   const retire  = mode==='act' ? pN('totalRetire') : 0;
   const jkY=pN('jk_y'), jkM=pN('jk_m');
   const jkX=parseFloat(document.getElementById('jk_x').value)||3;
-  const yTot=ybd(s,e);
-
-  /* 급여: 정관 있음→3년평균, 없음→1년총급여 */
-  const sal1y  = pN('sal_1y');
-  const salAvg = hasJk ? pN('sal_avg') : sal1y;
-
+  const yTot=pMon(s,e,new Date('1800-01-01'),new Date('2999-12-31'),true)/12;
+  /* 급여: 소득세법 한도 → 3년 연평균(정관 유무 무관), 법인세법 손금 한도 → 퇴직 전 1년 총급여(정관 없을 때) */
+  const sal1y   = pN('sal_1y');
+  const salAvg  = pN('sal_avg');
+  const salAvg19= pN('sal_avg19');
+  if(!salAvg){ alert('퇴직일(기준일)부터 소급 3년 연평균 총급여를 입력해주세요.\n소득세법 한도는 정관 유무와 관계없이 3년 연평균으로 계산합니다.'); return; }
   /* 소득세법 한도 */
-  const R = calcSodLimit(s,e,salAvg,retire,jkY,jkM,jkX);
+  const R = calcSodLimit(s,e,salAvg,retire,jkY,jkM,jkX,salAvg19);
   const sodTotal = R.total;
 
   /* 법인세법 손금 한도 (정관 없을 때만) */
   /* 공식: 퇴직 전 1년 총급여 × 1/10 × 근속연수 */
+  const corpYears = pMon(s,e,new Date('1800-01-01'),new Date('2999-12-31'),false)/12;   // 1개월 미만 버림 (법인령 §44④)
   const corpLimit = (!hasJk && sal1y>0)
-    ? Math.round(sal1y * 0.1 * yTot)
+    ? Math.floor(sal1y * 0.1 * corpYears)
     : null;
 
   /* ── 합계 바 ── */
@@ -587,7 +609,7 @@ function calc(){
     lcWrap.style.display='block';
     const effLimit = Math.min(sodTotal, corpLimit);
     const sodSmaller = sodTotal <= corpLimit;
-    const corpFormula = `${won(sal1y)} × 1/10 × ${fy(yTot)}년 = ${won(corpLimit)}`;
+    const corpFormula = `${won(sal1y)} × 1/10 × ${fy(corpYears)}년 = ${won(corpLimit)}`;
 
     lcBox.innerHTML = `
       <div class="lc-box ${sodSmaller?'active':''}">
@@ -673,7 +695,7 @@ function calc(){
   tb.innerHTML='';
   [
     {lbl:'2011.12.31 이전',          y:R.yPre, sal:'안분/정관', mul:R.mth||'—', lim:R.lPre, show:R.yPre>0},
-    {lbl:'2012.01.01 ~ 2019.12.31', y:R.y12,  sal:won(salAvg), mul:'× 3배',   lim:R.l12,  show:R.y12>0},
+    {lbl:'2012.01.01 ~ 2019.12.31', y:R.y12,  sal:won(R.salAvg19), mul:'× 3배',   lim:R.l12,  show:R.y12>0},
     {lbl:'2020.01.01 이후',          y:R.y20,  sal:won(salAvg), mul:'× 2배',   lim:R.l20,  show:R.y20>0},
   ].forEach(r=>{
     if(!r.show) return;
@@ -739,7 +761,7 @@ function calc(){
     const cb=document.createElement('div');
     cb.className='basis-item';
     cb.innerHTML=`<div class="basis-head">⑤ 법인세법 손금 한도 (시행령 §44)</div>`
-      +`<div class="basis-body">퇴직 전 1년 총급여 × 1/10 × 총 근속연수\n${won(sal1y)} × 1/10 × ${fy(yTot)}년 = <b>${won(corpLimit)}</b>\n\n실질 인정 한도 (두 한도 중 작은 금액) = <b>${won(Math.min(sodTotal,corpLimit))}</b></div>`;
+      +`<div class="basis-body">퇴직 전 1년 총급여 × 1/10 × 총 근속연수\n${won(sal1y)} × 1/10 × ${fy(corpYears)}년 = <b>${won(corpLimit)}</b>\n\n실질 인정 한도 (두 한도 중 작은 금액) = <b>${won(Math.min(sodTotal,corpLimit))}</b></div>`;
     bw.appendChild(cb);
   }
 
@@ -762,9 +784,9 @@ window.onload=()=>{
   const ed=document.getElementById('endDate');
   ed.value=str;
   document.getElementById('ed-disp').textContent=dispDate(str);
-  /* 초기: 정관 없음 → 1년 총급여 표시, 3년 평균 숨김 */
+  /* 초기: 정관 없음 → 1년 총급여(법인세법) + 3년 평균(소득세법) 모두 표시 */
   document.getElementById('row-sal1y').style.display='block';
-  document.getElementById('row-sal-avg').style.display='none';
+  document.getElementById('row-sal-avg').style.display='block';
 };
 
 /* ── Word 저장 ── */
