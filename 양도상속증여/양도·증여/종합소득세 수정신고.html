@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>종합소득세 계산기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>종합소득세 수정신고 산출세액 비교</title>
   <style>
     /* 간단한 스타일 예시 */
     body {
@@ -73,19 +74,19 @@
       <select id="yearSelection">
         <option value="2020">2018~2020년 귀속</option>
         <option value="2022">2021~2022년 귀속</option>
-        <option value="2023">2023년 귀속</option>
+        <option value="2023" selected>2023년 이후 귀속 (2023~2025)</option>
       </select>
     </div>
 
     <!-- 총소득세 과세표준 입력 -->
     <div class="form-group">
-      <label for="inputTotalIncome">총소득세 과세표준 (원):</label>
+      <label for="inputTotalIncome">수정 후 과세표준 (원):</label>
       <input type="number" id="inputTotalIncome" placeholder="예: 50000000" />
     </div>
 
-    <!-- 기신고 과소득세 과세표준 입력 -->
+    <!-- 당초 신고한 과세표준 입력 -->
     <div class="form-group">
-      <label for="inputPrevIncome">기신고 과소득세 과세표준 (원):</label>
+      <label for="inputPrevIncome">당초 신고한 과세표준 (원):</label>
       <input type="number" id="inputPrevIncome" placeholder="예: 10000000" />
     </div>
 
@@ -99,7 +100,9 @@
       <h2>계산 결과</h2>
       <div id="totalTaxResult"></div>
       <div id="prevTaxResult"></div>
+      <div id="diffResult"></div>
     </div>
+    <p style="font-size: 0.9em; color: #555;">※ 산출세액(세율 적용 세액)만 비교합니다. 세액공제·감면, 기납부세액, 지방소득세(10%)는 반영하지 않습니다.</p>
   </div>
 
   <script>
@@ -182,10 +185,10 @@
       
       // 산출내역 문자열
       const detail = `
-        임시 산출세액: ${formatNumber(tmpCalc)}원 
+        임시 산출세액: ${formatNumber(Math.floor(tmpCalc))}원 
         (과세표준 ${formatNumber(income)}원 × 세율 ${Math.round(taxRate*100)}%) 
         - 누진공제: ${formatNumber(deduction)}원 
-        = 최종 산출세액: ${formatNumber(finalTax)}원
+        = 최종 산출세액: ${formatNumber(Math.floor(finalTax))}원
       `.trim();
 
       return {
@@ -224,7 +227,7 @@
       // 총소득세 과세표준 결과
       const totalTaxResultDiv = document.getElementById("totalTaxResult");
       totalTaxResultDiv.innerHTML = `
-        <h3>총소득세 과세표준에 대한 산출세액</h3>
+        <h3>수정 후 과세표준에 대한 산출세액</h3>
         <div class="detail-line">과세표준: ${formatNumber(totalIncome)}원</div>
         <div class="detail-line">${totalTaxResultObj.detail}</div>
         <div class="detail-line"><strong>최종 세액: ${formatNumber(totalTaxResultObj.tax)}원</strong></div>
@@ -233,10 +236,22 @@
       // 기신고 과소득세 과세표준 결과
       const prevTaxResultDiv = document.getElementById("prevTaxResult");
       prevTaxResultDiv.innerHTML = `
-        <h3>기신고 과소득세 과세표준에 대한 산출세액</h3>
+        <h3>당초 신고 과세표준에 대한 산출세액</h3>
         <div class="detail-line">과세표준: ${formatNumber(prevIncome)}원</div>
         <div class="detail-line">${prevTaxResultObj.detail}</div>
         <div class="detail-line"><strong>최종 세액: ${formatNumber(prevTaxResultObj.tax)}원</strong></div>
+      `;
+
+      // 수정신고로 늘어나는 산출세액과 가산세 안내
+      const diff = totalTaxResultObj.tax - prevTaxResultObj.tax;
+      document.getElementById("diffResult").innerHTML = `
+        <h3>추가 산출세액 (수정 후 − 당초)</h3>
+        <div class="detail-line"><strong>${diff < 0 ? '−' : ''}${formatNumber(Math.abs(diff))}원</strong>${diff < 0 ? ' (세액이 줄어들면 수정신고가 아니라 경정청구 대상)' : ''}</div>
+        <div class="detail-line" style="font-size: 0.9em;">
+          가산세 참고: 과소신고가산세 = 추가 납부세액 × 10%(부정행위 40%) — 법정신고기한 후 수정신고 시 감면
+          (1개월 이내 90%, 3개월 이내 75%, 6개월 이내 50%, 1년 이내 30%, 1년 6개월 이내 20%, 2년 이내 10%) /
+          납부지연가산세 = 미납세액 × 경과일수 × 0.022%
+        </div>
       `;
     }
 

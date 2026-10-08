@@ -103,7 +103,7 @@
 
         // 천 단위 구분된 문자열을 숫자로 변환하는 함수
         function parseFormattedNumber(str) {
-            return parseFloat(str.replace(/,/g, ''));
+            return parseFloat(String(str).replace(/,/g, '')) || 0;   // 빈칸은 0
         }
 
         // 입력 필드에 이벤트 리스너 추가
@@ -111,13 +111,14 @@
             input.addEventListener('input', function(e) {
                 let value = e.target.value.replace(/,/g, '');
                 if (e.target.id === 'interestRate') {
-                    // 이자율의 경우 소수점 한 자리까지만 허용
+                    // 이자율은 소수점 둘째 자리까지 허용 (예: 3.75), 쉼표 없이 표시
                     value = value.replace(/[^\d.]/g, '');
                     const parts = value.split('.');
                     if (parts.length > 1) {
-                        parts[1] = parts[1].slice(0, 1);
-                        value = parts.join('.');
+                        value = parts[0] + '.' + parts.slice(1).join('').slice(0, 2);
                     }
+                    e.target.value = value;
+                    return;
                 } else {
                     value = value.replace(/\D/g, '');
                 }
@@ -145,14 +146,22 @@
                 totalExpenses += annualExpenses + annualLaborCost + annualInterest + annualManagementFee;
             }
 
-            const netProfit = expectedSalePrice - purchasePrice + totalRentalIncome - totalExpenses;
-            const roi = (netProfit / equity) * 100;
+            const saleGain = expectedSalePrice - purchasePrice;
+            const netProfit = saleGain + totalRentalIncome - totalExpenses;
+            const roiText = equity > 0 ? ((netProfit / equity) * 100).toFixed(2) + '%' : '계산 불가 (자기자본이 0 이하)';
+            const won = v => formatNumber(Math.round(v)) + ' 원';
 
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <h3>투자 결과 (5년 후)</h3>
-                <p><strong>순수 투자 수익:</strong> ${formatNumber(Math.round(netProfit))} 원</p>
-                <p><strong>투자 수익률:</strong> ${roi.toFixed(2)}%</p>
+                <p>매매차익 (판매가 − 구입가): ${won(saleGain)}</p>
+                <p>5년 임대수입 합계: ${won(totalRentalIncome)}</p>
+                <p>5년 비용 합계: ${won(totalExpenses)}<br>
+                   <small>= (연간 경비 + 인건비 + 대출이자 ${won(annualInterest)} + 관리비 ${won(annualManagementFee)}) × 5년</small></p>
+                <p><strong>순수 투자 수익:</strong> ${won(netProfit)}</p>
+                <p><strong>자기자본 대비 수익률:</strong> ${roiText} <small>(자기자본 = 구입가 − 대출금 = ${won(equity)})</small></p>
+                <p style="font-size: 0.85em; color: #555;">※ 가정: 관리비는 매년 구입가의 1%, 이자는 대출원금 그대로(원금 상환 없음), 임대수입·경비는 5년간 동일.<br>
+                ※ 세금 미반영: 취득세, 재산세·종부세, 임대소득 종합소득세, 양도소득세, 중개수수료가 빠져 있어 실제 수익은 이보다 적습니다.</p>
             `;
             resultDiv.style.display = 'block';
         }
