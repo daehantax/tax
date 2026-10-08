@@ -8,46 +8,53 @@ function formatNumber(input) {
 
 
 
-//간단한 양도세 계산기 
-
+//간단한 양도세 계산기 (양도세 단순 페이지용)
+// 장기보유특별공제는 일반(표1) 기준, 1세대1주택 비과세·중과·단기세율은 반영하지 않음
 function calculateTaxes() {
-    var transferPrice = parseFloat(document.getElementById('transferPrice').value.replace(/,/g, ''));
-    var acquisitionPrice = parseFloat(document.getElementById('acquisitionPrice').value.replace(/,/g, ''));
-    var holdingPeriod = parseFloat(document.getElementById('holdingPeriod').value);  
+    var num = function (id) {
+        return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+    };
+    var transferPrice = num('transferPrice');
+    var acquisitionPrice = num('acquisitionPrice');
+    var holdingPeriod = parseFloat(document.getElementById('holdingPeriod').value) || 0;
 
-       
+    var capitalGain = Math.max(0, transferPrice - acquisitionPrice);
+    var longTermDeduction = Math.floor(calculateLongTermDeduction(capitalGain, holdingPeriod));
+    var taxableIncome = capitalGain - longTermDeduction;
+    var taxBase = Math.max(0, taxableIncome - 2500000);          // 기본공제 250만원
+    var transferTax = Math.floor(calculateTransferTax(taxBase));  // 원 미만 절사
+    var localIncomeTax = Math.floor(transferTax * 0.1);
+    var totalTax = transferTax + localIncomeTax;
 
-        var capitalGain = transferPrice - acquisitionPrice;
-        var longTermDeduction = calculateLongTermDeduction(capitalGain, holdingPeriod);
-        var taxableIncome = capitalGain - longTermDeduction;
-        var taxBase = Math.max(0, taxableIncome - 2500000);
-        var transferTax = calculateTransferTax(taxBase);
-        var localIncomeTax = transferTax * 0.1;
-        var totalTax = transferTax + localIncomeTax;
+    document.getElementById('transferValue').innerText = transferPrice.toLocaleString();
+    document.getElementById('acquisitionValue').innerText = acquisitionPrice.toLocaleString();
+    document.getElementById('capitalGain').innerText = capitalGain.toLocaleString();
+    document.getElementById('longTermDeduction').innerText = longTermDeduction.toLocaleString();
+    document.getElementById('taxableIncome').innerText = taxableIncome.toLocaleString();
+    document.getElementById('taxBase').innerText = taxBase.toLocaleString();
+    var rateCell = document.getElementById('transferRate');
+    if (rateCell) rateCell.innerText = taxBase > 0 ? transferRateText(taxBase) : '-';
+    document.getElementById('transferTax').innerText = transferTax.toLocaleString();
+    document.getElementById('localIncomeTax').innerText = localIncomeTax.toLocaleString();
+    document.getElementById('totalTax').innerText = totalTax.toLocaleString();
+}
 
-        document.getElementById('transferValue').innerText = transferPrice.toLocaleString();
-        document.getElementById('acquisitionValue').innerText = acquisitionPrice.toLocaleString();
-        document.getElementById('capitalGain').innerText = capitalGain.toLocaleString();
-        document.getElementById('longTermDeduction').innerText = longTermDeduction.toLocaleString();
-        document.getElementById('taxableIncome').innerText = taxableIncome.toLocaleString();
-        document.getElementById('taxBase').innerText = taxBase.toLocaleString();
-        document.getElementById('transferTax').innerText = transferTax.toLocaleString();
-        document.getElementById('localIncomeTax').innerText = localIncomeTax.toLocaleString();
-        document.getElementById('totalTax').innerText = totalTax.toLocaleString();
+//장기보유특별공제 표1: 3년 6% ~ 15년 30% (만 년수 기준)
+function calculateLongTermDeduction(capitalGain, holdingPeriod) {
+    var years = Math.floor(holdingPeriod);
+    if (years < 3) return 0;
+    return capitalGain * Math.min(0.3, 0.02 * years);
+}
+
+// 과세표준 구간의 세율 표시용
+function transferRateText(taxBase) {
+    var limits = [14000000, 50000000, 88000000, 150000000, 300000000, 500000000, 1000000000];
+    var rates = [6, 15, 24, 35, 38, 40, 42, 45];
+    for (var i = 0; i < limits.length; i++) {
+        if (taxBase <= limits[i]) return rates[i] + '%';
     }
-//장기보유특별공제 표1
-    function calculateLongTermDeduction(capitalGain, holdingPeriod) {
-         var deductionRate = 0;
-        if (holdingPeriod >= 3 && holdingPeriod < 4) {
-         deductionRate = 0.06;
-        } else if (holdingPeriod >= 4 && holdingPeriod < 5) {
-          deductionRate = 0.08;
-        } else if (holdingPeriod >= 5) {
-          deductionRate = Math.min(0.3, 0.02 * holdingPeriod);
-        }
-
-        return capitalGain * deductionRate;
-        } 
+    return '45%';
+}
 
 // 양도세율표
 function calculateTransferTax(taxBase) {

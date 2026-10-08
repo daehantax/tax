@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>양도세 계산기</title>  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/styles.css">     
+    <link rel="stylesheet" href="../../css/styles/layouts_simpleCalculator.css">     
 
     <script src="../../js/script.js"></script>
 
@@ -19,7 +19,7 @@
 <label for="acquisitionPrice">취득가액 :</label>
 <input type="text" id="acquisitionPrice" inputmode="numeric"  oninput="formatNumber(this)"><br>
 
-<label for="holdingPeriod">보유기간(년):</label>
+<label for="holdingPeriod">보유기간(만 년):</label>
 <input type="number" id="holdingPeriod"><br><br>
 
 <button onclick="calculateTaxes()">계산하기</button>
@@ -49,7 +49,7 @@
         <tr>
             <td>4) 장기보유특별공제</td>
             <td style="text-align: right;" id="longTermDeduction"></td>
-            <td style="text-align: center;">일반장기보유공제 표1</td>
+            <td style="text-align: center;">일반 장기보유특별공제 (3년 6% ~ 15년 30%)</td>
         </tr>
         <tr>
             <td>5) 양도소득금액</td>
@@ -59,7 +59,7 @@
         <tr>
             <td>6) 기본공제</td>
             <td style="text-align: right;">2,500,000</td>
-            <td style="text-align: center;">1년에 1회만 공제</td>
+            <td style="text-align: center;">1년(같은 해 양도분 합산)에 250만원 1회</td>
         </tr>
         <tr>
             <td>7) 과세표준</td>
@@ -68,7 +68,7 @@
         </tr>
         <tr>
             <td>8) 양도세율</td>
-            <td style="text-align: right;"></td>
+            <td style="text-align: right;" id="transferRate"></td>
             <td style="text-align: center;">일반누진세율</td>
         </tr>
         <tr>
@@ -87,5 +87,6 @@
             <td style="text-align: center;"></td>
         </tr>
     </table>
+    <p style="font-size: 0.9em;">※ 2년 이상 보유한 일반 자산 기준의 간이 계산입니다. 1세대1주택 비과세·고가주택, 단기세율(1~2년 미만), 다주택 중과, 비사업용 토지 가산세율, 필요경비는 반영하지 않습니다. 정밀 계산은 <a href="양도세율.html">양도세율계산기</a>를 이용하세요.</p>
 </body>
 </html>
