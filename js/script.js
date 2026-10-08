@@ -70,38 +70,50 @@ if (taxBase <= 14000000) {
 }
 }
 
-//상속세 계산기
+//상속세 계산기 (단순한 상속세 계산기 페이지용)
 function calculateInheritanceTax() {
-    var houseValue = parseFloat(document.getElementById('houseValue').value.replace(/,/g, '')) || 0;
-    var buildingValue = parseFloat(document.getElementById('buildingValue').value.replace(/,/g, '')) || 0;
-    var agriculturalLandValue = parseFloat(document.getElementById('agriculturalLandValue').value.replace(/,/g, '')) || 0;
-    var forestLandValue = parseFloat(document.getElementById('forestLandValue').value.replace(/,/g, '')) || 0;
-    var otherProperty = parseFloat(document.getElementById('otherProperty').value.replace(/,/g, '')) || 0;
-    var debts = parseFloat(document.getElementById('debts').value.replace(/,/g, '')) || 0;
-    var giftFromMother = parseFloat(document.getElementById('giftFromMother').value.replace(/,/g, '')) || 0;
-    var giftToChildren = parseFloat(document.getElementById('giftToChildren').value.replace(/,/g, '')) || 0;
-    var giftToOthers = parseFloat(document.getElementById('giftToOthers').value.replace(/,/g, '')) || 0;
+    var num = function (id) {
+        return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+    };
+    var houseValue = num('houseValue');
+    var buildingValue = num('buildingValue');
+    var agriculturalLandValue = num('agriculturalLandValue');
+    var forestLandValue = num('forestLandValue');
+    var otherProperty = num('otherProperty');
+    var debts = num('debts');
+    var giftFromMother = num('giftFromMother');
+    var giftToChildren = num('giftToChildren');
+    var giftToOthers = num('giftToOthers');
 
-    // 배우자 유무에 따른 상속공제 자동 설정
+    // 배우자 유무에 따른 상속공제 (일괄공제 5억 + 배우자공제 최소 5억)
     var hasSpouse = document.getElementById('hasSpouse').checked;
-    var inheritanceDeduction = hasSpouse ? 1000000000 : 500000000;
-    document.getElementById('inheritanceDeduction').value = inheritanceDeduction.toLocaleString();
+    var baseDeduction = hasSpouse ? 1000000000 : 500000000;
+    document.getElementById('inheritanceDeduction').value = baseDeduction.toLocaleString();
 
-    var inputAppraisalFee = parseFloat(document.getElementById('appraisalFee').value.replace(/,/g, '')) || 0;
-
-    // 감정평가비는 최대 5,000,000원까지만 인정
-    var appraisalFee = Math.min(inputAppraisalFee, 5000000);
+    // 감정평가수수료는 최대 5,000,000원까지만 인정 (상증령 20조의3)
+    var appraisalFee = Math.min(num('appraisalFee'), 5000000);
     document.getElementById('appraisalFee').value = appraisalFee.toLocaleString();
 
-    var giftTaxDeduction = parseFloat(document.getElementById('giftTaxDeduction').value.replace(/,/g, '')) || 0;
+    var giftTaxDeduction = num('giftTaxDeduction');
 
     var totalProperty = houseValue + buildingValue + agriculturalLandValue + forestLandValue + otherProperty;
     var priorGifts = giftFromMother + giftToChildren + giftToOthers;
-    var taxableAmount = totalProperty - debts + priorGifts;
-   
+    var taxableAmount = Math.max(0, totalProperty - debts + priorGifts);
+
+    // 상속공제 종합한도 (상증법 24조) = 과세가액 - 사전증여재산
+    // 원래는 사전증여재산의 '증여세 과세표준'을 빼지만, 여기서는 증여가액 전액을 빼서 보수적으로 계산
+    var deductionLimit = Math.max(0, taxableAmount - priorGifts);
+    var inheritanceDeduction = Math.min(baseDeduction, deductionLimit);
+
     var taxBase = Math.max(0, taxableAmount - inheritanceDeduction - appraisalFee);
-    var calculatedTax = calculateInheritTariff(taxBase);
-    var taxDeduction = giftTaxDeduction + calculatedTax * 0.03;
+    if (taxBase < 500000) taxBase = 0; // 과세최저한: 과세표준 50만원 미만은 과세하지 않음 (상증법 25조②)
+
+    var calculatedTax = Math.floor(calculateInheritTariff(taxBase));
+    // 증여세액공제는 산출세액을 넘을 수 없음
+    var giftCredit = Math.min(giftTaxDeduction, calculatedTax);
+    // 신고세액공제 3% = (산출세액 - 증여세액공제) × 3% (상증법 69조)
+    var reportCredit = Math.floor((calculatedTax - giftCredit) * 0.03);
+    var taxDeduction = giftCredit + reportCredit;
     var payableTax = Math.max(0, calculatedTax - taxDeduction);
 
     document.getElementById('totalPropertyValueCell').innerText = totalProperty.toLocaleString();
@@ -114,7 +126,6 @@ function calculateInheritanceTax() {
     document.getElementById('calculatedTaxValueCell').innerText = calculatedTax.toLocaleString();
     document.getElementById('taxDeductionValueCell').innerText = taxDeduction.toLocaleString();
     document.getElementById('payableTaxValueCell').innerText = payableTax.toLocaleString();
-    
 }
 
 
@@ -205,6 +216,6 @@ function calculateInheritTariff(taxBase) {
 
         // 모든 연결은 상속세 절세보고서 프리미엄으로 이동
         function goToPremiumPage() {
-            window.location.href = 'https://dangse.github.io/tax/inheritPremium.html';
+            window.location.href = 'inheritPremium.html';
         }
 

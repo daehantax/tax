@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">  
-    <script src="js/script.js"></script>
+    <script src="../../js/script.js"></script>
    
     <style>
         body {
@@ -240,37 +240,37 @@
 <body>
     <h2>상속세 계산기</h2>
     <form>
-        <label for="houseValue">주택시가:</label>
+        <label for="houseValue">주택 시가:</label>
         <input type="text" id="houseValue" oninput="formatNumber(this)"><br>
 
-        <label for="buildingValue">건물시가:</label>
+        <label for="buildingValue">건물(비주거) 시가:</label>
         <input type="text" id="buildingValue" oninput="formatNumber(this)"><br>
 
-        <label for="agriculturalLandValue">농지기준시가:</label>
+        <label for="agriculturalLandValue">농지 평가액:</label>
         <input type="text" id="agriculturalLandValue" oninput="formatNumber(this)"><br>
 
-        <label for="forestLandValue">임야기준시가:</label>
+        <label for="forestLandValue">임야 평가액:</label>
         <input type="text" id="forestLandValue" oninput="formatNumber(this)"><br>
 
         <label for="otherProperty">그외 상속재산:</label>
         <input type="text" id="otherProperty" oninput="formatNumber(this)"><br>
 
-        <label for="debts">채무 장례비용 공과금:</label>
+        <label for="debts">채무·공과금·장례비용:</label>
         <input type="text" id="debts" oninput="formatNumber(this)"><br>
 
         <h3>사전증여자산</h3>
-        <label for="giftFromMother">10년 내 어머니 증여:</label>
+        <label for="giftFromMother">10년 내 배우자에게 증여:</label>
         <input type="text" id="giftFromMother" oninput="formatNumber(this)"><br>
 
-        <label for="giftToChildren">10년 내 자녀 증여:</label>
+        <label for="giftToChildren">10년 내 자녀(상속인)에게 증여:</label>
         <input type="text" id="giftToChildren" oninput="formatNumber(this)"><br>
 
-        <label for="giftToOthers">5년 내 상속인 외 증여:</label>
+        <label for="giftToOthers">5년 내 상속인 외(손자녀 등)에게 증여:</label>
         <input type="text" id="giftToOthers" oninput="formatNumber(this)"><br>
 
         <label for="hasSpouse">배우자 유무:
             <span class="tooltip">
-                <span class="tooltiptext">배우자가 있으면 상속공제액이 10억원, 없으면 5억원입니다.</span>
+                <span class="tooltiptext">배우자가 있으면 일괄공제 5억 + 배우자공제 최소 5억 = 10억원, 없으면 일괄공제 5억원입니다. 사전증여가 많으면 공제 종합한도로 줄어들 수 있습니다.</span>
             </span>
         </label>
         <input type="checkbox" id="hasSpouse" onchange="updateInheritanceDeduction()"><br>
@@ -280,17 +280,15 @@
 
         <label for="appraisalFee">감정평가수수료:
             <span class="tooltip">
-                <span class="tooltiptext">최대 5백만원까지 공제 가능합니다.</span>
+                <span class="tooltiptext">부동산 감정평가수수료는 최대 5백만원까지 공제 가능합니다.</span>
             </span>
         </label>
         <input type="text" id="appraisalFee" oninput="formatNumber(this)"><br>
 
-        <label for="giftTaxDeduction">증여세액공제:</label>
+        <label for="giftTaxDeduction">사전증여 때 낸 증여세(증여세액공제):</label>
         <input type="text" id="giftTaxDeduction" oninput="formatNumber(this)"><br>
 
         <button type="button" onclick="calculateInheritanceTax()">상속세 계산하기</button>
-    </form>
-
     </form>
 
     <table border="1" id="resultTable">
@@ -325,7 +323,7 @@
             <tr>
                 <td>(5) 상속공제</td>
                 <td id="inheritanceDeductionValueCell"></td>
-                <td>한도 = min [10억,(1)-(2)-(3)]</td>
+                <td>종합한도 = (4) - (3) 이내 (사전증여 많으면 축소)</td>
             </tr>
             <tr>
                 <td>(6) 감정평가수수료</td>
@@ -350,12 +348,12 @@
             <tr>
                 <td>(10) 세액공제</td>
                 <td id="taxDeductionValueCell"></td>
-                <td>증여세액공제 + 신고세액공제 3%</td>
+                <td>증여세액공제 + 신고세액공제 3%<br>※ 3%는 (산출세액 - 증여세액공제)에 적용</td>
             </tr>
             <tr>
                 <td>(11) 자진납부할세액</td>
                 <td id="payableTaxValueCell"></td>
-                <td>(9) - (10)</td>
+                <td>(9) - (10), 과세표준 50만원 미만은 0</td>
             </tr>
         </tbody>
     </table>
@@ -366,13 +364,13 @@
             <li>상속으로 인한 취득세, 상속받은 물건을 팔때 양도세, 1세대 1주택 비과세 등 중요한 문제가 많습니다</li>
             <li>수백에서 수천만원이 달라집니다.</li>
             <li>상속,취득,양도,종부세 한번에 줄이는 모든 방법이 [상속세 절세 보고서]에 담겨 있습니다.</li>
-
         </ul>
-     <br>
+        <p style="font-size:.9em;color:#555;">※ 단순 계산기는 일괄공제·배우자공제(최소 5억)만 반영합니다. 금융재산·동거주택·인적공제, 배우자공제 실제 한도, 세대생략 할증은 반영하지 않으므로 실제 세액과 다를 수 있습니다.</p>
+    </div>
     
 
    
-    <button class="premium-button" onclick="goToPremiumPage()">진짜! 상속,취득,양도,종부세 한번에 줄이기 ! [ 상속세 절세 보고서 ]</button>
+    <button type="button" class="premium-button" onclick="goToPremiumPage()">진짜! 상속,취득,양도,종부세 한번에 줄이기 ! [ 상속세 절세 보고서 ]</button>
 
     
 </body>
