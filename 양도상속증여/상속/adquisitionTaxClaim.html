@@ -2,42 +2,61 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>상속주택 취득세 계산</title>
-
-
-
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="css\styles\layouts_simpleCalculator.css">
-
-
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상속주택 취득세 계산 · 경정청구 점검</title>
+    <link rel="stylesheet" href="../../css/styles/layouts_simpleCalculator.css">
 </head>
 <body>
-    <h2>상속주택 취득세 계산</h2>
+    <h2>상속주택 취득세 계산 · 경정청구 점검</h2>
 
-    <label for="marketValue">시가표준액( 아파트: 공동주택가격, 단독주택 : 개별주택가격):</label>
-    <input type="text" id="marketValue"  inputmode="numeric"  oninput="formatNumber(this)" placeholder="시가표준액 입력">
+    <div class="info-box">
+        <p>상속으로 주택을 취득하면 취득세 과세표준은 <strong>시가표준액</strong>(공동주택가격·개별주택가격)입니다.</p>
+        <p><strong>무주택 1가구가 상속으로 1가구 1주택이 되는 경우</strong> 세율 2.8%에서 2%를 뺀 0.8%(지방교육세 포함 0.96%)만 내면 됩니다(지방세법 15조①2호가목).
+           이 특례를 모르고 2.8%로 냈다면, 법정신고기한(상속개시일이 속하는 달의 말일부터 6개월)이 지난 날부터 <strong>5년 이내</strong>에 경정청구로 돌려받을 수 있습니다.</p>
+    </div>
+
+    <label for="marketValue">시가표준액 (아파트: 공동주택가격, 단독주택: 개별주택가격) — 지분 상속이면 내 지분만큼:</label>
+    <input type="text" id="marketValue" inputmode="numeric" oninput="formatNumber(this)" placeholder="시가표준액 입력">
 
     <div>
         <input type="checkbox" id="nationalHousingSize">
-        <label for="nationalHousingSize">국민주택규모 해당 여부</label>
+        <label for="nationalHousingSize">국민주택규모(전용 85㎡ 이하, 수도권 외 읍·면 100㎡ 이하)에 해당</label>
     </div>
 
     <div>
         <input type="checkbox" id="firstTimeHomeBuyer">
-        <label for="firstTimeHomeBuyer">무주택자 상속 여부</label>
+        <label for="firstTimeHomeBuyer">무주택 1가구가 상속으로 1가구 1주택이 되는 경우 (특례 대상)</label>
     </div>
+
+    <label for="paidTax">이미 납부한 취득세 합계 (취득세+지방교육세+농특세, 경정청구 점검용):</label>
+    <input type="text" id="paidTax" inputmode="numeric" oninput="formatNumber(this)" placeholder="모르면 비워두세요">
 
     <button onclick="calculateTax()">취득세 계산</button>
 
     <h3>계산 결과</h3>
-    <strong><div id="result" class="result"></div></strong><br>
+    <table id="taxTable" style="display: none;">
+        <thead>
+            <tr><th>구분</th><th>세율</th><th>금액</th></tr>
+        </thead>
+        <tbody id="taxTableBody"></tbody>
+    </table>
+    <div id="result" style="margin-top: 15px; font-weight: bold;"></div>
+
+    <details style="margin-top: 15px;">
+        <summary>특례 요건 확인 (꼭 읽어보세요)</summary>
+        <ul>
+            <li>1가구: 상속인과 같은 주민등록표에 있는 가족. 배우자와 30세 미만 미혼 자녀는 따로 살아도 같은 가구로 봅니다.</li>
+            <li>상속개시일(사망일) 현재 상속인이 속한 가구가 이 주택 외에 다른 주택을 가지고 있지 않아야 합니다.</li>
+            <li>1주택을 여러 명이 공동상속하면 <strong>지분이 가장 큰 사람</strong>, 지분이 같으면 그 주택에 거주하는 사람, 그다음 연장자 1명만 특례 대상입니다.</li>
+            <li>고급주택은 특례가 적용되지 않습니다.</li>
+        </ul>
+    </details>
 
     <p style="text-align: center; font-weight: bold; margin: 20px 0;"><strong>이 보다 세금을 많이 내셨나요?  지금 문의 주세요!</strong></p><br>
 
     <div class="contact-form">
         <h2> 상담 문의하기</h2>
-        <form id="questionForm" onsubmit="return submitForm()">
+        <form id="questionForm" onsubmit="return false;">
             <div class="form-group">
                 <label for="name">이름:</label>
                 <input type="text" id="name" name="name" required>
@@ -74,73 +93,48 @@
     <script>
         function formatNumber(el) {
             var value = el.value.replace(/[^0-9]/g, '');
-            el.value = parseFloat(value).toLocaleString();
+            el.value = value ? Number(value).toLocaleString() : '';
         }
 
+        // 상속 주택 취득세 (지방세법 11조①1호, 15조①, 151조 / 농특세법 5조)
+        //  일반: 취득세 2.8% + 지방교육세 0.16% + 농특세 0.2%(국민주택규모 이하 비과세)
+        //  특례(무주택 1가구 → 1가구 1주택): 취득세 0.8% + 지방교육세 0.16%, 농특세 없음
         function calculateTax() {
-            var marketValue = parseFloat(document.getElementById('marketValue').value.replace(/,/g, ''));
+            var marketValue = parseFloat(document.getElementById('marketValue').value.replace(/,/g, '')) || 0;
             var isNationalHousingSize = document.getElementById('nationalHousingSize').checked;
-            var isFirstTimeHomeBuyer = document.getElementById('firstTimeHomeBuyer').checked;
+            var isSpecial = document.getElementById('firstTimeHomeBuyer').checked;
+            var paidTax = parseFloat(document.getElementById('paidTax').value.replace(/,/g, '')) || 0;
 
-            var taxRate = 3.16; // Default tax rate
+            var acqRate = isSpecial ? 0.8 : 2.8;
+            var eduRate = 0.16;
+            var agRate = (isSpecial || isNationalHousingSize) ? 0 : 0.2;
 
-            if (isFirstTimeHomeBuyer) {
-                taxRate = 0.96;
-            } else if (isNationalHousingSize) {
-                taxRate = 2.96;
+            var acqTax = Math.floor(marketValue * acqRate / 100);
+            var eduTax = Math.floor(marketValue * eduRate / 100);
+            var agTax = Math.floor(marketValue * agRate / 100);
+            var total = acqTax + eduTax + agTax;
+
+            var rows = [
+                ['취득세', acqRate + '%', acqTax],
+                ['지방교육세', eduRate + '%', eduTax],
+                ['농어촌특별세', agRate + '%', agTax],
+                ['합계', (acqRate + eduRate + agRate).toFixed(2) + '%', total]
+            ];
+            document.getElementById('taxTableBody').innerHTML = rows.map(function (r) {
+                return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td style="text-align:right;">' + r[2].toLocaleString() + '원</td></tr>';
+            }).join('');
+            document.getElementById('taxTable').style.display = 'table';
+
+            var msg = '내야 할 취득세 합계: ' + total.toLocaleString() + '원';
+            if (paidTax > 0) {
+                var diff = paidTax - total;
+                msg += diff > 0
+                    ? ' → 이미 낸 세금이 ' + diff.toLocaleString() + '원 더 많습니다. 경정청구로 환급을 검토해 보세요.'
+                    : ' → 더 낸 세금은 없는 것으로 계산됩니다.';
             }
-
-            var tax = marketValue * (taxRate / 100);
-            document.getElementById('result').innerText = ` ${tax.toLocaleString()}원`;
-            document.getElementById('result').style.display = 'block'; // Show the result
-            document.getElementById('taxTable').style.display = 'table'; // Show the tax table
-
-            var result = "계산된 취득세: ..."; // 실제 계산 결과로 대체하세요
-            document.getElementById('result').innerText = result;
-            }
-
-
-    function saveContent() {
-    var data = {
-        marketValue: document.getElementById('marketValue').value,
-        nationalHousing: document.querySelector('input[name="nationalHousing"]:checked')?.value,
-        firstTimeHomeBuyer: document.querySelector('input[name="firstTimeHomeBuyer"]:checked')?.value,
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        message: document.getElementById('message').value
-    };
-
-    localStorage.setItem('taxCalculationData', JSON.stringify(data));
-    alert('데이터가 저장되었습니다.');
-   }
-
-
-    function loadContent() {
-        const savedData = localStorage.getItem('taxCalculationData');
-        if (savedData) {
-            const data = JSON.parse(savedData);
-
-            document.getElementById('marketValue').value = data.marketValue || '';
-
-            if (data.nationalHousing) {
-                document.querySelector(`input[name="nationalHousing"][value="${data.nationalHousing}"]`).checked = true;
-            }
-
-            if (data.firstTimeHomeBuyer) {
-                document.querySelector(`input[name="firstTimeHomeBuyer"][value="${data.firstTimeHomeBuyer}"]`).checked = true;
-            }
-
-            document.getElementById('name').value = data.name || '';
-            document.getElementById('email').value = data.email || '';
-            document.getElementById('phone').value = data.phone || '';
-            document.getElementById('message').value = data.message || '';
-
-            alert('저장된 데이터를 불러왔습니다.');
-        } else {
-            alert('저장된 데이터가 없습니다.');
+            document.getElementById('result').innerText = msg;
         }
-    }
+
 
         function printContent() {
         window.print();
