@@ -169,7 +169,25 @@
                         <option value="2">2명</option>
                         <option value="3">3명</option>
                         <option value="4">4명</option>
-                        <option value="5">5명 이상</option>
+                        <option value="5">5명</option>
+                        <option value="6">6명</option>
+                        <option value="7">7명</option>
+                        <option value="8">8명</option>
+                        <option value="9">9명</option>
+                        <option value="10">10명</option>
+                        <option value="11">11명</option>
+                    </select>
+                </div>
+                <div class="input-group full">
+                    <label>그중 8세 이상 20세 이하 자녀 수</label>
+                    <select id="children">
+                        <option value="0">없음</option>
+                        <option value="1">1명</option>
+                        <option value="2">2명</option>
+                        <option value="3">3명</option>
+                        <option value="4">4명</option>
+                        <option value="5">5명</option>
+                        <option value="6">6명</option>
                     </select>
                 </div>
             </div>
@@ -190,12 +208,31 @@
                     </select>
                 </div>
                 <div class="input-group">
-                    <label>부양가족 수</label>
+                    <label>부양가족 수 (본인 포함)</label>
                     <select id="rev-dependents">
+                        <option value="1">1명 (본인)</option>
+                        <option value="2">2명</option>
+                        <option value="3">3명</option>
+                        <option value="4">4명</option>
+                        <option value="5">5명</option>
+                        <option value="6">6명</option>
+                        <option value="7">7명</option>
+                        <option value="8">8명</option>
+                        <option value="9">9명</option>
+                        <option value="10">10명</option>
+                        <option value="11">11명</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>8세 이상 20세 이하 자녀 수</label>
+                    <select id="rev-children">
+                        <option value="0">없음</option>
                         <option value="1">1명</option>
                         <option value="2">2명</option>
                         <option value="3">3명</option>
                         <option value="4">4명</option>
+                        <option value="5">5명</option>
+                        <option value="6">6명</option>
                     </select>
                 </div>
                 <div class="input-group full">
@@ -326,7 +363,8 @@
         '2026': {
             label: '2026년',
             pensionRate: 0.0475,      // 국민연금 (9.5% ÷ 2)
-            pensionCap: 6370000,      // 기준소득월액 상한
+            pensionCap: 6590000,      // 기준소득월액 상한 (2026.7~2027.6 / 2026.1~6월은 637만원)
+            pensionFloor: 410000,     // 기준소득월액 하한 (2026.7~ / 이전 40만원)
             healthRate: 0.03595,      // 건강보험 (7.19% ÷ 2)
             healthPremiumCap: 4591740,// 보수월액 기준 본인부담 상한(월)
             ltcRatio: 0.131405,       // 장기요양 = 건강보험료 × 비율 (0.9448% ÷ 7.19%)
@@ -335,7 +373,8 @@
         '2025': {
             label: '2025년',
             pensionRate: 0.045,       // 국민연금 (9.0% ÷ 2)
-            pensionCap: 6370000,
+            pensionCap: 6370000,      // 2025.7~2026.6
+            pensionFloor: 400000,
             healthRate: 0.03545,      // 건강보험 (7.09% ÷ 2)
             healthPremiumCap: 4504170,
             ltcRatio: 0.129506,       // 장기요양 (0.9182% ÷ 7.09%)
@@ -352,7 +391,9 @@
     // 보험료 계산 로직 (선택 연도 요율 적용)
     function calculateInsurance(salary) {
         const r = getRates();
-        const nationalPension = Math.floor(Math.min(salary, r.pensionCap) * r.pensionRate);
+        // 기준소득월액은 하한~상한 범위로 맞춤 (매년 7월 조정)
+        const pensionBase = Math.min(Math.max(salary, r.pensionFloor || 0), r.pensionCap);
+        const nationalPension = Math.floor(pensionBase * r.pensionRate);
         let healthInsurance = Math.floor(salary * r.healthRate);
         if (healthInsurance > r.healthPremiumCap) healthInsurance = r.healthPremiumCap; // 본인부담 상한
         const longTermCare = Math.floor(healthInsurance * r.ltcRatio);
@@ -448,24 +489,38 @@
         };
     }
 
+    // 8세 이상 20세 이하 자녀 세액 차감 (소득세법 시행령 별표2 비고 3, 2026.3 개정)
+    function childDeduction(kids) {
+        if (kids <= 0) return 0;
+        if (kids === 1) return 20830;
+        if (kids === 2) return 45830;
+        return 45830 + 33330 * (kids - 2);
+    }
+    // 간이세액표 세액 − 자녀 차감 (음수면 0)
+    function getIncomeTax(salary, dependents, kids) {
+        const res = getTaxFromTable(salary, dependents);
+        res.tax = Math.max(0, res.tax - childDeduction(kids || 0));
+        return res;
+    }
+
     async function calculateTax() {
         await loadTaxTable();
         const salaryType = document.getElementById('salaryType').value;
         const salaryInput = document.getElementById('salary').value;
         const inputVal = parseInt(removeCommas(salaryInput));
         const dependents = parseInt(document.getElementById('dependents').value);
-
+        const kids = parseInt(document.getElementById('children').value) || 0;
         if(!inputVal) return;
 
         let monthlyGross = salaryType === 'annual' ? Math.floor(inputVal / 12) : inputVal;
 
         // 만약 실수령액으로 입력했다면 내부적으로 역산 실행
         if(salaryType === 'net') {
-            monthlyGross = performReverse(inputVal, dependents);
+            monthlyGross = performReverse(inputVal, dependents, kids);
         }
 
         const ins = calculateInsurance(monthlyGross);
-        const taxRes = getTaxFromTable(monthlyGross, dependents);
+        const taxRes = getIncomeTax(monthlyGross, dependents, kids);
         
         // 토글 상태 확인
         const useNP = document.getElementById('toggle-np').checked;
@@ -508,14 +563,14 @@
         const today = new Date();
         const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
         document.getElementById('print-meta-line').textContent =
-            `적용연도 ${getRates().label} · 급여구분 ${salaryTypeMap[salaryType] || salaryType} · 부양가족 ${depSel ? depSel.text : dependents + '명'} · 출력일 ${dateStr}`;
+            `적용연도 ${getRates().label} · 급여구분 ${salaryTypeMap[salaryType] || salaryType} · 부양가족 ${depSel ? depSel.text : dependents + '명'} · 8~20세 자녀 ${kids}명 · 출력일 ${dateStr}`;
 
         document.getElementById('result').style.display = 'block';
         document.getElementById('res-main-label').textContent = "예상 월 실수령액";
     }
 
     // 역산 로직
-    function performReverse(targetNet, deps) {
+    function performReverse(targetNet, deps, kids) {
         let low = targetNet;
         let high = targetNet * 2;
         let result = targetNet;
@@ -523,7 +578,7 @@
         for(let i=0; i<50; i++) {
             let mid = Math.floor((low + high) / 2);
             let ins = calculateInsurance(mid);
-            let tax = getTaxFromTable(mid, deps).tax;
+            let tax = getIncomeTax(mid, deps, kids).tax;
             let currentNet = mid - (ins.total + tax + Math.floor(tax * 0.1));
 
             if(Math.abs(currentNet - targetNet) < 100) {
@@ -541,14 +596,15 @@
         await loadTaxTable();
         const val = parseInt(removeCommas(document.getElementById('desiredTakeHome').value));
         const deps = parseInt(document.getElementById('rev-dependents').value);
+        const kids = parseInt(document.getElementById('rev-children').value) || 0;
         if(!val) return;
-
-        const gross = performReverse(val, deps);
+        const gross = performReverse(val, deps, kids);
         
         // 결과값을 일반 계산기 필드에 넣고 계산 실행
         document.getElementById('salaryType').value = 'monthly';
         document.getElementById('salary').value = formatNumber(gross);
         document.getElementById('dependents').value = deps;
+        document.getElementById('children').value = kids;
         
         calculateTax();
         document.getElementById('res-main-label').textContent = "계산된 세전 월급여";

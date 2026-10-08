@@ -670,7 +670,9 @@ function calcInterest() {
   }
 
   const rawMonthly = yearlyDiff / 12;
-  const roundedMonthly = Math.ceil(rawMonthly / MONTHLY_ROUND_UNIT) * MONTHLY_ROUND_UNIT;
+  let roundedMonthly = Math.ceil(rawMonthly / MONTHLY_ROUND_UNIT) * MONTHLY_ROUND_UNIT;
+  // 차액이 '1천만원 이상'이면 과세되므로, 연 이자가 경계값과 정확히 같으면 한 단위 올림
+  if (roundedMonthly * 12 <= yearlyDiff) roundedMonthly += MONTHLY_ROUND_UNIT;
   $('monthly').value = roundedMonthly;
 }
 
