@@ -489,6 +489,16 @@
     /* 종료일을 비웠거나 시작일과 같으면 인쇄 시 "~ 종료일" 숨김 */
     .period-row.single-day .end-part { display: none !important; }
 
+    /* 소속·직위: 화살표 없이 글자만, 고르지 않았으면 "팀 선택/직위 선택" 대신 공란 */
+    .form-table select {
+      -webkit-appearance: none;
+      appearance: none;
+      text-align-last: center;
+    }
+    .form-table select.is-empty { color: transparent !important; }
+    /* 빈 칸의 안내 글자(이름 입력, 010-0000-0000 등)는 인쇄하지 않음 */
+    input::placeholder, textarea::placeholder { color: transparent !important; }
+
     .form-table .period-row select.period-type {
       border: none !important;
       background: transparent !important;
@@ -723,9 +733,16 @@
   document.getElementById('displayDate').textContent = formatKorDate(new Date());
 
   function savePerson() {
+    markEmptySelects();
     localStorage.setItem('hv_name',  document.getElementById('empName').value);
     localStorage.setItem('hv_team',  document.getElementById('empTeam').value);
     localStorage.setItem('hv_rank',  document.getElementById('empRank').value);
+  }
+  function markEmptySelects() {
+    ['empTeam', 'empRank'].forEach(id => {
+      const sel = document.getElementById(id);
+      sel.classList.toggle('is-empty', !sel.value);
+    });
   }
   function formatDate(input) {
     let v = input.value.replace(/\D/g, '');
@@ -854,7 +871,8 @@
   }
 
   /* 초기화 */
-  loadSaved();
+  try { loadSaved(); } catch (e) { /* 저장소를 못 쓰는 환경이면 빈 값으로 시작 */ }
+  markEmptySelects();
   calcDays();           // 기간 줄 없이 시작 → +휴가 / +반차 / +그 외 버튼으로 추가
 </script>
 </body>
