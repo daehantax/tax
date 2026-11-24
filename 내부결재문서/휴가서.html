@@ -320,10 +320,10 @@
   .period-row[data-kind="other"] .type-chip { display: none; }
   .period-row:not([data-kind="other"]) select.period-type { display: none; }
 
-  /* 기타 직접 입력 칸 */
+  /* 기타: 드롭다운 대신 직접 입력 칸으로 바뀜 (다시 바꾸려면 ✕로 줄 삭제) */
   .form-table .period-row input.other-name {
     display: none;
-    width: 96px;
+    width: 110px;
     flex-shrink: 0;
     padding: 4px 6px;
     border: 1px solid #b0b8c4;
@@ -333,6 +333,7 @@
     text-align: left;
   }
   .period-row.is-etc input.other-name { display: inline-block; }
+  .period-row.is-etc select.period-type { display: none; }
 
   /* 반차 오전/오후 토글 */
   .ampm {
@@ -523,7 +524,7 @@
       text-align: left;
       text-align-last: left;
     }
-    .period-row.is-etc.has-other-name select.period-type { display: none !important; }
+    .period-row.is-etc:not(.has-other-name) select.period-type { display: inline-block !important; }
     .period-row.is-etc:not(.has-other-name) input.other-name { display: none !important; }
     /* 빈 칸의 안내 글자(이름 입력, 010-0000-0000 등)는 인쇄하지 않음 */
     input::placeholder, textarea::placeholder { color: transparent !important; }
@@ -719,7 +720,7 @@
       <option value="기타">기타</option>
     </select>
     <!-- 기타: 휴가 이름 직접 입력 (예: 경조사, 예비군) -->
-    <input type="text" class="other-name" placeholder="직접 입력" maxlength="20" oninput="markOtherName(this)" />
+    <input type="text" class="other-name" placeholder="기타 (직접 입력)" maxlength="20" oninput="markOtherName(this)" />
     <div class="date-input-wrap">
       <input type="text" class="start-date" placeholder="YYYY-MM-DD" maxlength="10"
         oninput="formatDate(this); calcDays()" />
