@@ -297,17 +297,51 @@
     text-align: left;
     flex-shrink: 0;
   }
-  .form-table .period-row select.bancha-time {
-    width: auto;
-    min-width: 56px;
-    padding: 4px 6px;
+  /* 종류 표시: 휴가·반차는 칩, 그 외는 드롭다운 */
+  .type-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    padding: 4px 10px;
+    border: 1px solid #b0b8c4;
+    border-radius: 4px;
+    background: #e8f0fa;
+    color: #2c3e50;
+    font-size: 9.5pt;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .period-row[data-kind="반차"] .type-chip {
+    background: #fff3d6;
+    border-color: #d6b76e;
+    color: #6b4f00;
+  }
+  .period-row[data-kind="other"] .type-chip { display: none; }
+  .period-row:not([data-kind="other"]) select.period-type { display: none; }
+
+  /* 반차 오전/오후 토글 */
+  .ampm {
+    display: none;
     border: 1px solid #d6b76e;
     border-radius: 4px;
-    background: #fff8e1;
-    color: #6b4f00;
-    font-size: 9.5pt;
-    text-align: left;
+    overflow: hidden;
     flex-shrink: 0;
+  }
+  .period-row[data-kind="반차"] .ampm { display: inline-flex; }
+  .ampm button {
+    font-family: inherit;
+    font-size: 9.5pt;
+    padding: 4px 12px;
+    border: none;
+    background: transparent;
+    color: #6b4f00;
+    cursor: pointer;
+  }
+  .ampm button[aria-pressed="true"] {
+    background: #6b4f00;
+    color: #fff;
+    font-weight: 700;
   }
   .date-input-wrap {
     display: flex;
@@ -353,6 +387,8 @@
     z-index: 2;
   }
   .cal-btn:hover { opacity: 0.7; }
+  .end-part { display: flex; align-items: center; gap: 6px; }
+  .period-row[data-kind="반차"] .end-part { display: none; }
   .period-sep { font-size: 12pt; color: #555; }
   .period-days {
     font-size: 9.5pt;
@@ -373,8 +409,31 @@
     flex-shrink: 0;
   }
   .remove-period-btn:hover { color: #c0392b; }
-  .add-period-btn {
+  .period-empty {
+    font-size: 9.5pt;
+    color: #8995a4;
+    padding: 2px 0;
+  }
+  .period-empty[hidden] { display: none; }
+  .add-period-btns {
+    display: flex;
+    gap: 8px;
     margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .add-period-btn.main {
+    border-style: solid;
+    border-color: #2c3e50;
+    font-weight: 700;
+  }
+  .add-period-btn.half {
+    border-style: solid;
+    border-color: #d6b76e;
+    color: #6b4f00;
+    font-weight: 700;
+  }
+  .add-period-btn.half:hover { background: #fff3d6; border-color: #b8963f; }
+  .add-period-btn {
     background: transparent;
     border: 1px dashed #8995a4;
     color: #2c3e50;
@@ -419,10 +478,16 @@
     textarea, input[type="text"], input[type="tel"] {
       border-bottom-color: transparent !important;
     }
-    .add-period-btn, .remove-period-btn, .cal-btn { display: none !important; }
+    .add-period-btns, .period-empty, .remove-period-btn, .cal-btn { display: none !important; }
+    /* 칩은 글자만, 반차는 고른 쪽(오전/오후)만 인쇄 */
+    .type-chip { border: none !important; background: transparent !important; padding: 2px 4px; min-width: 0; color: #1a1a1a !important; font-weight: 400; }
+    .ampm { border: none !important; }
+    .ampm button { background: transparent !important; color: #1a1a1a !important; font-weight: 400 !important; padding: 2px 4px; }
+    .ampm button[aria-pressed="false"] { display: none !important; }
+    /* 종료일을 비웠거나 시작일과 같으면 인쇄 시 "~ 종료일" 숨김 */
+    .period-row.single-day .end-part { display: none !important; }
 
-    .form-table .period-row select.period-type,
-    .form-table .period-row select.bancha-time {
+    .form-table .period-row select.period-type {
       border: none !important;
       background: transparent !important;
       -webkit-appearance: none;
@@ -575,7 +640,12 @@
         <div id="periodList" class="period-list">
           <!-- 기간 row 템플릿이 JS에서 추가됩니다 -->
         </div>
-        <button type="button" class="add-period-btn" onclick="addPeriod()">+ 기간 추가</button>
+        <p class="period-empty" id="periodEmpty">아래 버튼으로 휴가나 반차를 추가하세요.</p>
+        <div class="add-period-btns">
+          <button type="button" class="add-period-btn main" onclick="addPeriod('휴가')">+ 휴가</button>
+          <button type="button" class="add-period-btn half" onclick="addPeriod('반차')">+ 반차</button>
+          <button type="button" class="add-period-btn" onclick="addPeriod('other')">+ 그 외</button>
+        </div>
       </td>
     </tr>
 
@@ -598,10 +668,10 @@
 
 <!-- 기간 row 템플릿 -->
 <template id="periodRowTemplate">
+  <!-- data-kind: 휴가 / 반차 / other(병가·출산휴가·장기특별휴가·기타 중 선택) -->
   <div class="period-row">
-    <select class="period-type" onchange="onPeriodTypeChange(this); calcDays()">
-      <option value="휴가">휴가</option>
-      <option value="반차">반차</option>
+    <span class="type-chip"></span>
+    <select class="period-type" onchange="calcDays()">
       <option value="병가">병가</option>
       <option value="출산휴가">출산휴가</option>
       <option value="장기특별휴가">장기특별휴가</option>
@@ -613,19 +683,23 @@
       <input type="date" class="start-picker" onchange="syncFromPicker(this)" />
       <button class="cal-btn" type="button" onclick="openPicker(this)">📅</button>
     </div>
-    <span class="period-sep">~</span>
-    <div class="date-input-wrap">
-      <input type="text" class="end-date" placeholder="YYYY-MM-DD" maxlength="10"
-        oninput="formatDate(this); calcDays()" />
-      <input type="date" class="end-picker" onchange="syncFromPicker(this)" />
-      <button class="cal-btn" type="button" onclick="openPicker(this)">📅</button>
+    <!-- 반차: 날짜 + 오전/오후 -->
+    <div class="ampm" role="group" aria-label="오전 또는 오후">
+      <button type="button" aria-pressed="true" onclick="setAmpm(this)">오전</button>
+      <button type="button" aria-pressed="false" onclick="setAmpm(this)">오후</button>
     </div>
+    <!-- 휴가 등: ~ 종료일 (비우면 1일, 인쇄 시 숨김) -->
+    <span class="end-part">
+      <span class="period-sep">~</span>
+      <div class="date-input-wrap">
+        <input type="text" class="end-date" placeholder="종료일(선택)" maxlength="10"
+          oninput="formatDate(this); calcDays()" />
+        <input type="date" class="end-picker" onchange="syncFromPicker(this)" />
+        <button class="cal-btn" type="button" onclick="openPicker(this)">📅</button>
+      </div>
+    </span>
     <span class="period-days"></span>
     <button type="button" class="remove-period-btn" onclick="removePeriod(this)" title="이 기간 제거">✕</button>
-    <select class="bancha-time" style="display:none;">
-      <option value="오전">오전</option>
-      <option value="오후">오후</option>
-    </select>
   </div>
 </template>
 
@@ -695,39 +769,27 @@
   }
 
   /* ── 기간 row 관리 ── */
-  function addPeriod() {
+  /* kind: '휴가' | '반차' | 'other'(병가·출산휴가·장기특별휴가·기타 드롭다운) */
+  function addPeriod(kind) {
     const tpl = document.getElementById('periodRowTemplate');
     const node = tpl.content.firstElementChild.cloneNode(true);
+    node.dataset.kind = kind;
+    if (kind !== 'other') node.querySelector('.type-chip').textContent = kind;
     document.getElementById('periodList').appendChild(node);
     calcDays();
+    node.querySelector('.start-date').focus();
   }
   function removePeriod(btn) {
-    const rows = document.querySelectorAll('.period-row');
-    const row = btn.closest('.period-row');
-    if (rows.length <= 1) {
-      // 마지막 한 줄은 지우지 않고 입력값만 비움
-      row.querySelector('.period-type').value = '휴가';
-      row.querySelector('.bancha-time').style.display = 'none';
-      row.querySelector('.bancha-time').value = '오전';
-      row.querySelector('.start-date').value = '';
-      row.querySelector('.end-date').value = '';
-      const sp = row.querySelector('.start-picker');
-      const ep = row.querySelector('.end-picker');
-      if (sp) sp.value = '';
-      if (ep) ep.value = '';
-    } else {
-      row.remove();
-    }
+    btn.closest('.period-row').remove();
     calcDays();
   }
-  function onPeriodTypeChange(sel) {
-    const row = sel.closest('.period-row');
-    const bancha = row.querySelector('.bancha-time');
-    if (sel.value === '반차') {
-      bancha.style.display = '';
-    } else {
-      bancha.style.display = 'none';
-    }
+  function getPeriodType(row) {
+    const kind = row.dataset.kind;
+    return kind === 'other' ? row.querySelector('.period-type').value : kind;
+  }
+  function setAmpm(btn) {
+    btn.parentElement.querySelectorAll('button')
+      .forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
   }
 
   /* 모든 기간 row를 합산해 구분 배지 업데이트 */
@@ -735,11 +797,12 @@
     // 모든 type 합계 0으로 초기화
     const totals = { '휴가':0, '반차':0, '병가':0, '출산휴가':0, '장기특별휴가':0, '기타':0 };
 
-    const rows = document.querySelectorAll('.period-row');
+    const rows = document.querySelectorAll('#periodList .period-row');
+    document.getElementById('periodEmpty').hidden = rows.length > 0;
     rows.forEach(r => {
       const s = r.querySelector('.start-date').value;
       const e = r.querySelector('.end-date').value;
-      const type = r.querySelector('.period-type').value;
+      const type = getPeriodType(r);
       const out = r.querySelector('.period-days');
 
       // 반차는 1줄당 0.5일 (날짜 무관)
@@ -753,10 +816,11 @@
         return;
       }
 
-      // 그 외: 시작/종료일 모두 입력되어야 계산
-      if (s.length < 10 || e.length < 10) { out.textContent = ''; return; }
+      // 그 외: 시작일만 있으면 1일, 종료일까지 있으면 기간 계산
+      r.classList.toggle('single-day', e.length < 10 || e === s);
+      if (s.length < 10) { out.textContent = ''; return; }
       const start = new Date(s);
-      const end   = new Date(e);
+      const end   = e.length === 10 ? new Date(e) : start;
       if (isNaN(start) || isNaN(end) || end < start) { out.textContent = ''; return; }
 
       const rawDays = Math.round((end - start) / 86400000) + 1;
@@ -781,13 +845,13 @@
     if (!confirm('작성 내용을 초기화할까요?\n(저장된 이름·팀·직위·연락처는 유지됩니다)')) return;
     document.getElementById('reason').value = '개인사정';
     document.getElementById('periodList').innerHTML = '';
-    addPeriod();
+    calcDays();
     document.getElementById('displayDate').textContent = formatKorDate(new Date());
   }
 
   /* 초기화 */
   loadSaved();
-  addPeriod();          // 첫 기간 줄 자동 생성
+  calcDays();           // 기간 줄 없이 시작 → +휴가 / +반차 / +그 외 버튼으로 추가
 </script>
 </body>
 </html>
