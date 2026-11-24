@@ -320,6 +320,20 @@
   .period-row[data-kind="other"] .type-chip { display: none; }
   .period-row:not([data-kind="other"]) select.period-type { display: none; }
 
+  /* 기타 직접 입력 칸 */
+  .form-table .period-row input.other-name {
+    display: none;
+    width: 96px;
+    flex-shrink: 0;
+    padding: 4px 6px;
+    border: 1px solid #b0b8c4;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 9.5pt;
+    text-align: left;
+  }
+  .period-row.is-etc input.other-name { display: inline-block; }
+
   /* 반차 오전/오후 토글 */
   .ampm {
     display: none;
@@ -496,6 +510,21 @@
       text-align-last: center;
     }
     .form-table select.is-empty { color: transparent !important; }
+    /* 기타: 직접 입력한 이름이 있으면 그 글자만, 없으면 "기타" */
+    .form-table .period-row input.other-name { border: none !important; background: transparent !important; }
+    /* 종류 칸 폭을 맞춰 날짜가 줄마다 같은 자리에서 시작하게 */
+    .period-row .type-chip,
+    .form-table .period-row select.period-type,
+    .form-table .period-row input.other-name {
+      width: 86px !important;
+      min-width: 86px;
+      padding: 2px 4px;
+      justify-content: flex-start;
+      text-align: left;
+      text-align-last: left;
+    }
+    .period-row.is-etc.has-other-name select.period-type { display: none !important; }
+    .period-row.is-etc:not(.has-other-name) input.other-name { display: none !important; }
     /* 빈 칸의 안내 글자(이름 입력, 010-0000-0000 등)는 인쇄하지 않음 */
     input::placeholder, textarea::placeholder { color: transparent !important; }
 
@@ -683,12 +712,14 @@
   <!-- data-kind: 휴가 / 반차 / other(병가·출산휴가·장기특별휴가·기타 중 선택) -->
   <div class="period-row">
     <span class="type-chip"></span>
-    <select class="period-type" onchange="calcDays()">
+    <select class="period-type" onchange="onOtherTypeChange(this)">
       <option value="병가">병가</option>
       <option value="출산휴가">출산휴가</option>
       <option value="장기특별휴가">장기특별휴가</option>
       <option value="기타">기타</option>
     </select>
+    <!-- 기타: 휴가 이름 직접 입력 (예: 경조사, 예비군) -->
+    <input type="text" class="other-name" placeholder="직접 입력" maxlength="20" oninput="markOtherName(this)" />
     <div class="date-input-wrap">
       <input type="text" class="start-date" placeholder="YYYY-MM-DD" maxlength="10"
         oninput="formatDate(this); calcDays()" />
@@ -806,6 +837,16 @@
   function getPeriodType(row) {
     const kind = row.dataset.kind;
     return kind === 'other' ? row.querySelector('.period-type').value : kind;
+  }
+  function onOtherTypeChange(sel) {
+    const row = sel.closest('.period-row');
+    const isEtc = sel.value === '기타';
+    row.classList.toggle('is-etc', isEtc);
+    if (isEtc) row.querySelector('.other-name').focus();
+    calcDays();
+  }
+  function markOtherName(input) {
+    input.closest('.period-row').classList.toggle('has-other-name', input.value.trim() !== '');
   }
   function setAmpm(btn) {
     btn.parentElement.querySelectorAll('button')
